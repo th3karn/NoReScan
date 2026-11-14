@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { normalizePath, assertPathContained, getRelativePath, isSensitivePath } from '../src/path.js';
 import { SecurityViolationError } from '../src/errors.js';
 import path from 'node:path';
+import os from 'node:os';
 
 describe('path utilities', () => {
   it('normalizes backslashes to forward slashes', () => {
@@ -14,15 +15,15 @@ describe('path utilities', () => {
   });
 
   it('asserts path containment correctly', () => {
-    const root = 'C:/projects/my-repo';
+    const root = path.resolve(os.tmpdir(), 'norescan-test-repo');
     const safeTarget = 'src/index.ts';
     const result = assertPathContained(safeTarget, root);
-    expect(result).toBe('C:/projects/my-repo/src/index.ts');
+    expect(result).toBe(normalizePath(path.join(root, 'src', 'index.ts')));
   });
 
   it('throws SecurityViolationError when path escapes root', () => {
-    const root = 'C:/projects/my-repo';
-    const escapeTarget = '../../Windows/System32/cmd.exe';
+    const root = path.resolve(os.tmpdir(), 'norescan-test-repo');
+    const escapeTarget = '../../../../../../etc/passwd';
     expect(() => assertPathContained(escapeTarget, root)).toThrow(SecurityViolationError);
   });
 

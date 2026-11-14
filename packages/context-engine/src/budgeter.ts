@@ -1,4 +1,4 @@
-import { TaskContextManifest } from '@norescan/shared';
+import { TaskContextManifest, normalizePath } from '@norescan/shared';
 
 export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 4);
@@ -33,7 +33,9 @@ export function formatManifestToMarkdown(manifest: TaskContextManifest, projectR
   lines.push(`## Relevant Files (${manifest.files.length})`);
   lines.push('');
   for (const f of manifest.files) {
-    const fullUrl = `file:///${projectRoot.replace(/\\/g, '/')}/${f.relativePath}`;
+    const cleanRoot = normalizePath(projectRoot).replace(/^\/+/, '');
+    const cleanRel = normalizePath(f.relativePath);
+    const fullUrl = `file:///${cleanRoot}/${cleanRel}`;
     const statusBadge = f.status === 'valid' ? '`valid`' : '`stale - needs inspection`';
     lines.push(`### [${f.relativePath}](${fullUrl}) — ${statusBadge}`);
     lines.push(`- **Summary:** ${f.summary}`);
