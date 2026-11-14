@@ -174,3 +174,4 @@ export class JavaAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

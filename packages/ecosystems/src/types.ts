@@ -147,3 +147,4 @@ export interface EcosystemAdapter {
   suggestCommands(projectRoot: string): Promise<ProjectCommand[]>;
   checkEnvironment?(projectRoot: string): Promise<RuntimeEnvironment[]>;
 }
+

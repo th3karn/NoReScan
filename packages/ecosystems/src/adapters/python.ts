@@ -233,3 +233,4 @@ export class PythonAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

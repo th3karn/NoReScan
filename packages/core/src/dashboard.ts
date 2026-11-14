@@ -605,3 +605,4 @@ export function renderDashboardHtml(projectName: string, graphData: CausalGraphD
 </body>
 </html>`;
 }
+

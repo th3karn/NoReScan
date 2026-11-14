@@ -65,3 +65,4 @@ BugBrain is built on a **Local-First, Cloud-Optional** synchronization philosoph
 2. **Strict Privacy Invariant:** **Source code never leaves the developer's machine.** Cloud and peer synchronization strictly syncs cryptographic content hashes, dependency edges, file paths, high-level AST summaries, and Architectural Decision Records (ADRs).
 3. **Deterministic Merge Resolution:** Structured records merge deterministically using vector clocks and Lamport timestamps. Decisions (ADRs) are append-only.
 4. **Offline Change Queue:** When working offline or without network access, local mutations are queued in `sync_offline_queue`. When connectivity resumes, the queue flushes smoothly with conflict detection.
+

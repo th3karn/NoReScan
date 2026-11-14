@@ -152,3 +152,4 @@ export class CppAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

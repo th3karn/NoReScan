@@ -178,3 +178,4 @@ class BugBrainClient:
         )
         with urllib.request.urlopen(req) as resp:
             return json.loads(resp.read().decode("utf-8"))
+

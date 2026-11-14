@@ -146,3 +146,4 @@ export class GoAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

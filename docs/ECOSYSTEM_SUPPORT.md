@@ -46,3 +46,4 @@ BugBrain automatically parses package manifests and project files to extract saf
 Every command executed via `bugbrain run <cmd>` or MCP `execute_command` passes through the `SafeCommandRunner` security policy:
 - **Permanently Blocked:** Arbitrary pipe-to-shell patterns (`curl | sh`, `wget | bash`), fork bombs, recursive filesystem destruction (`rm -rf /`), destructive disk operations.
 - **Pre-flight Inspection:** Commands declare working directories, network requirements, and side effects.
+

@@ -89,3 +89,4 @@ export class RubyAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

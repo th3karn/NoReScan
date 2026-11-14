@@ -174,3 +174,4 @@ export class RustAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

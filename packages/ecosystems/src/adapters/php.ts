@@ -91,3 +91,4 @@ export class PhpAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

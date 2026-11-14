@@ -94,3 +94,4 @@ export class DotnetAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

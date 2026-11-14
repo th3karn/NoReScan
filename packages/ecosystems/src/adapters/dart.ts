@@ -104,3 +104,4 @@ export class DartAdapter implements EcosystemAdapter {
     return this.extractCommands(projectRoot);
   }
 }
+

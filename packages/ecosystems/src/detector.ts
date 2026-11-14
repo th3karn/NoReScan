@@ -292,3 +292,4 @@ export class UniversalLanguageDetector {
     return Array.from(new Set(frameworks));
   }
 }
+
