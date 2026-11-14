@@ -1,7 +1,7 @@
-# code-cache — Model Context Protocol (MCP) Reference
+# norescan — Model Context Protocol (MCP) Reference
 
-**Server Name:** `code-cache`  
-**URI Namespace:** `code-cache://`  
+**Server Name:** `norescan`  
+**URI Namespace:** `norescan://`  
 **Transport:** `stdio` (StdioServerTransport)  
 
 ---
@@ -27,10 +27,10 @@
 
 ## 2. Exposed Resources
 
-- `code-cache://project/overview`
-- `code-cache://project/status`
-- `code-cache://project/architecture`
-- `code-cache://project/files`
-- `code-cache://project/decisions`
-- `code-cache://session/latest`
+- `norescan://project/overview`
+- `norescan://project/status`
+- `norescan://project/architecture`
+- `norescan://project/files`
+- `norescan://project/decisions`
+- `norescan://session/latest`
 

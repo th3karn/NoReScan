@@ -1,13 +1,13 @@
 {
-    "name": "@code-cache/cli",
+    "name": "@norescan/cli",
     "version": "0.1.1",
     "description": "Universal persistent codebase memory CLI for AI coding agents",
     "license": "Apache-2.0",
     "author": "LostGit Solutions",
-    "homepage": "https://github.com/th3karn/code-cache#readme",
+    "homepage": "https://github.com/th3karn/NoReScan#readme",
     "repository": {
         "type": "git",
-        "url": "https://github.com/th3karn/code-cache.git",
+        "url": "https://github.com/th3karn/NoReScan.git",
         "directory": "packages/cli"
     },
     "keywords": [
@@ -23,8 +23,9 @@
         "developer-tools"
     ],
     "bin": {
-        "code-cache": "./dist/bin.js",
-        "codecache": "./dist/bin.js"
+        "norescan": "./dist/bin.js",
+        "no-rescan": "./dist/bin.js",
+        "norescan": "./dist/bin.js"
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -41,10 +42,10 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/agent-adapters": "workspace:*",
-        "@code-cache/core": "workspace:*",
-        "@code-cache/mcp": "workspace:*",
-        "@code-cache/shared": "workspace:*",
+        "@norescan/agent-adapters": "workspace:*",
+        "@norescan/core": "workspace:*",
+        "@norescan/mcp": "workspace:*",
+        "@norescan/shared": "workspace:*",
         "@modelcontextprotocol/sdk": "^1.6.1",
         "commander": "^13.1.0",
         "picocolors": "^1.1.1"

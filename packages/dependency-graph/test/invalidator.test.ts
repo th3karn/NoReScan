@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { DependencyGraph, ConservativeInvalidator, haveExportsChanged } from '../src/index.js';
-import { ExportDefinition } from '@code-cache/shared';
+import { ExportDefinition } from '@norescan/shared';
 
 describe('Conservative Invalidator (ADR-0003)', () => {
   it('detects export changes accurately', () => {

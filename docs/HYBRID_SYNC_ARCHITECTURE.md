@@ -1,7 +1,7 @@
 # HYBRID MEMORY & SYNCHRONIZATION ARCHITECTURE
 ## Architecture Section 11 — Specification & Implementation
 
-code-cache implements a **Local-First, Cloud-Optional** hybrid memory model. Local memory on the developer's machine is the single primary source of truth for the active repository. Cloud memory is an optional synchronization layer for sharing architectural intelligence across authorized devices and team members.
+norescan implements a **Local-First, Cloud-Optional** hybrid memory model. Local memory on the developer's machine is the single primary source of truth for the active repository. Cloud memory is an optional synchronization layer for sharing architectural intelligence across authorized devices and team members.
 
 ---
 
@@ -11,14 +11,14 @@ code-cache implements a **Local-First, Cloud-Optional** hybrid memory model. Loc
 ┌────────────────────────────────────────────────────────┐
 │                   Developer Machine                    │
 │   - Project Files (on physical disk)                   │
-│   - SQLite Database (`.code-cache/code-cache.db`)           │
+│   - SQLite Database (`.norescan/norescan.db`)           │
 │   - Offline Sync Queue (`sync_offline_queue`)          │
 │   - Sync Cursors (`sync_cursors`)                      │
 └───────────────────────────┬────────────────────────────┘
                             │ Opt-in Sync (HTTPS / TLS)
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│                   code-cache Cloud                       │
+│                   norescan Cloud                       │
 │   - Authentication & Device Authorization              │
 │   - PostgreSQL Storage Engine                          │
 │   - Encrypted Architectural Memory Records             │
@@ -39,7 +39,7 @@ code-cache implements a **Local-First, Cloud-Optional** hybrid memory model. Loc
 
 | Rule | Implementation Guarantee |
 | :--- | :--- |
-| **Local Independence** | Local operation **never** depends on cloud availability. code-cache operates at 100% capacity in air-gapped or offline environments. |
+| **Local Independence** | Local operation **never** depends on cloud availability. norescan operates at 100% capacity in air-gapped or offline environments. |
 | **Stable Identifiers** | All entities (projects, files, ADRs, queue items) utilize cryptographically secure UUIDv4 identifiers. |
 | **Cursor Tracking** | Each device tracks a logical timestamp and revision counter in `sync_cursors`. |
 | **Offline Change Queue** | Local mutations offline are stored in `sync_offline_queue` with status `PENDING`. |
@@ -93,9 +93,9 @@ CREATE TABLE sync_offline_queue (
 
 ```bash
 # Check hybrid synchronization status and device ID
-code-cache sync status
+norescan sync status
 
 # Generate sanitized push payload (source code stripped by policy)
-code-cache sync push
+norescan sync push
 ```
 

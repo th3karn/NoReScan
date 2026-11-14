@@ -1,6 +1,6 @@
-# code-cache — Phase 7 Completion Report (CLI Implementation)
+# norescan — Phase 7 Completion Report (CLI Implementation)
 
-**Phase:** Phase 7 — Production CLI Implementation (`code-cache`)  
+**Phase:** Phase 7 — Production CLI Implementation (`norescan`)  
 **Status:** Completed & Verified  
 **Date:** 2026-11-14  
 **Auditor/Engineer:** LostGit Solutions Engineering Team  
@@ -9,21 +9,21 @@
 
 ## 1. What Was Implemented
 
-1. **`@code-cache/core` Package:**
-   - Unified orchestration engine integrating `@code-cache/scanner`, `@code-cache/fingerprint`, `@code-cache/database`, `@code-cache/analyzer`, `@code-cache/dependency-graph`, and `@code-cache/context-engine`.
+1. **`@norescan/core` Package:**
+   - Unified orchestration engine integrating `@norescan/scanner`, `@norescan/fingerprint`, `@norescan/database`, `@norescan/analyzer`, `@norescan/dependency-graph`, and `@norescan/context-engine`.
    - Workflows: `init()`, `scan()`, `getStatus()`, `explain()`, `doctor()`, and `clean()`.
    - Foreign key integrity bug identified and resolved in `FileRepository.upsertFile`.
-2. **`code-cache` CLI Binary Package (`packages/cli`):**
-   - Built with Commander.js, featuring an executable bin (`bin/code-cache.js`).
+2. **`norescan` CLI Binary Package (`packages/cli`):**
+   - Built with Commander.js, featuring an executable bin (`bin/norescan.js`).
    - Supports commands:
-     - `code-cache init [name]`
-     - `code-cache scan [--force]`
-     - `code-cache status`
-     - `code-cache context <query> [--budget <tokens>] [--format <markdown|json>]`
-     - `code-cache explain <path>`
-     - `code-cache decisions [list | add]`
-     - `code-cache doctor`
-     - `code-cache clean [--stale | --all]`
+     - `norescan init [name]`
+     - `norescan scan [--force]`
+     - `norescan status`
+     - `norescan context <query> [--budget <tokens>] [--format <markdown|json>]`
+     - `norescan explain <path>`
+     - `norescan decisions [list | add]`
+     - `norescan doctor`
+     - `norescan clean [--stale | --all]`
    - Formatter supporting pure parseable JSON (`--json`), human terminal output with ANSI colors, `--quiet`, and `--project <path>`.
 
 ---
@@ -47,8 +47,8 @@
 
 ## 3. Tests Executed & Results
 
-- **`@code-cache/core`:** 5 integration tests passed (lifecycle, caching reuse, incremental modification, context retrieval, system doctor).
-- **`code-cache` CLI:** 2 tests passed (CLI options, JSON parsing, end-to-end execution).
+- **`@norescan/core`:** 5 integration tests passed (lifecycle, caching reuse, incremental modification, context retrieval, system doctor).
+- **`norescan` CLI:** 2 tests passed (CLI options, JSON parsing, end-to-end execution).
 - **Manual CLI Verification:** `node ./packages/cli/dist/bin.js --help` verified with 0 errors.
 - **Cumulative Repository Tests:** 44 tests passed across 9 packages, 0 failures.
 

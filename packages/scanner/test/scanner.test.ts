@@ -8,7 +8,7 @@ describe('FileScanner', () => {
   let tempDir: string;
 
   beforeAll(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-scan-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'norescan-scan-test-'));
 
     // Create test structure
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });

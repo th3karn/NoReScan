@@ -1,17 +1,17 @@
-# code-cache
+# NoReScan
 
 > **Your AI's brain for your codebase.**  
 > *Stop making your AI rediscover everything.*
 
-[![CI](https://github.com/th3karn/code-cache/actions/workflows/ci.yml/badge.svg)](https://github.com/th3karn/code-cache/actions)
+[![CI](https://github.com/th3karn/NoReScan/actions/workflows/ci.yml/badge.svg)](https://github.com/th3karn/NoReScan/actions)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org/)
 
-**code-cache** is a universal, persistent, local-first codebase-memory infrastructure for AI coding agents. It maintains a verified index of your codebase (SHA-256 fingerprints, AST structures, module dependencies, blast-radius graphs, and technical decisions) so agents never have to re-discover or re-read unchanged files repeatedly.
+**NoReScan** is a universal, persistent, local-first codebase-memory infrastructure for AI coding agents. It maintains a verified index of your codebase (SHA-256 fingerprints, AST structures, module dependencies, blast-radius graphs, and technical decisions) so agents never have to re-discover or re-read unchanged files repeatedly.
 
 ---
 
-## The Problem code-cache Solves
+## The Problem norescan Solves
 
 When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, OpenAI Codex, GitHub Copilot) start a task, they routinely:
 - **Re-read dozens of unchanged files** to reconstruct context.
@@ -19,13 +19,13 @@ When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, Op
 - **Waste tokens and latency** on redundant codebase exploration.
 - **Lose architectural decisions** across conversation sessions.
 
-**code-cache** acts as an intelligent memory layer between your repository and AI agents:
+**norescan** acts as an intelligent memory layer between your repository and AI agents:
 1. **Cryptographic Fingerprints (SHA-256):** Unchanged files reuse verified structural analyses with zero re-reads.
-2. **Conservative Invalidation:** When a file changes, code-cache evaluates whether its public exported interface changed. If only internal implementation changed, dependent caches remain valid.
+2. **Conservative Invalidation:** When a file changes, norescan evaluates whether its public exported interface changed. If only internal implementation changed, dependent caches remain valid.
 3. **Task-Based Context Engine:** Retrieves only relevant files, dependencies, and decisions within a token budget.
 4. **Universal Agent Bridge:** Official Model Context Protocol (MCP) server + portable Agent Skill + adapters for Antigravity, Cursor, Claude Code, and Codex.
-5. **100% Local-First:** Powered by native SQLite in WAL mode (`.code-cache/code-cache.db`). Zero mandatory external APIs or cloud accounts.
-6. **Safe Legacy Migration:** Automatic, non-destructive migration from legacy `.repomind/` to `.code-cache/` with automatic backups.
+5. **100% Local-First:** Powered by native SQLite in WAL mode (`.norescan/norescan.db`). Zero mandatory external APIs or cloud accounts.
+6. **Safe Legacy Migration:** Automatic, non-destructive migration from legacy `.repomind/` to `.norescan/` with automatic backups.
 
 ---
 
@@ -39,14 +39,14 @@ When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, Op
                       +--------------+--------------+
                       |                             |
                       v                             v
-              [ code-cache CLI ]              [ code-cache MCP Server ]
-             (code-cache binary)              (stdio transport)
+              [ norescan CLI ]              [ norescan MCP Server ]
+             (norescan binary)              (stdio transport)
                       |                             |
                       +--------------+--------------+
                                      |
                                      v
                       +-----------------------------+
-                      |        code-cache Core        |
+                      |        norescan Core        |
                       +-----------------------------+
                       | * Scanner & Ignore Engine   |
                       | * SHA-256 Hasher & Diff     |
@@ -59,7 +59,7 @@ When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, Op
                                      v
                       +-----------------------------+
                       |     Local SQLite Store      |
-                      |   (.code-cache/code-cache.db)   |
+                      |   (.norescan/norescan.db)   |
                       +-----------------------------+
 ```
 
@@ -70,9 +70,9 @@ When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, Op
 ### 1. Installation
 
 ```bash
-npm install -g code-cache
-# or with pnpm
-pnpm add -g code-cache
+npm install -g @norescan/cli
+# or run directly with npx
+npx @norescan/cli <command>
 ```
 
 ### 2. Initialize and Index Your Repository
@@ -80,14 +80,14 @@ pnpm add -g code-cache
 ```bash
 cd my-project
 
-# Initialize code-cache workspace
-code-cache init
+# Initialize norescan workspace
+norescan init
 
 # Perform initial scan and indexing
-code-cache scan
+norescan scan
 
 # View memory health and status
-code-cache status
+norescan status
 ```
 
 ### 3. Retrieve Context for a Task
@@ -95,28 +95,28 @@ code-cache status
 Before asking an AI agent to implement a feature:
 
 ```bash
-code-cache context "Update user authentication and JWT session validation" --budget 8000
+norescan context "Update user authentication and JWT session validation" --budget 8000
 ```
 
 ### 4. Connect Your Coding Agent
 
-code-cache comes with adapters for major AI coding assistants:
+norescan comes with adapters for major AI coding assistants:
 
 ```bash
 # List supported agent integrations
-code-cache agent list
+norescan agent list
 
 # Install adapter for Google Antigravity
-code-cache agent install antigravity
+norescan agent install antigravity
 
 # Install adapter for Cursor / Windsurf
-code-cache agent install cursor
+norescan agent install cursor
 
 # Install adapter for Claude Code
-code-cache agent install claude-code
+norescan agent install claude-code
 
 # Install adapter for VS Code / GitHub Copilot
-code-cache agent install vscode
+norescan agent install vscode
 ```
 
 ---
@@ -125,28 +125,28 @@ code-cache agent install vscode
 
 | Command | Description |
 | :--- | :--- |
-| `code-cache init [name]` | Initialize code-cache in the repository |
-| `code-cache scan [--force]` | Incrementally scan and index modified/added files |
-| `code-cache refresh [path]` | Re-analyze a specific file or all modified files |
-| `code-cache status` | Display persistent memory statistics and cache health |
-| `code-cache context <query>` | Retrieve task-specific context manifest within token budget |
-| `code-cache analyze <path>` | Run structural AST analysis on a file and display metadata |
-| `code-cache explain <path>` | Explain stored AST analysis, exports, and dependencies for a file |
-| `code-cache diff` | Show added, modified, deleted, and unchanged files vs stored memory |
-| `code-cache deps <path>` | Inspect file dependencies, blast radius, and circular dependencies |
-| `code-cache search <query>` | Search project memory across file paths, symbols, routes, and ADRs |
-| `code-cache decisions [list\|add]` | View or record Architectural Decision Records (ADRs) |
-| `code-cache history` | View agent session activity history and tasks |
-| `code-cache watch` | Watch workspace for file changes and auto-index in real-time |
-| `code-cache mcp` | Run the code-cache Model Context Protocol server on stdio |
-| `code-cache agent [list\|install\|uninstall\|validate]` | Manage integrations for Antigravity, Cursor, Claude Code, Codex |
-| `code-cache skill [list\|install\|validate]` | Manage code-cache Agent Skills |
-| `code-cache doctor` | Verify SQLite database integrity and filesystem permissions |
-| `code-cache clean [--stale\|--all]`| Purge stale analyses or reset memory database |
-| `code-cache export [-o file]` | Export project memory records into portable JSON |
-| `code-cache import <file>` | Import project memory records from a JSON file into SQLite |
-| `code-cache db [status\|backup]` | Direct SQLite database inspection and atomic backup |
-| `code-cache config [list\|get\|set]` | Inspect or modify code-cache configuration |
+| `norescan init [name]` | Initialize norescan in the repository |
+| `norescan scan [--force]` | Incrementally scan and index modified/added files |
+| `norescan refresh [path]` | Re-analyze a specific file or all modified files |
+| `norescan status` | Display persistent memory statistics and cache health |
+| `norescan context <query>` | Retrieve task-specific context manifest within token budget |
+| `norescan analyze <path>` | Run structural AST analysis on a file and display metadata |
+| `norescan explain <path>` | Explain stored AST analysis, exports, and dependencies for a file |
+| `norescan diff` | Show added, modified, deleted, and unchanged files vs stored memory |
+| `norescan deps <path>` | Inspect file dependencies, blast radius, and circular dependencies |
+| `norescan search <query>` | Search project memory across file paths, symbols, routes, and ADRs |
+| `norescan decisions [list\|add]` | View or record Architectural Decision Records (ADRs) |
+| `norescan history` | View agent session activity history and tasks |
+| `norescan watch` | Watch workspace for file changes and auto-index in real-time |
+| `norescan mcp` | Run the norescan Model Context Protocol server on stdio |
+| `norescan agent [list\|install\|uninstall\|validate]` | Manage integrations for Antigravity, Cursor, Claude Code, Codex |
+| `norescan skill [list\|install\|validate]` | Manage norescan Agent Skills |
+| `norescan doctor` | Verify SQLite database integrity and filesystem permissions |
+| `norescan clean [--stale\|--all]`| Purge stale analyses or reset memory database |
+| `norescan export [-o file]` | Export project memory records into portable JSON |
+| `norescan import <file>` | Import project memory records from a JSON file into SQLite |
+| `norescan db [status\|backup]` | Direct SQLite database inspection and atomic backup |
+| `norescan config [list\|get\|set]` | Inspect or modify norescan configuration |
 
 Global flags supported by all commands:
 - `--json`: Pure parseable JSON output to stdout.
@@ -158,7 +158,7 @@ Global flags supported by all commands:
 
 ## MCP Server Specification
 
-code-cache implements the official **Model Context Protocol (MCP)** specification over stdio.
+norescan implements the official **Model Context Protocol (MCP)** specification over stdio.
 
 ### Exposed Tools (14 Tools)
 - `get_project_overview`: Architecture, languages, and directory breakdown.
@@ -177,12 +177,12 @@ code-cache implements the official **Model Context Protocol (MCP)** specificatio
 - `record_session`: Record agent turn summaries and modified files.
 
 ### Exposed Resources (6 Resources)
-- `code-cache://project/overview`: Project metadata and statistics.
-- `code-cache://project/status`: Cache freshness and file status counts.
-- `code-cache://project/decisions`: Architectural Decision Records (ADRs).
-- `code-cache://project/dependencies`: Complete directed import dependency graph.
-- `code-cache://project/hot-files`: Most load-bearing files with highest dependents.
-- `code-cache://project/schema`: Database schema definition and tables.
+- `norescan://project/overview`: Project metadata and statistics.
+- `norescan://project/status`: Cache freshness and file status counts.
+- `norescan://project/decisions`: Architectural Decision Records (ADRs).
+- `norescan://project/dependencies`: Complete directed import dependency graph.
+- `norescan://project/hot-files`: Most load-bearing files with highest dependents.
+- `norescan://project/schema`: Database schema definition and tables.
 
 ---
 
@@ -190,8 +190,8 @@ code-cache implements the official **Model Context Protocol (MCP)** specificatio
 
 | Agent | Integration Mechanism | Configuration Files |
 | :--- | :--- | :--- |
-| **Google Antigravity** | `stdio` MCP + Agent Skill | `.gemini/antigravity/mcp/code-cache.json`, `AGENTS.md` |
-| **Cursor / Windsurf** | `stdio` MCP + Project Rules | `.cursor/mcp.json`, `.cursor/rules/code-cache.mdc` |
+| **Google Antigravity** | `stdio` MCP + Agent Skill | `.gemini/antigravity/mcp/norescan.json`, `AGENTS.md` |
+| **Cursor / Windsurf** | `stdio` MCP + Project Rules | `.cursor/mcp.json`, `.cursor/rules/norescan.mdc` |
 | **Claude Code** | `stdio` MCP | `.claude/config.json`, `CLAUDE.md` |
 | **OpenAI Codex** | Direct CLI workflow | `AGENTS.md` |
 | **VS Code / Copilot** | `stdio` MCP | `.vscode/mcp.json`, `.github/copilot-instructions.md` |
@@ -200,25 +200,25 @@ code-cache implements the official **Model Context Protocol (MCP)** specificatio
 
 ## Monorepo Packages
 
-code-cache is developed as a modular TypeScript monorepo using pnpm workspaces:
+norescan is developed as a modular TypeScript monorepo using pnpm workspaces:
 
-- [`@code-cache/shared`](file:///packages/shared): Domain models, typed error hierarchy, path security, and config schemas.
-- [`@code-cache/fingerprint`](file:///packages/fingerprint): Deterministic SHA-256 content hasher and diff engine.
-- [`@code-cache/scanner`](file:///packages/scanner): Recursive directory scanner with `.gitignore` and secret exclusions.
-- [`@code-cache/database`](file:///packages/database): Native SQLite persistence (`node:sqlite`) in WAL mode with migrations.
-- [`@code-cache/analyzer`](file:///packages/analyzer): AST and lexical code parsers (TS/JS, Python, SQL, JSON).
-- [`@code-cache/dependency-graph`](file:///packages/dependency-graph): Directed graph, blast-radius calculation, and conservative invalidation.
-- [`@code-cache/context-engine`](file:///packages/context-engine): Task query ranking and token budgeting engine.
-- [`@code-cache/core`](file:///packages/core): Central coordinator orchestrating all subsystems and legacy migration.
-- [`code-cache`](file:///packages/cli): Commander.js developer CLI binary.
-- [`@code-cache/mcp`](file:///packages/mcp): Model Context Protocol server for AI coding agents.
-- [`@code-cache/agent-adapters`](file:///packages/agent-adapters): Configuration installers for Antigravity, Cursor, Claude Code, Codex.
+- [`@norescan/shared`](file:///packages/shared): Domain models, typed error hierarchy, path security, and config schemas.
+- [`@norescan/fingerprint`](file:///packages/fingerprint): Deterministic SHA-256 content hasher and diff engine.
+- [`@norescan/scanner`](file:///packages/scanner): Recursive directory scanner with `.gitignore` and secret exclusions.
+- [`@norescan/database`](file:///packages/database): Native SQLite persistence (`node:sqlite`) in WAL mode with migrations.
+- [`@norescan/analyzer`](file:///packages/analyzer): AST and lexical code parsers (TS/JS, Python, SQL, JSON).
+- [`@norescan/dependency-graph`](file:///packages/dependency-graph): Directed graph, blast-radius calculation, and conservative invalidation.
+- [`@norescan/context-engine`](file:///packages/context-engine): Task query ranking and token budgeting engine.
+- [`@norescan/core`](file:///packages/core): Central coordinator orchestrating all subsystems and legacy migration.
+- [`norescan`](file:///packages/cli): Commander.js developer CLI binary.
+- [`@norescan/mcp`](file:///packages/mcp): Model Context Protocol server for AI coding agents.
+- [`@norescan/agent-adapters`](file:///packages/agent-adapters): Configuration installers for Antigravity, Cursor, Claude Code, Codex.
 
 ---
 
 ## Security & Privacy Guarantees
 
-1. **Local-First & Offline:** 100% of memory resides in `.code-cache/code-cache.db`. Zero network calls are required.
+1. **Local-First & Offline:** 100% of memory resides in `.norescan/norescan.db`. Zero network calls are required.
 2. **Path Traversal Protection:** All file operations are verified using boundary checks to prevent directory escaping.
 3. **Hardcoded Secret Exclusions:** Credentials (`.env*`, `*.pem`, `*.key`, `id_rsa*`) are blocked at the scanner level before reading or hashing.
 4. **Parameterized SQL:** 100% of database queries use prepared statements.

@@ -222,7 +222,7 @@ importers:
 
   packages/agent-adapters:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -238,7 +238,7 @@ importers:
 
   packages/analyzer:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
       typescript:
@@ -254,16 +254,16 @@ importers:
 
   packages/cli:
     dependencies:
-      "@code-cache/agent-adapters":
+      "@norescan/agent-adapters":
         specifier: workspace:*
         version: link:../agent-adapters
-      "@code-cache/core":
+      "@norescan/core":
         specifier: workspace:*
         version: link:../core
-      "@code-cache/mcp":
+      "@norescan/mcp":
         specifier: workspace:*
         version: link:../mcp
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
       "@modelcontextprotocol/sdk":
@@ -288,13 +288,13 @@ importers:
 
   packages/context-engine:
     dependencies:
-      "@code-cache/database":
+      "@norescan/database":
         specifier: workspace:*
         version: link:../database
-      "@code-cache/dependency-graph":
+      "@norescan/dependency-graph":
         specifier: workspace:*
         version: link:../dependency-graph
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -310,28 +310,28 @@ importers:
 
   packages/core:
     dependencies:
-      "@code-cache/analyzer":
+      "@norescan/analyzer":
         specifier: workspace:*
         version: link:../analyzer
-      "@code-cache/context-engine":
+      "@norescan/context-engine":
         specifier: workspace:*
         version: link:../context-engine
-      "@code-cache/database":
+      "@norescan/database":
         specifier: workspace:*
         version: link:../database
-      "@code-cache/dependency-graph":
+      "@norescan/dependency-graph":
         specifier: workspace:*
         version: link:../dependency-graph
-      "@code-cache/ecosystems":
+      "@norescan/ecosystems":
         specifier: workspace:*
         version: link:../ecosystems
-      "@code-cache/fingerprint":
+      "@norescan/fingerprint":
         specifier: workspace:*
         version: link:../fingerprint
-      "@code-cache/scanner":
+      "@norescan/scanner":
         specifier: workspace:*
         version: link:../scanner
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -347,7 +347,7 @@ importers:
 
   packages/database:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -363,7 +363,7 @@ importers:
 
   packages/dependency-graph:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -379,7 +379,7 @@ importers:
 
   packages/ecosystems:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
       zod:
@@ -398,7 +398,7 @@ importers:
 
   packages/fingerprint:
     dependencies:
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -414,10 +414,10 @@ importers:
 
   packages/mcp:
     dependencies:
-      "@code-cache/core":
+      "@norescan/core":
         specifier: workspace:*
         version: link:../core
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
       "@modelcontextprotocol/sdk":
@@ -439,10 +439,10 @@ importers:
 
   packages/scanner:
     dependencies:
-      "@code-cache/fingerprint":
+      "@norescan/fingerprint":
         specifier: workspace:*
         version: link:../fingerprint
-      "@code-cache/shared":
+      "@norescan/shared":
         specifier: workspace:*
         version: link:../shared
       ignore:

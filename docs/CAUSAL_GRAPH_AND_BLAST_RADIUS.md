@@ -1,7 +1,7 @@
 # CAUSAL DEPENDENCY GRAPH & BLAST RADIUS CARTOGRAPHER
 ## Architecture Section 4 & Visual Intelligence
 
-code-cache includes **The Cartographer**, a specialized graph intelligence engine that models every file, module, and import dependency as a directed causal graph.
+norescan includes **The Cartographer**, a specialized graph intelligence engine that models every file, module, and import dependency as a directed causal graph.
 
 ---
 
@@ -16,16 +16,16 @@ code-cache includes **The Cartographer**, a specialized graph intelligence engin
 
 ## 2. Blast a Diff — Upstream Dependency Cone
 
-When an AI coding agent or engineer edits a file, code-cache calculates the **Blast Cone**—the transitive closure of upstream files that could experience breakage or runtime regression.
+When an AI coding agent or engineer edits a file, norescan calculates the **Blast Cone**—the transitive closure of upstream files that could experience breakage or runtime regression.
 
 ### Diff Parsing Algorithm
-code-cache parses raw `git diff` outputs across git and unified diff formats:
+norescan parses raw `git diff` outputs across git and unified diff formats:
 - `diff --git a/path/to/file.ts b/path/to/file.ts`
 - `+++ b/path/to/file.ts`
 - `--- a/path/to/file.ts`
 
 ### Upstream Traversal
-Using a breadth-first search (BFS) starting from the changed seed files, code-cache maps every upstream dependent up to `maxDepth` (default: 10), categorizing dependents by depth level:
+Using a breadth-first search (BFS) starting from the changed seed files, norescan maps every upstream dependent up to `maxDepth` (default: 10), categorizing dependents by depth level:
 - **Level 1:** Direct consumers of the changed file (immediate risk).
 - **Level 2:** Indirect consumers that rely on Level 1 modules.
 - **Level 3+:** Distant system consumers.
@@ -34,7 +34,7 @@ Using a breadth-first search (BFS) starting from the changed seed files, code-ca
 
 ## 3. Interactive Web Dashboard UI
 
-Running `code-cache serve` starts an HTTP server serving the interactive Cartographer dashboard UI:
+Running `norescan serve` starts an HTTP server serving the interactive Cartographer dashboard UI:
 - **Hot Files Panel:** Click any hot file to see its dependents highlighted.
 - **Diff Input Box:** Paste output from `git diff` or `git diff HEAD~1` and click **"💥 Blast Diff"**.
 - **Interactive Force-Directed Canvas:**
@@ -49,19 +49,19 @@ Running `code-cache serve` starts an HTTP server serving the interactive Cartogr
 
 ```bash
 # Export causal graph in mermaid flowchart format
-code-cache graph --format mermaid
+norescan graph --format mermaid
 
 # Export causal graph in Graphviz DOT format
-code-cache graph --format dot
+norescan graph --format dot
 
 # Inspect hot files with highest in-degree
-code-cache hot-files --limit 15
+norescan hot-files --limit 15
 
 # Blast a specific file or a git diff string
-code-cache blast src/auth/service.ts
-code-cache blast "$(git diff HEAD~1)"
+norescan blast src/auth/service.ts
+norescan blast "$(git diff HEAD~1)"
 
 # Start REST API and interactive Web UI
-code-cache serve --port 31415
+norescan serve --port 31415
 ```
 

@@ -1,4 +1,4 @@
-# code-cache Community Code of Conduct
+# norescan Community Code of Conduct
 
 ## Our Pledge
 

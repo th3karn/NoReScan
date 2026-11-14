@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CodeCacheConfigSchema = z.object({
+export const NoReScanConfigSchema = z.object({
   version: z.number().int().default(1),
   projectId: z.string().uuid(),
   projectName: z.string().min(1),
@@ -14,9 +14,9 @@ export const CodeCacheConfigSchema = z.object({
   }).default({ enabled: false }),
 });
 
-export type CodeCacheConfig = z.infer < typeof CodeCacheConfigSchema >;
+export type NoReScanConfig = z.infer < typeof NoReScanConfigSchema >;
 
-export const DEFAULT_CONFIG: Omit<CodeCacheConfig, 'projectId' | 'projectName' > = {
+export const DEFAULT_CONFIG: Omit<NoReScanConfig, 'projectId' | 'projectName' > = {
   version: 1,
     maxFileSizeKb: 2048,
       ignorePatterns: [],
@@ -27,7 +27,7 @@ export const DEFAULT_CONFIG: Omit<CodeCacheConfig, 'projectId' | 'projectName' >
   },
 };
 
-export function parseConfig(raw: unknown): CodeCacheConfig {
-  return CodeCacheConfigSchema.parse(raw);
+export function parseConfig(raw: unknown): NoReScanConfig {
+  return NoReScanConfigSchema.parse(raw);
 }
 

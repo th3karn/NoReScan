@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@code-cache/shared';
+import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@norescan/shared';
 
 export function parseTypeScript(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const isJsx = fileName.endsWith('.tsx') || fileName.endsWith('.jsx');

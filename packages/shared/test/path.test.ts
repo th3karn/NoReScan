@@ -6,7 +6,7 @@ import path from 'node:path';
 describe('path utilities', () => {
   it('normalizes backslashes to forward slashes', () => {
     expect(normalizePath('src\\auth\\service.ts')).toBe('src/auth/service.ts');
-    expect(normalizePath('C:\\projects\\code-cache\\src')).toBe('C:/projects/code-cache/src');
+    expect(normalizePath('C:\\projects\\norescan\\src')).toBe('C:/projects/norescan/src');
   });
 
   it('collapses consecutive slashes and strips trailing slashes', () => {

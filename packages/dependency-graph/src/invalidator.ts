@@ -1,4 +1,4 @@
-import { ExportDefinition } from '@code-cache/shared';
+import { ExportDefinition } from '@norescan/shared';
 import { DependencyGraph } from './graph.js';
 
 export interface InvalidationDecision {

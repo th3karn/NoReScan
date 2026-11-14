@@ -1,4 +1,4 @@
-# code-cache — Phase 2 Completion Report (Scanner & Fingerprint Engine)
+# norescan — Phase 2 Completion Report (Scanner & Fingerprint Engine)
 
 **Phase:** Phase 2 — Scanner & Fingerprint Engine  
 **Status:** Completed & Verified  
@@ -9,12 +9,12 @@
 
 ## 1. What Was Implemented
 
-1. **`@code-cache/fingerprint` Package:**
+1. **`@norescan/fingerprint` Package:**
    - **Deterministic SHA-256 Hasher (`src/hasher.ts`):** Fast file and buffer hashing with automatic CRLF to LF normalization to ensure cross-platform consistency between Windows, macOS, and Linux.
    - **Language Classifier & Fingerprint Generator (`src/fingerprint.ts`):** Detects file language from extensions across 25+ common formats; extracts file stats (size, mtime) and computes `FileFingerprint`.
    - **Change Detection & Diff Engine (`src/diff.ts`):** Compares current discovered fingerprints against previous snapshots. Categorizes file states into `unchanged`, `modified`, `added`, `deleted`, and accurately detects `renamed` files via matching content hashes.
-2. **`@code-cache/scanner` Package:**
-   - **Ignore Engine (`src/ignore.ts`):** Implements multi-tier ignore cascading (.gitignore + .code-cacheignore + custom patterns). Hard-filters dependency folders (`node_modules`, `.git`, `.turbo`, `dist`, `build`) and strictly blocks secrets and credentials (`.env*`, `*.pem`, `*.key`, `id_rsa*`).
+2. **`@norescan/scanner` Package:**
+   - **Ignore Engine (`src/ignore.ts`):** Implements multi-tier ignore cascading (.gitignore + .norescanignore + custom patterns). Hard-filters dependency folders (`node_modules`, `.git`, `.turbo`, `dist`, `build`) and strictly blocks secrets and credentials (`.env*`, `*.pem`, `*.key`, `id_rsa*`).
    - **Recursive Safe Scanner (`src/scanner.ts`):** Safe directory recursion with path traversal protection, symlink boundary checks (`assertPathContained` to reject symlinks pointing outside the project root), binary file filtering, and file size limits (default 2MB).
 
 ---
@@ -49,9 +49,9 @@
 
 ## 4. Tests Executed & Results
 
-- **`@code-cache/shared`:** 9 tests passed.
-- **`@code-cache/fingerprint`:** 4 tests passed (SHA-256 consistency, line-ending normalization, language detection, full diff calculation with rename detection).
-- **`@code-cache/scanner`:** 4 tests passed (ignore engine, secret exclusion, directory walk on real temporary fixture).
+- **`@norescan/shared`:** 9 tests passed.
+- **`@norescan/fingerprint`:** 4 tests passed (SHA-256 consistency, line-ending normalization, language detection, full diff calculation with rename detection).
+- **`@norescan/scanner`:** 4 tests passed (ignore engine, secret exclusion, directory walk on real temporary fixture).
 - **Total:** 17 tests passed across 7 test files, 0 failures.
 
 ---

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { normalizePath } from '@code-cache/shared';
+import { normalizePath } from '@norescan/shared';
 
 const RESOLUTION_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json', '/index.ts', '/index.js'];
 

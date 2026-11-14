@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/core",
+    "name": "@norescan/core",
     "version": "0.1.1",
-    "description": "Central coordinator and workflow engine for code-cache",
+    "description": "Central coordinator and workflow engine for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,14 +11,14 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/analyzer": "workspace:*",
-        "@code-cache/context-engine": "workspace:*",
-        "@code-cache/database": "workspace:*",
-        "@code-cache/dependency-graph": "workspace:*",
-        "@code-cache/ecosystems": "workspace:*",
-        "@code-cache/fingerprint": "workspace:*",
-        "@code-cache/scanner": "workspace:*",
-        "@code-cache/shared": "workspace:*"
+        "@norescan/analyzer": "workspace:*",
+        "@norescan/context-engine": "workspace:*",
+        "@norescan/database": "workspace:*",
+        "@norescan/dependency-graph": "workspace:*",
+        "@norescan/ecosystems": "workspace:*",
+        "@norescan/fingerprint": "workspace:*",
+        "@norescan/scanner": "workspace:*",
+        "@norescan/shared": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^22.13.10",

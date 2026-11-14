@@ -1,4 +1,4 @@
-# code-cache — API Reference
+# norescan — API Reference
 
 ---
 
@@ -24,10 +24,10 @@ export interface CliResponse<T = unknown> {
 
 ---
 
-## 2. Core Programmatic API (`@code-cache/core`)
+## 2. Core Programmatic API (`@norescan/core`)
 
 ```typescript
-import { CodeCacheCore } from '@code-cache/core';
+import { CodeCacheCore } from '@norescan/core';
 
 const core = new CodeCacheCore(process.cwd());
 await core.init('my-project');

@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/ecosystems",
+    "name": "@norescan/ecosystems",
     "version": "0.1.1",
-    "description": "Universal polyglot language detection, package manager adapters, command intelligence, and environment probing for code-cache",
+    "description": "Universal polyglot language detection, package manager adapters, command intelligence, and environment probing for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "files": [
@@ -14,7 +14,7 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/shared": "workspace:*",
+        "@norescan/shared": "workspace:*",
         "zod": "^3.24.2"
     },
     "devDependencies": {

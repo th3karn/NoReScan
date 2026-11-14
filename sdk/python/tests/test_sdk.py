@@ -6,16 +6,16 @@ import sqlite3
 import json
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from code_cache.client import CodeCacheClient
+from norescan.client import NoReScanClient
 
-class TestCodeCacheClient(unittest.TestCase):
+class TestNoReScanClient(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
-        self.code_cache_dir = os.path.join(self.temp_dir, ".code-cache")
-        os.makedirs(self.code_cache_dir)
-        self.db_path = os.path.join(self.code_cache_dir, "code-cache.db")
+        self.norescan_dir = os.path.join(self.temp_dir, ".norescan")
+        os.makedirs(self.norescan_dir)
+        self.db_path = os.path.join(self.norescan_dir, "norescan.db")
 
-        # Create mock SQLite database matching code-cache schema
+        # Create mock SQLite database matching norescan schema
         conn = sqlite3.connect(self.db_path)
         conn.execute("""
             CREATE TABLE projects (
@@ -97,7 +97,7 @@ class TestCodeCacheClient(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        self.client = CodeCacheClient(self.temp_dir)
+        self.client = NoReScanClient(self.temp_dir)
 
     def tearDown(self):
         import shutil

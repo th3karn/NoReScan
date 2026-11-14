@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { migrateLegacy, CodeCacheCore } from '../src/index.js';
-import { CodeCacheDatabase, DatabaseMigrator } from '@code-cache/database';
+import { migrateLegacy, NoReScanCore } from '../src/index.js';
+import { NoReScanDatabase, DatabaseMigrator } from '@norescan/database';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('Legacy Migration Subsystem (.repomind -> .code-cache)', () => {
+describe('Legacy Migration Subsystem (.repomind -> .norescan)', () => {
   let tempDir: string;
-  let core: CodeCacheCore | undefined;
+  let core: NoReScanCore | undefined;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-migration-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'norescan-migration-test-'));
   });
 
   afterEach(async () => {
@@ -43,7 +43,7 @@ describe('Legacy Migration Subsystem (.repomind -> .code-cache)', () => {
 
     // Create a real legacy SQLite database with migration v1
     const legacyDbPath = path.join(repomindDir, 'memory.db');
-    const legacyDb = new CodeCacheDatabase({ filename: legacyDbPath });
+    const legacyDb = new NoReScanDatabase({ filename: legacyDbPath });
     const migrator = new DatabaseMigrator(legacyDb);
     migrator.migrate();
     legacyDb.close();
@@ -59,19 +59,19 @@ describe('Legacy Migration Subsystem (.repomind -> .code-cache)', () => {
     const backupStat = await fs.stat(result.backupPath!);
     expect(backupStat.isDirectory()).toBe(true);
 
-    // 4. Verify .code-cache files exist
-    const codeCacheDir = path.join(tempDir, '.code-cache');
-    const configStat = await fs.stat(path.join(codeCacheDir, 'config.json'));
+    // 4. Verify .norescan files exist
+    const NoReScanDir = path.join(tempDir, '.norescan');
+    const configStat = await fs.stat(path.join(NoReScanDir, 'config.json'));
     expect(configStat.isFile()).toBe(true);
 
-    const dbStat = await fs.stat(path.join(codeCacheDir, 'code-cache.db'));
+    const dbStat = await fs.stat(path.join(NoReScanDir, 'norescan.db'));
     expect(dbStat.isFile()).toBe(true);
 
-    const ignoreStat = await fs.stat(path.join(tempDir, '.code-cacheignore'));
+    const ignoreStat = await fs.stat(path.join(tempDir, '.norescanignore'));
     expect(ignoreStat.isFile()).toBe(true);
 
-    // 5. Verify CodeCacheCore automatically loads migrated config
-    core = new CodeCacheCore(tempDir);
+    // 5. Verify NoReScanCore automatically loads migrated config
+    core = new NoReScanCore(tempDir);
     const loaded = await core.loadConfig();
     expect(loaded).toBeDefined();
     expect(loaded?.projectName).toBe('legacy-app');

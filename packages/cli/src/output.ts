@@ -1,4 +1,4 @@
-import { CliResponse } from '@code-cache/shared';
+import { CliResponse } from '@norescan/shared';
 import pc from 'picocolors';
 
 export class CliOutput {

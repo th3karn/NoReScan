@@ -1,4 +1,4 @@
-import { AstMetadata, ModelDefinition, SymbolDefinition } from '@code-cache/shared';
+import { AstMetadata, ModelDefinition, SymbolDefinition } from '@norescan/shared';
 
 export function parseSql(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const models: ModelDefinition[] = [];

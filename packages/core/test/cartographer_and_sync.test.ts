@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { CodeCacheCore } from '../src/index.js';
+import { NoReScanCore } from '../src/index.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -7,10 +7,10 @@ import http from 'node:http';
 
 describe('Cartographer, Diff Blaster, Hybrid Sync & REST Server', () => {
   let tempDir: string;
-  let core: CodeCacheCore;
+  let core: NoReScanCore;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-cartographer-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'norescan-cartographer-test-'));
 
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
     await fs.writeFile(
@@ -26,7 +26,7 @@ describe('Cartographer, Diff Blaster, Hybrid Sync & REST Server', () => {
       "import { UserService } from './user.service.js';\nexport class UserController { constructor(private s: UserService) {} }"
     );
 
-    core = new CodeCacheCore(tempDir);
+    core = new NoReScanCore(tempDir);
     await core.init('test-project');
     await core.scan();
   });
@@ -50,7 +50,7 @@ describe('Cartographer, Diff Blaster, Hybrid Sync & REST Server', () => {
     expect(mermaid).toContain('flowchart TD');
 
     const dot = core.cartographer.toDot();
-    expect(dot).toContain('digraph CodeCacheCausalGraph');
+    expect(dot).toContain('digraph NoReScanCausalGraph');
   });
 
   it('blasts a git diff and computes transitive upstream cone', () => {
@@ -106,7 +106,7 @@ describe('Cartographer, Diff Blaster, Hybrid Sync & REST Server', () => {
     // Test GET / (HTML Dashboard)
     const htmlRes = await fetch(`${serverInfo.url}/`);
     const htmlText = await htmlRes.text();
-    expect(htmlText).toContain('code-cache');
+    expect(htmlText).toContain('norescan');
     expect(htmlText).toContain('Causal graph');
     expect(htmlText).toContain('Blast a Diff');
   });

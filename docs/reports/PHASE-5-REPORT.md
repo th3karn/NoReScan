@@ -1,4 +1,4 @@
-# code-cache — Phase 5 Completion Report (Dependency Graph & Conservative Invalidation)
+# norescan — Phase 5 Completion Report (Dependency Graph & Conservative Invalidation)
 
 **Phase:** Phase 5 — Dependency Graph & Conservative Invalidation  
 **Status:** Completed & Verified  
@@ -37,7 +37,7 @@
 
 ## 3. Tests Executed & Results
 
-- **`@code-cache/dependency-graph`:** 7 tests passed in 843ms:
+- **`@norescan/dependency-graph`:** 7 tests passed in 843ms:
   - Direct dependency and dependent indexing.
   - Transitive blast-radius calculation.
   - Cycle detection without recursion lock.

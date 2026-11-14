@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  CodeCacheDatabase,
+  NoReScanDatabase,
   DatabaseMigrator,
   FileRepository,
   AnalysisRepository,
   DependencyRepository,
   DecisionRepository,
   ProjectRepository,
-} from '@code-cache/database';
+} from '@norescan/database';
 import { TaskContextEngine, extractQueryTokens } from '../src/index.js';
 
 describe('TaskContextEngine', () => {
-  let db: CodeCacheDatabase;
+  let db: NoReScanDatabase;
   let engine: TaskContextEngine;
 
   beforeEach(() => {
-    db = new CodeCacheDatabase({ filename: ':memory:' });
+    db = new NoReScanDatabase({ filename: ':memory:' });
     new DatabaseMigrator(db).migrate();
 
     const projectRepo = new ProjectRepository(db);
@@ -152,7 +152,7 @@ describe('TaskContextEngine', () => {
 
   it('formats context as Markdown with safety directives', () => {
     const markdown = engine.getContextMarkdown('Fix authentication login');
-    expect(markdown).toContain('# code-cache Context Manifest');
+    expect(markdown).toContain('# norescan Context Manifest');
     expect(markdown).toContain('file:///C:/repos/test-app/src/auth/auth.controller.ts');
     expect(markdown).toContain('Always read physical source files before writing modifications');
   });

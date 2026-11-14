@@ -1,4 +1,4 @@
-import { DependencyType } from '@code-cache/shared';
+import { DependencyType } from '@norescan/shared';
 
 export interface GraphEdge {
   source: string; // File path or ID that has the dependency

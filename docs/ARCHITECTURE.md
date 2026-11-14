@@ -1,8 +1,8 @@
-# code-cache — System Architecture & Component Specification
+# norescan — System Architecture & Component Specification
 
-**Product:** code-cache  
+**Product:** norescan  
 **Organization:** LostGit Solutions  
-**Repository:** [https://github.com/th3karn/code-cache](https://github.com/th3karn/code-cache)  
+**Repository:** [https://github.com/th3karn/norescan](https://github.com/th3karn/norescan)  
 
 ---
 
@@ -17,14 +17,14 @@
                       +--------------+--------------+
                       |                             |
                       v                             v
-             [ code-cache CLI ]              [ code-cache MCP Server ]
-             (code-cache executable)         (stdio / HTTP transport)
+             [ norescan CLI ]              [ norescan MCP Server ]
+             (norescan executable)         (stdio / HTTP transport)
                       |                             |
                       +--------------+--------------+
                                      |
                                      v
                       +-----------------------------+
-                      |        code-cache Core        |
+                      |        norescan Core        |
                       +-----------------------------+
                       | * Scanner & Ignore Engine   |
                       | * SHA-256 Hasher & Diff     |
@@ -37,7 +37,7 @@
                                      v
                       +-----------------------------+
                       |     Local SQLite Store      |
-                      |   (.code-cache/code-cache.db)   |
+                      |   (.norescan/norescan.db)   |
                       +-----------------------------+
 ```
 
@@ -45,17 +45,17 @@
 
 ## 2. Monorepo Package Topology (`pnpm` workspaces)
 
-All packages are strictly named using lowercase `@code-cache/<pkg>`:
+All packages are strictly named using lowercase `@norescan/<pkg>`:
 
-- **`@code-cache/shared`:** Domain models, typed error hierarchy, path security containment, configuration schemas.
-- **`@code-cache/fingerprint`:** SHA-256 content hasher, file stat extractor, rename/diff engine.
-- **`@code-cache/scanner`:** Recursive directory walker, ignore rules, secret and binary exclusions.
-- **`@code-cache/database`:** SQLite persistence (`node:sqlite`) in WAL mode, forward migrations, 6 typed DAOs.
-- **`@code-cache/analyzer`:** AST parsers for TypeScript, JavaScript, Python, SQL, and JSON.
-- **`@code-cache/dependency-graph`:** Directed graph, cycle detection, blast-radius calculation, conservative invalidator.
-- **`@code-cache/context-engine`:** Task query tokenizer, multi-vector relevance scoring, token budgeter.
-- **`@code-cache/core`:** Workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`, `migrateLegacy`).
-- **`code-cache` (CLI):** Commander.js developer CLI binary.
-- **`@code-cache/mcp`:** Universal Model Context Protocol (MCP) server for AI coding agents.
-- **`@code-cache/agent-adapters`:** Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code.
-- **`skills/code-cache-memory`:** Portable Agent Skill adhering to the Open Agent Skills specification.
+- **`@norescan/shared`:** Domain models, typed error hierarchy, path security containment, configuration schemas.
+- **`@norescan/fingerprint`:** SHA-256 content hasher, file stat extractor, rename/diff engine.
+- **`@norescan/scanner`:** Recursive directory walker, ignore rules, secret and binary exclusions.
+- **`@norescan/database`:** SQLite persistence (`node:sqlite`) in WAL mode, forward migrations, 6 typed DAOs.
+- **`@norescan/analyzer`:** AST parsers for TypeScript, JavaScript, Python, SQL, and JSON.
+- **`@norescan/dependency-graph`:** Directed graph, cycle detection, blast-radius calculation, conservative invalidator.
+- **`@norescan/context-engine`:** Task query tokenizer, multi-vector relevance scoring, token budgeter.
+- **`@norescan/core`:** Workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`, `migrateLegacy`).
+- **`norescan` (CLI):** Commander.js developer CLI binary.
+- **`@norescan/mcp`:** Universal Model Context Protocol (MCP) server for AI coding agents.
+- **`@norescan/agent-adapters`:** Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code.
+- **`skills/norescan-memory`:** Portable Agent Skill adhering to the Open Agent Skills specification.

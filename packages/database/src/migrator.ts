@@ -1,6 +1,6 @@
-import { CodeCacheDatabase } from './connection.js';
+import { NoReScanDatabase } from './connection.js';
 import { INITIAL_MIGRATION_V1, MIGRATION_V2_ECOSYSTEMS, MIGRATION_V3_HYBRID_SYNC } from './schema.js';
-import { DatabaseError, defaultLogger } from '@code-cache/shared';
+import { DatabaseError, defaultLogger } from '@norescan/shared';
 
 export interface Migration {
   version: number;
@@ -27,15 +27,15 @@ export const MIGRATIONS: Migration[] = [
 ];
 
 export class DatabaseMigrator {
-  private db: CodeCacheDatabase;
+  private db: NoReScanDatabase;
 
-constructor(db: CodeCacheDatabase) {
-  this.db = db;
-}
+  constructor(db: NoReScanDatabase) {
+    this.db = db;
+  }
 
   public migrate(): void {
-  try {
-    this.db.db.exec(`
+    try {
+      this.db.db.exec(`
         CREATE TABLE IF NOT EXISTS schema_migrations (
           version INTEGER PRIMARY KEY,
           name TEXT NOT NULL,
@@ -43,25 +43,25 @@ constructor(db: CodeCacheDatabase) {
         );
       `);
 
-    const getApplied = this.db.db.prepare('SELECT version FROM schema_migrations ORDER BY version ASC;');
-    const rows = getApplied.all() as Array<{ version: number }>;
-    const appliedVersions = new Set(rows.map((r) => r.version));
+      const getApplied = this.db.db.prepare('SELECT version FROM schema_migrations ORDER BY version ASC;');
+      const rows = getApplied.all() as Array<{ version: number }>;
+      const appliedVersions = new Set(rows.map((r) => r.version));
 
-    for(const migration of MIGRATIONS) {
-      if (!appliedVersions.has(migration.version)) {
-        defaultLogger.info(`Applying database migration v${migration.version}: ${migration.name}`);
-        this.db.transaction(() => {
-          this.db.db.exec(migration.sql);
-          const record = this.db.db.prepare(
-            'INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?);'
-          );
-          record.run(migration.version, migration.name, new Date().toISOString());
-        });
+      for (const migration of MIGRATIONS) {
+        if (!appliedVersions.has(migration.version)) {
+          defaultLogger.info(`Applying database migration v${migration.version}: ${migration.name}`);
+          this.db.transaction(() => {
+            this.db.db.exec(migration.sql);
+            const record = this.db.db.prepare(
+              'INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?);'
+            );
+            record.run(migration.version, migration.name, new Date().toISOString());
+          });
+        }
       }
+    } catch (err) {
+      throw new DatabaseError('Failed to execute database migrations', err);
     }
-  } catch(err) {
-    throw new DatabaseError('Failed to execute database migrations', err);
   }
-}
 }
 

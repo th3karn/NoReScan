@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createMcpServer } from '../src/server.js';
-import { CodeCacheCore } from '@code-cache/core';
+import { NoReScanCore } from '@norescan/core';
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
@@ -11,12 +11,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('code-cache MCP Server Protocol Tests', () => {
+describe('norescan MCP Server Protocol Tests', () => {
   let tempDir: string;
-  let core: CodeCacheCore;
+  let core: NoReScanCore;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-mcp-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'norescan-mcp-test-'));
 
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
     await fs.writeFile(
@@ -25,7 +25,7 @@ describe('code-cache MCP Server Protocol Tests', () => {
     );
     await fs.writeFile(path.join(tempDir, 'package.json'), '{"name": "mcp-demo"}');
 
-    core = new CodeCacheCore(tempDir);
+    core = new NoReScanCore(tempDir);
     await core.init('mcp-demo');
     await core.scan();
   });
@@ -68,15 +68,15 @@ describe('code-cache MCP Server Protocol Tests', () => {
     const resourcesResult = await resourcesHandler({ method: 'resources/list', params: {} });
     const uris = resourcesResult.resources.map((r: any) => r.uri);
 
-    expect(uris).toContain('code-cache://project/overview');
-    expect(uris).toContain('code-cache://project/status');
-    expect(uris).toContain('code-cache://project/decisions');
-    expect(uris).toContain('code-cache://project/dependencies');
-    expect(uris).toContain('code-cache://project/hot-files');
-    expect(uris).toContain('code-cache://project/schema');
-    expect(uris).toContain('code-cache://project/languages');
-    expect(uris).toContain('code-cache://project/causal-graph');
-    expect(uris).toContain('code-cache://project/sync');
+    expect(uris).toContain('norescan://project/overview');
+    expect(uris).toContain('norescan://project/status');
+    expect(uris).toContain('norescan://project/decisions');
+    expect(uris).toContain('norescan://project/dependencies');
+    expect(uris).toContain('norescan://project/hot-files');
+    expect(uris).toContain('norescan://project/schema');
+    expect(uris).toContain('norescan://project/languages');
+    expect(uris).toContain('norescan://project/causal-graph');
+    expect(uris).toContain('norescan://project/sync');
   });
 
   it('executes get_task_context tool call cleanly', async () => {
@@ -96,7 +96,7 @@ describe('code-cache MCP Server Protocol Tests', () => {
 
     expect(result.content).toBeDefined();
     expect(result.content[0].type).toBe('text');
-    expect(result.content[0].text).toContain('code-cache Context Manifest');
+    expect(result.content[0].text).toContain('norescan Context Manifest');
     expect(result.content[0].text).toContain('src/auth.ts');
   });
 
@@ -148,7 +148,7 @@ describe('code-cache MCP Server Protocol Tests', () => {
     const resourceHandler = (server as any)._requestHandlers.get(ReadResourceRequestSchema.shape.method.value);
     const readResult = await resourceHandler({
       method: 'resources/read',
-      params: { uri: 'code-cache://project/decisions' },
+      params: { uri: 'norescan://project/decisions' },
     });
 
     const parsedDecisions = JSON.parse(readResult.contents[0].text);

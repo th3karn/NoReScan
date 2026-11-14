@@ -5,14 +5,14 @@ import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { CodeCacheCore } from '@code-cache/core';
-import { assertPathContained, defaultLogger } from '@code-cache/shared';
+import { NoReScanCore } from '@norescan/core';
+import { assertPathContained, defaultLogger } from '@norescan/shared';
 import path from 'node:path';
 
-export function createMcpServer(core: CodeCacheCore): Server {
+export function createMcpServer(core: NoReScanCore): Server {
   const server = new Server(
     {
-      name: 'code-cache',
+      name: 'norescan',
       version: '0.1.0',
     },
     {
@@ -280,7 +280,7 @@ export function createMcpServer(core: CodeCacheCore): Server {
           if (!details) {
             return {
               isError: true,
-              content: [{ type: 'text', text: `File "${filePath}" is not indexed in code-cache.` }],
+              content: [{ type: 'text', text: `File "${filePath}" is not indexed in norescan.` }],
             };
           }
           return {
@@ -534,79 +534,79 @@ export function createMcpServer(core: CodeCacheCore): Server {
     return {
       resources: [
         {
-          uri: 'code-cache://project/overview',
+          uri: 'norescan://project/overview',
           name: 'Project Overview',
           mimeType: 'application/json',
           description: 'Summary of registered project metadata and structure',
         },
         {
-          uri: 'code-cache://project/status',
+          uri: 'norescan://project/status',
           name: 'Project Status',
           mimeType: 'application/json',
           description: 'Real-time cache freshness and file indexing stats',
         },
         {
-          uri: 'code-cache://project/decisions',
+          uri: 'norescan://project/decisions',
           name: 'Architectural Decisions',
           mimeType: 'application/json',
           description: 'All recorded architectural decisions (ADRs)',
         },
         {
-          uri: 'code-cache://project/dependencies',
+          uri: 'norescan://project/dependencies',
           name: 'Project Dependency Graph',
           mimeType: 'application/json',
           description: 'Complete directed import dependency graph',
         },
         {
-          uri: 'code-cache://project/hot-files',
+          uri: 'norescan://project/hot-files',
           name: 'Hot Load-Bearing Files',
           mimeType: 'application/json',
           description: 'Files with highest in-degree (most dependents)',
         },
         {
-          uri: 'code-cache://project/schema',
+          uri: 'norescan://project/schema',
           name: 'Memory Schema Definition',
           mimeType: 'text/plain',
           description: 'Active SQLite database schema and indexes',
         },
         {
-          uri: 'code-cache://project/languages',
+          uri: 'norescan://project/languages',
           name: 'Detected Languages',
           mimeType: 'application/json',
           description: 'Language breakdown and monorepo components',
         },
         {
-          uri: 'code-cache://project/ecosystems',
+          uri: 'norescan://project/ecosystems',
           name: 'Ecosystem Adapters',
           mimeType: 'application/json',
           description: 'Active and supported package manager ecosystems',
         },
         {
-          uri: 'code-cache://project/commands',
+          uri: 'norescan://project/commands',
           name: 'Project Commands',
           mimeType: 'application/json',
           description: 'Discovered build, test, and run commands',
         },
         {
-          uri: 'code-cache://project/packages',
+          uri: 'norescan://project/packages',
           name: 'Package Dependencies',
           mimeType: 'application/json',
           description: 'Package dependencies from active manifests',
         },
         {
-          uri: 'code-cache://project/workspaces',
+          uri: 'norescan://project/workspaces',
           name: 'Monorepo Workspaces',
           mimeType: 'application/json',
           description: 'Monorepo workspace members and dependency graph',
         },
         {
-          uri: 'code-cache://project/causal-graph',
+          uri: 'norescan://project/causal-graph',
           name: 'Causal Dependency Graph',
           mimeType: 'application/json',
           description: 'Full graph with in-degrees, out-degrees, and cycles',
         },
         {
-          uri: 'code-cache://project/sync',
+          uri: 'norescan://project/sync',
           name: 'Hybrid Sync Status',
           mimeType: 'application/json',
           description: 'Sync cursor, device ID, and offline queue status',
@@ -619,25 +619,25 @@ export function createMcpServer(core: CodeCacheCore): Server {
     const { uri } = request.params;
 
     switch (uri) {
-      case 'code-cache://project/overview': {
+      case 'norescan://project/overview': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'code-cache://project/status': {
+      case 'norescan://project/status': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'code-cache://project/decisions': {
+      case 'norescan://project/decisions': {
         const decisions = core.decisionRepo.listByProject(core.config.projectId);
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(decisions, null, 2) }],
         };
       }
-      case 'code-cache://project/dependencies': {
+      case 'norescan://project/dependencies': {
         const nodes = core.graph.getNodes();
         const graphData: Record<string, string[]> = {};
         for (const n of nodes) {
@@ -647,60 +647,60 @@ export function createMcpServer(core: CodeCacheCore): Server {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(graphData, null, 2) }],
         };
       }
-      case 'code-cache://project/hot-files': {
+      case 'norescan://project/hot-files': {
         const hotFiles = core.getHotFiles(20);
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(hotFiles, null, 2) }],
         };
       }
-      case 'code-cache://project/schema': {
+      case 'norescan://project/schema': {
         return {
           contents: [
             {
               uri,
               mimeType: 'text/plain',
-              text: 'code-cache SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events, ecosystem_manifests, package_dependencies, project_commands, workspace_members, sync_cursors, sync_offline_queue.',
+              text: 'norescan SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events, ecosystem_manifests, package_dependencies, project_commands, workspace_members, sync_cursors, sync_offline_queue.',
             },
           ],
         };
       }
-      case 'code-cache://project/languages': {
+      case 'norescan://project/languages': {
         const langs = await core.getLanguages();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(langs, null, 2) }],
         };
       }
-      case 'code-cache://project/ecosystems': {
+      case 'norescan://project/ecosystems': {
         const eco = await core.getEcosystems();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(eco, null, 2) }],
         };
       }
-      case 'code-cache://project/commands': {
+      case 'norescan://project/commands': {
         const cmds = core.getProjectCommands();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cmds, null, 2) }],
         };
       }
-      case 'code-cache://project/packages': {
+      case 'norescan://project/packages': {
         const pkgs = core.getPackageDependencies();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(pkgs, null, 2) }],
         };
       }
-      case 'code-cache://project/workspaces': {
+      case 'norescan://project/workspaces': {
         const ws = core.getWorkspaces();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(ws, null, 2) }],
         };
       }
-      case 'code-cache://project/causal-graph': {
+      case 'norescan://project/causal-graph': {
         const cg = core.getCausalGraph();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cg, null, 2) }],
         };
       }
-      case 'code-cache://project/sync': {
+      case 'norescan://project/sync': {
         const syncStatus = core.getSyncStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(syncStatus, null, 2) }],

@@ -20,8 +20,8 @@ export class VSCodeAdapter implements AgentAdapter {
       if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
     } catch { }
 
-    mcpConfig.mcpServers['code-cache'] = {
-      command: 'code-cache-mcp',
+    mcpConfig.mcpServers['norescan'] = {
+      command: 'norescan-mcp',
       args: [],
     };
 
@@ -34,7 +34,7 @@ export class VSCodeAdapter implements AgentAdapter {
     // 2. .github/copilot-instructions.md
     const githubDir = path.join(projectRoot, '.github');
     const copilotFile = path.join(githubDir, 'copilot-instructions.md');
-    const banner = '<!-- code-cache:COPILOT:START -->';
+    const banner = '<!-- norescan:COPILOT:START -->';
     let existing = '';
     try {
       existing = await fs.readFile(copilotFile, 'utf8');
@@ -43,9 +43,9 @@ export class VSCodeAdapter implements AgentAdapter {
     if (!existing.includes(banner)) {
       const instructions = `
 ${banner}
-# code-cache Context Protocol
-Query code-cache (\`code-cache context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
-<!-- code-cache:COPILOT:END -->
+# norescan Context Protocol
+Query norescan (\`norescan context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
+<!-- norescan:COPILOT:END -->
 `;
       const updated = existing ? `${existing.trim()}\n\n${instructions.trim()}\n` : instructions.trim() + '\n';
       if (!dryRun) {
@@ -64,8 +64,8 @@ Query code-cache (\`code-cache context "<task>"\`) before modifying code to insp
     try {
       const content = await fs.readFile(mcpFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.['code-cache']) {
-        delete parsed.mcpServers['code-cache'];
+      if (parsed.mcpServers?.['norescan']) {
+        delete parsed.mcpServers['norescan'];
         if (!dryRun) await fs.writeFile(mcpFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(mcpFile);
       }
@@ -78,7 +78,7 @@ Query code-cache (\`code-cache context "<task>"\`) before modifying code to insp
     try {
       const mcpFile = path.join(projectRoot, '.vscode', 'mcp.json');
       const content = await fs.readFile(mcpFile, 'utf8');
-      return content.includes('code-cache-mcp');
+      return content.includes('norescan-mcp');
     } catch {
       return false;
     }

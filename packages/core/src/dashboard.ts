@@ -8,7 +8,7 @@ export function renderDashboardHtml(projectName: string, graphData: CausalGraphD
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>code-cache — Causal Graph & Blast Radius Cartographer</title>
+  <title>norescan — Causal Graph & Blast Radius Cartographer</title>
   <style>
     :root {
       --bg-dark: #090d16;
@@ -272,7 +272,7 @@ export function renderDashboardHtml(projectName: string, graphData: CausalGraphD
     <div class="brand">
       <div class="brand-logo">B</div>
       <div>
-        <span class="brand-title">code-cache</span>
+        <span class="brand-title">norescan</span>
         <span class="brand-sub">Causal Cartographer</span>
       </div>
     </div>
@@ -346,7 +346,7 @@ export function renderDashboardHtml(projectName: string, graphData: CausalGraphD
           <span style="color: var(--accent-orange); font-size: 10px;">Impact Analysis</span>
         </div>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">
-          Paste a git diff below, and code-cache highlights every file that depends on the changed files — the "blast cone" of potential breakage.
+          Paste a git diff below, and norescan highlights every file that depends on the changed files — the "blast cone" of potential breakage.
         </p>
         <textarea id="diff-input" class="diff-textarea" placeholder="Paste 'git diff' output here..."></textarea>
         <button id="btn-blast" class="btn">💥 Blast Diff</button>

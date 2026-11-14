@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { IgnoreEngine } from './ignore.js';
-import { computeFingerprint, FileFingerprint } from '@code-cache/fingerprint';
-import { assertPathContained, normalizePath, defaultLogger, CodeCacheConfig } from '@code-cache/shared';
+import { computeFingerprint, FileFingerprint } from '@norescan/fingerprint';
+import { assertPathContained, normalizePath, defaultLogger, NoReScanConfig } from '@norescan/shared';
 
 export interface ScanOptions {
   projectRoot: string;
-  config?: Partial<CodeCacheConfig >;
-onProgress ?: (scannedCount: number, currentPath: string) => void;
+  config?: Partial<NoReScanConfig>;
+  onProgress?: (scannedCount: number, currentPath: string) => void;
 }
 
 export interface ScanResult {
@@ -40,10 +40,11 @@ export class FileScanner {
   }
 
   /**
-   * Initializes ignore rules from .gitignore and .code-cacheignore (or legacy .repomindignore).
+   * Initializes ignore rules from .gitignore and .norescanignore (or legacy .repomindignore).
    */
   public async init(): Promise<void> {
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.gitignore'));
+    await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.norescanignore'));
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.codecacheignore'));
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.code-cacheignore'));
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.bugbrainignore'));

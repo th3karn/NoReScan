@@ -1,6 +1,6 @@
-# code-cache — Technical Architecture Document (TAD)
+# norescan — Technical Architecture Document (TAD)
 
-**System:** code-cache Infrastructure  
+**System:** norescan Infrastructure  
 **Author:** LostGit Solutions Architecture Team  
 **Version:** 1.0.0-draft  
 **Target Runtime:** Node.js 22+ (LTS / Current)  
@@ -9,25 +9,25 @@
 
 ## 1. System Overview & Architecture Diagram
 
-code-cache sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
+norescan sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
 
 ```
                     +------------------------------------------+
                     |             DEVELOPER WORKSPACE          |
-                    | (Project Files, Git Repo, .code-cache/)    |
+                    | (Project Files, Git Repo, .norescan/)    |
                     +--------------------+---------------------+
                                          |
                        +-----------------+-----------------+
                        |                                   |
                        v                                   v
-             [ code-cache CLI ]                      [ code-cache MCP Server ]
+             [ norescan CLI ]                      [ norescan MCP Server ]
              (Commander.js)                        (Official MCP SDK stdio)
                        |                                   |
                        +-----------------+-----------------+
                                          |
                                          v
                       +--------------------------------------+
-                      |            code-cache Core             |
+                      |            norescan Core             |
                       +--------------------------------------+
                       | * Project Registry & Config          |
                       | * File Scanner (Ignorer, Filter)     |
@@ -47,7 +47,7 @@ code-cache sits as an intelligent caching and context layer between the develope
             * sessions, decisions                * adapters & config injectors
                        |
                        v (Opt-in Encrypted)
-            [ code-cache Cloud Sync ]
+            [ norescan Cloud Sync ]
             (PostgreSQL / Fastify API)
 ```
 
@@ -55,10 +55,10 @@ code-cache sits as an intelligent caching and context layer between the develope
 
 ## 2. Monorepo Package Topology
 
-code-cache is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
+norescan is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
 
 ```
-code-cache/
+norescan/
 ├── packages/
 │   ├── core/               # Central coordinator, project registry, pipeline orchestrator
 │   ├── database/           # SQLite migrations, connection manager, DAO repositories
@@ -68,12 +68,12 @@ code-cache/
 │   ├── dependency-graph/   # Graph data structure, topological sorting, blast-radius calculation
 │   ├── memory/             # 5-layer memory coordinator (File, Architecture, Session, Decision, Dep)
 │   ├── context-engine/     # Task-based ranking, keyword/path/graph scoring, token budgeting
-│   ├── cli/                # Commander.js CLI binary executable (`code-cache`)
+│   ├── cli/                # Commander.js CLI binary executable (`norescan`)
 │   ├── mcp-server/         # Standard MCP server implementation (stdio & HTTP)
 │   └── agent-adapters/     # Configuration generators & adapters for Antigravity, Cursor, Claude
 │
 ├── skills/
-│   └── code-cache-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
+│   └── norescan-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
 │
 ├── docs/                   # PRD, TAD, ARCHITECTURE, DATABASE, SECURITY, etc.
 ├── tests/                  # Integration and E2E test suites

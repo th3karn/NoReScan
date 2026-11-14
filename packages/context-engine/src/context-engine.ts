@@ -4,9 +4,9 @@ import {
   DependencyRepository,
   DecisionRepository,
   ProjectRepository,
-} from '@code-cache/database';
-import { DependencyGraph } from '@code-cache/dependency-graph';
-import { TaskContextManifest } from '@code-cache/shared';
+} from '@norescan/database';
+import { DependencyGraph } from '@norescan/dependency-graph';
+import { TaskContextManifest } from '@norescan/shared';
 import { extractQueryTokens } from './tokenizer.js';
 import { scoreFileRelevance, scoreDecisionRelevance } from './scorer.js';
 import { formatManifestToMarkdown, estimateTokenCount } from './budgeter.js';
@@ -100,7 +100,7 @@ export class TaskContextEngine {
       decisions: scoredDecisions.slice(0, 5),
       warnings,
       instructions:
-        'Always read physical source files before writing modifications. code-cache provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
+        'Always read physical source files before writing modifications. norescan provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
     };
   }
 

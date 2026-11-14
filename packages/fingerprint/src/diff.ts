@@ -1,4 +1,4 @@
-import { FileSnapshot } from '@code-cache/shared';
+import { FileSnapshot } from '@norescan/shared';
 import { FileFingerprint } from './fingerprint.js';
 
 export interface DiffResult {

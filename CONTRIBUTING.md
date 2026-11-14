@@ -1,6 +1,6 @@
-# Contributing to code-cache
+# Contributing to norescan
 
-Thank you for your interest in contributing to code-cache! We welcome contributions from developers, researchers, and open-source enthusiasts.
+Thank you for your interest in contributing to norescan! We welcome contributions from developers, researchers, and open-source enthusiasts.
 
 ## Development Setup
 
@@ -11,8 +11,8 @@ Thank you for your interest in contributing to code-cache! We welcome contributi
 
 2. **Clone & Install:**
    ```bash
-   git clone https://github.com/LostGit/code-cache.git
-   cd code-cache
+   git clone https://github.com/LostGit/norescan.git
+   cd norescan
    pnpm install
    ```
 

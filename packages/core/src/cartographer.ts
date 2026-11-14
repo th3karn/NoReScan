@@ -1,4 +1,4 @@
-import { DependencyGraph } from '@code-cache/dependency-graph';
+import { DependencyGraph } from '@norescan/dependency-graph';
 
 export interface GraphNode {
   id: string; // relativePath
@@ -211,7 +211,7 @@ export class Cartographer {
     for (const node of graphData.nodes) {
       const safeId = node.id.replace(/[^a-zA-Z0-9_]/g, '_');
       if (node.isHot) {
-        lines.push(`  ${safeId}["🔥 ${node.label} (in: ${node.inDegree})"]:::hotNode`);
+        lines.push(`  ${safeId}["ðŸ”¥ ${node.label} (in: ${node.inDegree})"]:::hotNode`);
       } else {
         lines.push(`  ${safeId}["${node.label}"]`);
       }
@@ -231,7 +231,7 @@ export class Cartographer {
    * Renders the causal graph in Graphviz DOT format.
    */
   public toDot(): string {
-    const lines = ['digraph CodeCacheCausalGraph {', '  rankdir=LR;', '  node [shape=box, style="rounded,filled", fillcolor="#1e293b", fontcolor="#f8fafc", fontname="sans-serif"];', '  edge [color="#64748b"];'];
+    const lines = ['digraph NoReScanCausalGraph {', '  rankdir=LR;', '  node [shape=box, style="rounded,filled", fillcolor="#1e293b", fontcolor="#f8fafc", fontname="sans-serif"];', '  edge [color="#64748b"];'];
     const graphData = this.getCausalGraph();
 
     for (const node of graphData.nodes) {

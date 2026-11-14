@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/context-engine",
+    "name": "@norescan/context-engine",
     "version": "0.1.1",
-    "description": "Task context retrieval, ranking, token budgeting, and manifest generation for code-cache",
+    "description": "Task context retrieval, ranking, token budgeting, and manifest generation for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,9 +11,9 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/database": "workspace:*",
-        "@code-cache/dependency-graph": "workspace:*",
-        "@code-cache/shared": "workspace:*"
+        "@norescan/database": "workspace:*",
+        "@norescan/dependency-graph": "workspace:*",
+        "@norescan/shared": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^22.13.10",

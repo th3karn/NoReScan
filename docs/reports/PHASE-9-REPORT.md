@@ -1,4 +1,4 @@
-# code-cache — Phase 9 Completion Report (Skills & Universal Adapters)
+# norescan — Phase 9 Completion Report (Skills & Universal Adapters)
 
 **Phase:** Phase 9 — Portable Agent Skill & Universal Agent Adapters  
 **Status:** Completed & Verified  
@@ -9,7 +9,7 @@
 
 ## 1. What Was Implemented
 
-1. **Portable Agent Skill (`skills/code-cache-memory/`):**
+1. **Portable Agent Skill (`skills/norescan-memory/`):**
    - Standard `SKILL.md` with full Agent Skills specification frontmatter.
    - Core protocol guides:
      - `references/memory-protocol.md`: 5 memory layers and cache invalidation mechanics.
@@ -18,27 +18,27 @@
    - Automation scripts:
      - `scripts/check-status.ts`: Fast JSON status retriever.
      - `scripts/refresh-context.ts`: Standalone context manifest generator.
-2. **`@code-cache/agent-adapters` Package:**
+2. **`@norescan/agent-adapters` Package:**
    - Dedicated configuration generators and validators for:
-     - **Google Antigravity:** Registers MCP in `.gemini/antigravity/mcp/code-cache.json` and updates `AGENTS.md`.
-     - **Cursor / Windsurf:** Registers MCP in `.cursor/mcp.json` and generates `.cursor/rules/code-cache.mdc`.
+     - **Google Antigravity:** Registers MCP in `.gemini/antigravity/mcp/norescan.json` and updates `AGENTS.md`.
+     - **Cursor / Windsurf:** Registers MCP in `.cursor/mcp.json` and generates `.cursor/rules/norescan.mdc`.
      - **Claude Code:** Registers MCP in `.claude/config.json` and generates `CLAUDE.md`.
      - **OpenAI Codex:** Generates CLI workflow rules in `AGENTS.md`.
      - **VS Code / Copilot:** Configures `.vscode/mcp.json` and `.github/copilot-instructions.md`.
    - Idempotent updates with rollback and clean uninstallation support.
 3. **CLI Integration:**
-   - Exposed `code-cache agent list`, `code-cache agent install <agent>`, and `code-cache agent uninstall <agent>`.
+   - Exposed `norescan agent list`, `norescan agent install <agent>`, and `norescan agent uninstall <agent>`.
 
 ---
 
 ## 2. Files and Packages Created
 
-- `skills/code-cache-memory/SKILL.md`
-- `skills/code-cache-memory/references/memory-protocol.md`
-- `skills/code-cache-memory/references/cache-validation.md`
-- `skills/code-cache-memory/references/agent-workflow.md`
-- `skills/code-cache-memory/scripts/check-status.ts`
-- `skills/code-cache-memory/scripts/refresh-context.ts`
+- `skills/norescan-memory/SKILL.md`
+- `skills/norescan-memory/references/memory-protocol.md`
+- `skills/norescan-memory/references/cache-validation.md`
+- `skills/norescan-memory/references/agent-workflow.md`
+- `skills/norescan-memory/scripts/check-status.ts`
+- `skills/norescan-memory/scripts/refresh-context.ts`
 - `packages/agent-adapters/package.json`
 - `packages/agent-adapters/tsconfig.json`
 - `packages/agent-adapters/src/adapter.ts`
@@ -49,17 +49,17 @@
 - `packages/agent-adapters/src/adapters/vscode.ts`
 - `packages/agent-adapters/src/index.ts`
 - `packages/agent-adapters/test/adapters.test.ts`
-- `packages/cli/src/cli.ts` (Integrated `code-cache agent` subcommands)
+- `packages/cli/src/cli.ts` (Integrated `norescan agent` subcommands)
 
 ---
 
 ## 3. Tests Executed & Results
 
-- **`@code-cache/agent-adapters`:** 3 test suites passed:
+- **`@norescan/agent-adapters`:** 3 test suites passed:
   - Registry inspection.
   - Antigravity adapter installation, idempotency, and uninstallation.
   - Cursor adapter installation and uninstallation.
-- **CLI Verification:** `code-cache agent list` executed cleanly.
+- **CLI Verification:** `norescan agent list` executed cleanly.
 - **Cumulative Repository Tests:** 50 tests passed across all 11 packages, 0 failures.
 
 ---

@@ -1,14 +1,14 @@
 {
-    "name": "@code-cache/mcp",
+    "name": "@norescan/mcp",
     "version": "0.1.1",
-    "description": "Universal Model Context Protocol (MCP) server for code-cache",
+    "description": "Universal Model Context Protocol (MCP) server for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "files": [
         "dist"
     ],
     "bin": {
-        "code-cache-mcp": "./dist/bin.js"
+        "norescan-mcp": "./dist/bin.js"
     },
     "scripts": {
         "build": "tsc",
@@ -18,8 +18,8 @@
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.6.1",
-        "@code-cache/core": "workspace:*",
-        "@code-cache/shared": "workspace:*",
+        "@norescan/core": "workspace:*",
+        "@norescan/shared": "workspace:*",
         "zod": "^3.24.2"
     },
     "devDependencies": {

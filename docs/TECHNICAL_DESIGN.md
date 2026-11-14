@@ -1,8 +1,8 @@
-# code-cache — Technical Design Document (TDD)
+# norescan — Technical Design Document (TDD)
 
-**System:** code-cache Core Infrastructure  
+**System:** norescan Core Infrastructure  
 **Author:** LostGit Solutions Engineering Team  
-**Repository:** [https://github.com/th3karn/code-cache](https://github.com/th3karn/code-cache)  
+**Repository:** [https://github.com/th3karn/norescan](https://github.com/th3karn/norescan)  
 
 ---
 
@@ -38,11 +38,11 @@ if (file.hashChanged) {
 
 ### 1.4 Safe Legacy Migration Engine
 When initializing or running commands in a repository with `.repomind/`:
-1. Check if `.code-cache/` already exists. If both exist, keep `.code-cache/` as primary.
-2. If `.code-cache/` does not exist:
+1. Check if `.norescan/` already exists. If both exist, keep `.norescan/` as primary.
+2. If `.norescan/` does not exist:
    - Create a safe timestamped backup archive of `.repomind/`.
-   - Copy `config.json` (updating internal `repoMind` references to `code-cache`).
-   - Copy `memory.db` to `.code-cache/code-cache.db`.
+   - Copy `config.json` (updating internal `repoMind` references to `norescan`).
+   - Copy `memory.db` to `.norescan/norescan.db`.
    - Record migration event in database.
    - Leave legacy `.repomind/` intact (never silently delete).
 

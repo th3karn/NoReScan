@@ -154,7 +154,7 @@ export class UniversalLanguageDetector {
     const entries = await fs.readdir(projectRoot, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      if (['node_modules', '.git', '.code-cache', 'dist', 'build', '.venv', 'venv'].includes(entry.name)) continue;
+      if (['node_modules', '.git', '.norescan', 'dist', 'build', '.venv', 'venv'].includes(entry.name)) continue;
 
       const subPath = path.join(projectRoot, entry.name);
 

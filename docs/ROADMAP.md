@@ -1,8 +1,8 @@
-# code-cache — Implementation Roadmap & Acceptance Gates
+# norescan — Implementation Roadmap & Acceptance Gates
 
-**Product:** code-cache  
+**Product:** norescan  
 **Organization:** LostGit Solutions  
-**Repository:** [https://github.com/th3karn/code-cache](https://github.com/th3karn/code-cache)  
+**Repository:** [https://github.com/th3karn/norescan](https://github.com/th3karn/norescan)  
 
 ---
 
@@ -11,16 +11,16 @@
 ### v0.1.0 — Foundation & Local Core (Current Release)
 - Universal monorepo architecture (`pnpm` + TypeScript strict mode).
 - Deterministic SHA-256 fingerprinting with CRLF/LF normalization.
-- Native SQLite persistence in WAL mode (`.code-cache/code-cache.db`).
+- Native SQLite persistence in WAL mode (`.norescan/norescan.db`).
 - Recursive file scanner with `.gitignore` and hardcoded secret exclusions (`.env*`, `*.pem`, `*.key`).
 - Multi-language AST parsers for TypeScript, JavaScript, Python, SQL, and JSON.
 - Module dependency graph with cycle detection and conservative invalidation.
 - Task context engine with multi-vector scoring and token budgeting.
-- Full CLI executable (`code-cache`) with 20+ commands.
+- Full CLI executable (`norescan`) with 20+ commands.
 - Model Context Protocol (MCP) server over `stdio` with 14 tools and 6 resources.
-- Portable Agent Skill (`code-cache-memory`).
+- Portable Agent Skill (`norescan-memory`).
 - Adapters for Google Antigravity, Cursor, Claude Code, OpenAI Codex, and VS Code.
-- Legacy `.repomind/` to `.code-cache/` migration engine with backups.
+- Legacy `.repomind/` to `.norescan/` migration engine with backups.
 
 ### v0.2.0 — Extended Language & IDE Integration
 - Tree-sitter parsers for C/C++, Java, Rust, and Go.

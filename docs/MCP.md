@@ -1,6 +1,6 @@
-# code-cache — Model Context Protocol (MCP) Server Specification
+# norescan — Model Context Protocol (MCP) Server Specification
 
-**Package:** `@code-cache/mcp-server`  
+**Package:** `@norescan/mcp-server`  
 **Protocol Version:** MCP 2024-11-05 (Official TypeScript SDK)  
 **Primary Transport:** `stdio` (StdioServerTransport)  
 **Secondary Transport:** Streamable HTTP / SSE  
@@ -9,7 +9,7 @@
 
 ## 1. Overview & Capabilities
 
-The code-cache MCP server exposes a high-performance bridge between any MCP-compatible agent (Google Antigravity, Cursor, Claude Code, etc.) and code-cache's SQLite memory store.
+The norescan MCP server exposes a high-performance bridge between any MCP-compatible agent (Google Antigravity, Cursor, Claude Code, etc.) and norescan's SQLite memory store.
 
 ---
 
@@ -84,13 +84,13 @@ Forces immediate re-analysis of a specific file or set of files.
 
 ## 3. Resources Exposed
 
-code-cache exposes standard MCP resources:
-- `code-cache://project/overview`: JSON summary of project structure.
-- `code-cache://project/status`: Real-time index and memory health.
-- `code-cache://project/architecture`: High-level module and framework map.
-- `code-cache://project/files`: List of indexed relative paths and statuses.
-- `code-cache://project/decisions`: All recorded architectural decisions.
-- `code-cache://project/session/latest`: Summary of the most recent agent session.
+norescan exposes standard MCP resources:
+- `norescan://project/overview`: JSON summary of project structure.
+- `norescan://project/status`: Real-time index and memory health.
+- `norescan://project/architecture`: High-level module and framework map.
+- `norescan://project/files`: List of indexed relative paths and statuses.
+- `norescan://project/decisions`: All recorded architectural decisions.
+- `norescan://project/session/latest`: Summary of the most recent agent session.
 
 ---
 

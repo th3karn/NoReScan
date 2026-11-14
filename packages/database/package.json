@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/database",
+    "name": "@norescan/database",
     "version": "0.1.1",
-    "description": "SQLite local persistence and migration engine for code-cache using native node:sqlite",
+    "description": "SQLite local persistence and migration engine for norescan using native node:sqlite",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,7 +11,7 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/shared": "workspace:*"
+        "@norescan/shared": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^22.13.10",

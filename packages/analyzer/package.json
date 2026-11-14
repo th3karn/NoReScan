@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/analyzer",
+    "name": "@norescan/analyzer",
     "version": "0.1.1",
-    "description": "Multi-language AST and structural code analyzer for code-cache",
+    "description": "Multi-language AST and structural code analyzer for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,7 +11,7 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/shared": "workspace:*",
+        "@norescan/shared": "workspace:*",
         "typescript": "^5.8.2"
     },
     "devDependencies": {

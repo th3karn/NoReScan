@@ -1,4 +1,4 @@
-export class CodeCacheError extends Error {
+export class NoReScanError extends Error {
   public readonly code: string;
   public readonly recoverable: boolean;
   public readonly details ?: unknown;
@@ -23,43 +23,43 @@ export class CodeCacheError extends Error {
   }
 }
 
-export class SecurityViolationError extends CodeCacheError {
+export class SecurityViolationError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'SECURITY_VIOLATION', false, details);
   }
 }
 
-export class DatabaseError extends CodeCacheError {
+export class DatabaseError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'DATABASE_ERROR', false, details);
   }
 }
 
-export class ScannerError extends CodeCacheError {
+export class ScannerError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'SCANNER_ERROR', true, details);
   }
 }
 
-export class AnalysisError extends CodeCacheError {
+export class AnalysisError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'ANALYSIS_ERROR', true, details);
   }
 }
 
-export class ContextError extends CodeCacheError {
+export class ContextError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'CONTEXT_ERROR', true, details);
   }
 }
 
-export class ConfigurationError extends CodeCacheError {
+export class ConfigurationError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'CONFIGURATION_ERROR', false, details);
   }
 }
 
-export class ValidationError extends CodeCacheError {
+export class ValidationError extends NoReScanError {
   constructor(message: string, details ?: unknown) {
     super(message, 'VALIDATION_ERROR', false, details);
   }

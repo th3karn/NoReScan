@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea or new capability for code-cache
+about: Suggest an idea or new capability for norescan
 title: '[FEAT] '
 labels: enhancement
 assignees: ''

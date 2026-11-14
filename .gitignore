@@ -50,7 +50,8 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
-# code-cache Database & Workspace
+# norescan Database & Workspace
+.norescan/
 .code-cache/
 .codecache/
 .bugbrain/

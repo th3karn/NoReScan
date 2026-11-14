@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { CodeCacheCore } from '@code-cache/core';
+import { NoReScanCore } from '@norescan/core';
 
 async function main() {
-  const core = new CodeCacheCore(process.cwd());
+  const core = new NoReScanCore(process.cwd());
   const config = await core.loadConfig();
   if (!config) {
-    console.error('code-cache is not initialized in this workspace. Run "code-cache init".');
+    console.error('norescan is not initialized in this workspace. Run "norescan init".');
     process.exit(1);
   }
   const status = core.getStatus();

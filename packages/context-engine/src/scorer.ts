@@ -1,4 +1,4 @@
-import { FileSnapshot, FileAnalysis, DecisionRecord } from '@code-cache/shared';
+import { FileSnapshot, FileAnalysis, DecisionRecord } from '@norescan/shared';
 
 export interface ScoredFile {
   file: FileSnapshot;

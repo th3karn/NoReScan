@@ -1,7 +1,7 @@
 # UNIVERSAL POLYGLOT ECOSYSTEM SUPPORT
 ## Supported Languages, Package Managers, and Toolchains
 
-code-cache is designed from the ground up as a universal, multi-language codebase intelligence platform supporting 31 programming languages and their respective ecosystems.
+norescan is designed from the ground up as a universal, multi-language codebase intelligence platform supporting 31 programming languages and their respective ecosystems.
 
 ---
 
@@ -36,14 +36,14 @@ code-cache is designed from the ground up as a universal, multi-language codebas
 
 ## 2. Command Intelligence
 
-code-cache automatically parses package manifests and project files to extract safe-to-run development commands:
+norescan automatically parses package manifests and project files to extract safe-to-run development commands:
 - **Build commands:** `npm run build`, `cargo build`, `go build`, `mvn package`, `dotnet build`.
 - **Test commands:** `npm test`, `cargo test`, `go test`, `pytest`, `mvn test`.
 - **Lint commands:** `npm run lint`, `cargo clippy`, `golangci-lint`, `ruff check`.
 - **Dev commands:** `npm run dev`, `cargo run`, `fastapi dev`, `python manage.py runserver`.
 
 ### Security Policy & Safe Command Runner
-Every command executed via `code-cache run <cmd>` or MCP `execute_command` passes through the `SafeCommandRunner` security policy:
+Every command executed via `norescan run <cmd>` or MCP `execute_command` passes through the `SafeCommandRunner` security policy:
 - **Permanently Blocked:** Arbitrary pipe-to-shell patterns (`curl | sh`, `wget | bash`), fork bombs, recursive filesystem destruction (`rm -rf /`), destructive disk operations.
 - **Pre-flight Inspection:** Commands declare working directories, network requirements, and side effects.
 

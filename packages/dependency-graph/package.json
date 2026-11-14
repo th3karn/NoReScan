@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/dependency-graph",
+    "name": "@norescan/dependency-graph",
     "version": "0.1.1",
-    "description": "Module dependency graph, blast-radius calculation, and conservative invalidation for code-cache",
+    "description": "Module dependency graph, blast-radius calculation, and conservative invalidation for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,7 +11,7 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/shared": "workspace:*"
+        "@norescan/shared": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^22.13.10",

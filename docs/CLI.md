@@ -1,8 +1,8 @@
-# code-cache — Command-Line Interface (CLI) Specification
+# norescan — Command-Line Interface (CLI) Specification
 
-**Executable:** `code-cache`  
+**Executable:** `norescan`  
 **Framework:** Commander.js  
-**Package:** `code-cache-cli` (or `@code-cache/cli`)  
+**Package:** `norescan-cli` (or `@norescan/cli`)  
 
 ---
 
@@ -20,13 +20,13 @@ Every command supports standard global flags:
 
 ## 2. Command Reference
 
-### `code-cache init`
-Initializes code-cache in the current repository.
+### `norescan init`
+Initializes norescan in the current repository.
 - Scans for existing Git or project configuration.
-- Creates `.code-cache/` directory with `config.json` and initializes `memory.db` with migrations.
-- Creates `.code-cacheignore` if absent.
+- Creates `.norescan/` directory with `config.json` and initializes `memory.db` with migrations.
+- Creates `.norescanignore` if absent.
 
-### `code-cache scan`
+### `norescan scan`
 Discovers and fingerprints all files in the project.
 - Flags:
   - `--force`: Force re-indexing of all files regardless of cached hash.
@@ -35,17 +35,17 @@ Discovers and fingerprints all files in the project.
   - Total files scanned, unchanged files, modified files, new files, deleted files.
   - Duration in milliseconds.
 
-### `code-cache status`
+### `norescan status`
 Displays the current memory and indexing health of the repository.
 - Output summary:
   - Total indexed files, cache hit ratio, valid vs stale analyses.
   - Last scan timestamp and Git HEAD commit.
   - Number of tracked sessions and recorded architectural decisions.
 
-### `code-cache refresh`
+### `norescan refresh`
 Re-runs analysis specifically on stale or modified files and updates their dependency graphs.
 
-### `code-cache context "<task-description>"`
+### `norescan context "<task-description>"`
 Retrieves task-relevant codebase context, dependency subgraphs, and historical decisions.
 - Arguments:
   - `<task-description>`: Natural language query (e.g. `"Refactor authentication token rotation"`).
@@ -54,39 +54,39 @@ Retrieves task-relevant codebase context, dependency subgraphs, and historical d
   - `--format <markdown|json>`: Output format (default: markdown).
   - `--include-decisions`: Include matching architectural decisions (default: true).
 
-### `code-cache diff`
+### `norescan diff`
 Shows files modified, added, or deleted since the last scan, including affected dependency blast radius.
 
-### `code-cache explain <path>`
+### `norescan explain <path>`
 Outputs stored structural analysis, extracted exports, imports, and downstream dependencies for a given file.
 
-### `code-cache decisions`
+### `norescan decisions`
 Lists or manages architectural decisions.
-- `code-cache decisions`: List all recorded ADRs.
-- `code-cache decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
+- `norescan decisions`: List all recorded ADRs.
+- `norescan decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
 
-### `code-cache history`
+### `norescan history`
 Shows previous agent sessions, modified files, and completion statuses.
 
-### `code-cache mcp`
-Launches the code-cache Model Context Protocol (MCP) server.
+### `norescan mcp`
+Launches the norescan Model Context Protocol (MCP) server.
 - Default transport: `stdio` (for integration with Antigravity, Cursor, Claude Code).
 - Flags:
   - `--port <number>`: Optional HTTP transport mode.
 
-### `code-cache agent`
+### `norescan agent`
 Installs agent integrations and skills.
-- `code-cache agent list`: Shows supported agents and detection status.
-- `code-cache agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
+- `norescan agent list`: Shows supported agents and detection status.
+- `norescan agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
 
-### `code-cache doctor`
+### `norescan doctor`
 Runs comprehensive system diagnostics:
 - Verifies SQLite database integrity (`PRAGMA integrity_check`).
 - Verifies filesystem read/write access.
 - Validates analyzer versions and schema migration versions.
 
-### `code-cache clean`
-Removes stale cache records, clears session history, or resets the `.code-cache` database.
+### `norescan clean`
+Removes stale cache records, clears session history, or resets the `.norescan` database.
 - Flags:
   - `--all`: Complete purge and re-initialization.
   - `--stale`: Purge only obsolete analyses.

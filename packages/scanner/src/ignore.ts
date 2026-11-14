@@ -1,7 +1,7 @@
 import ignore, { Ignore } from 'ignore';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { isSensitivePath, normalizePath } from '@code-cache/shared';
+import { isSensitivePath, normalizePath } from '@norescan/shared';
 
 export const HARDCODED_IGNORES = [
   '.git',
@@ -14,6 +14,8 @@ export const HARDCODED_IGNORES = [
   'build/**',
   '.turbo',
   '.turbo/**',
+  '.norescan',
+  '.norescan/**',
   '.code-cache',
   '.code-cache/**',
   '.codecache',

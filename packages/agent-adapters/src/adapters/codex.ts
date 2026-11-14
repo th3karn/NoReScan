@@ -9,7 +9,7 @@ export class CodexAdapter implements AgentAdapter {
 
   public async install(projectRoot: string, dryRun = false): Promise<string[]> {
     const agentsMdPath = path.join(projectRoot, 'AGENTS.md');
-    const banner = '<!-- code-cache:CODEX:START -->';
+    const banner = '<!-- norescan:CODEX:START -->';
     let existing = '';
     try {
       existing = await fs.readFile(agentsMdPath, 'utf8');
@@ -18,9 +18,9 @@ export class CodexAdapter implements AgentAdapter {
     if (!existing.includes(banner)) {
       const instructions = `
 ${banner}
-# code-cache Context Protocol for Codex
-Run \`code-cache context "<task description>"\` before modifying code to review existing file analyses, dependency blast radius, and architectural decisions.
-<!-- code-cache:CODEX:END -->
+# norescan Context Protocol for Codex
+Run \`norescan context "<task description>"\` before modifying code to review existing file analyses, dependency blast radius, and architectural decisions.
+<!-- norescan:CODEX:END -->
 `;
       const updated = existing ? `${existing.trim()}\n\n${instructions.trim()}\n` : instructions.trim() + '\n';
       if (!dryRun) await fs.writeFile(agentsMdPath, updated, 'utf8');
@@ -33,9 +33,9 @@ Run \`code-cache context "<task description>"\` before modifying code to review 
     const agentsMdPath = path.join(projectRoot, 'AGENTS.md');
     try {
       const content = await fs.readFile(agentsMdPath, 'utf8');
-      if (content.includes('<!-- code-cache:CODEX:START -->')) {
+      if (content.includes('<!-- norescan:CODEX:START -->')) {
         const cleaned = content.replace(
-          /<!-- code-cache:CODEX:START -->[\s\S]*?<!-- code-cache:CODEX:END -->/g,
+          /<!-- norescan:CODEX:START -->[\s\S]*?<!-- norescan:CODEX:END -->/g,
           ''
         ).trim() + '\n';
         if (!dryRun) await fs.writeFile(agentsMdPath, cleaned, 'utf8');
@@ -49,7 +49,7 @@ Run \`code-cache context "<task description>"\` before modifying code to review 
     try {
       const agentsMdPath = path.join(projectRoot, 'AGENTS.md');
       const content = await fs.readFile(agentsMdPath, 'utf8');
-      return content.includes('code-cache:CODEX');
+      return content.includes('norescan:CODEX');
     } catch {
       return false;
     }

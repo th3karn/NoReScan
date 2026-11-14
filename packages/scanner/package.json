@@ -1,7 +1,7 @@
 {
-    "name": "@code-cache/scanner",
+    "name": "@norescan/scanner",
     "version": "0.1.1",
-    "description": "Recursive file discovery with ignore rules and security sandboxing for code-cache",
+    "description": "Recursive file discovery with ignore rules and security sandboxing for norescan",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
@@ -11,8 +11,8 @@
         "test": "vitest run"
     },
     "dependencies": {
-        "@code-cache/fingerprint": "workspace:*",
-        "@code-cache/shared": "workspace:*",
+        "@norescan/fingerprint": "workspace:*",
+        "@norescan/shared": "workspace:*",
         "ignore": "^7.0.3"
     },
     "devDependencies": {

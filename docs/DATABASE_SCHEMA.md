@@ -1,6 +1,6 @@
-# code-cache — Database Schema Specification
+# norescan — Database Schema Specification
 
-**Database File:** `.code-cache/code-cache.db`  
+**Database File:** `.norescan/norescan.db`  
 **Engine:** SQLite via native `node:sqlite` in WAL mode (`PRAGMA journal_mode = WAL;`)  
 
 ---

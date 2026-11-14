@@ -1,4 +1,4 @@
-import { AstMetadata, SymbolDefinition, ExportDefinition } from '@code-cache/shared';
+import { AstMetadata, SymbolDefinition, ExportDefinition } from '@norescan/shared';
 
 export function parseGeneric(sourceText: string, fileName: string, language: string): { metadata: AstMetadata; summary: string } {
   const symbols: SymbolDefinition[] = [];

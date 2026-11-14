@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "norescan": {
+      "command": "norescan-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
