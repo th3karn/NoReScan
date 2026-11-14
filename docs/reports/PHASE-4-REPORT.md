@@ -1,4 +1,4 @@
-# BugBrain — Phase 4 Completion Report (Code Analysis & AST Parsing)
+# code-cache — Phase 4 Completion Report (Code Analysis & AST Parsing)
 
 **Phase:** Phase 4 — Code Analysis & AST Parsing  
 **Status:** Completed & Verified  
@@ -9,7 +9,7 @@
 
 ## 1. What Was Implemented
 
-1. **`@bugbrain/analyzer` Package:**
+1. **`@code-cache/analyzer` Package:**
    - **TypeScript / JavaScript AST Parser (`src/parsers/typescript.ts`):** Uses official TypeScript compiler AST (`ts.createSourceFile`) to extract function declarations, class declarations, interface definitions, type aliases, variable statements, imports (static and dynamic), and HTTP route handlers (Express, Fastify, Next.js).
    - **Python Parser (`src/parsers/python.ts`):** Extracts classes, functions, async defs, FastAPI/Flask route decorators (`@app.get`, `@router.post`), imports (`import`, `from ... import ...`), and Pydantic models.
    - **SQL Parser (`src/parsers/sql.ts`):** Parses DDL statements (`CREATE TABLE`), column types, and constraints into typed domain models.
@@ -42,7 +42,7 @@
 
 ## 4. Tests Executed & Results
 
-- **`@bugbrain/analyzer`:** 4 test suites passed:
+- **`@code-cache/analyzer`:** 4 test suites passed:
   - TypeScript AST extraction (functions, classes, interfaces, Express routes).
   - Python AST extraction (classes, functions, FastAPI route decorators).
   - SQL schema parsing (tables, column fields).

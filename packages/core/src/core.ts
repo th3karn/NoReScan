@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import {
-  BugBrainDatabase,
+  CodeCacheDatabase,
   DatabaseMigrator,
   ProjectRepository,
   FileRepository,
@@ -15,16 +15,16 @@ import {
   StoredProjectCommand,
   StoredPackageDependency,
   StoredWorkspaceMember,
-} from '@bugbrain/database';
-import { FileScanner } from '@bugbrain/scanner';
-import { diffFingerprints, computeFingerprint } from '@bugbrain/fingerprint';
-import { CodeAnalyzer } from '@bugbrain/analyzer';
+} from '@code-cache/database';
+import { FileScanner } from '@code-cache/scanner';
+import { diffFingerprints, computeFingerprint } from '@code-cache/fingerprint';
+import { CodeAnalyzer } from '@code-cache/analyzer';
 import {
   DependencyGraph,
   resolveImportSpecifier,
   ConservativeInvalidator,
-} from '@bugbrain/dependency-graph';
-import { TaskContextEngine } from '@bugbrain/context-engine';
+} from '@code-cache/dependency-graph';
+import { TaskContextEngine } from '@code-cache/context-engine';
 import {
   UniversalLanguageDetector,
   EcosystemRegistry,
@@ -34,11 +34,11 @@ import {
   MonorepoComponent,
   RuntimeEnvironment,
   CommandInspection,
-} from '@bugbrain/ecosystems';
+} from '@code-cache/ecosystems';
 import {
   normalizePath,
-  BugBrainConfig,
-  BugBrainConfigSchema,
+  CodeCacheConfig,
+  CodeCacheConfigSchema,
   DEFAULT_CONFIG,
   defaultLogger,
   ConfigurationError,
@@ -47,12 +47,12 @@ import {
   DependencyEdge,
   DecisionRecord,
   AgentSession,
-} from '@bugbrain/shared';
+} from '@code-cache/shared';
 import crypto from 'node:crypto';
 import { migrateLegacy } from './migration.js';
 import { Cartographer, CausalGraphData, BlastRadiusResult } from './cartographer.js';
 import { HybridSyncEngine, SyncResult, SyncPayload } from './sync.js';
-import { BugBrainRestServer, ServerOptions } from './server.js';
+import { CodeCacheRestServer, ServerOptions } from './server.js';
 
 const execAsync = promisify(exec);
 
@@ -92,10 +92,10 @@ export interface SearchResult {
   decisions: Array<{ id: string; title: string; decision: string }>;
 }
 
-export class BugBrainCore {
+export class CodeCacheCore {
   public readonly projectRoot: string;
-  public config!: BugBrainConfig;
-  public db!: BugBrainDatabase;
+  public config!: CodeCacheConfig;
+  public db!: CodeCacheDatabase;
   public projectRepo!: ProjectRepository;
   public fileRepo!: FileRepository;
   public analysisRepo!: AnalysisRepository;
@@ -111,8 +111,8 @@ export class BugBrainCore {
   public environmentDetector: EnvironmentDetector;
   public commandRunner: SafeCommandRunner;
   public cartographer: Cartographer;
-  public syncEngine?: HybridSyncEngine;
-  private restServer?: BugBrainRestServer;
+  public syncEngine ?: HybridSyncEngine;
+  private restServer ?: CodeCacheRestServer;
 
   constructor(projectRoot: string) {
     this.projectRoot = normalizePath(path.resolve(projectRoot));
@@ -126,11 +126,11 @@ export class BugBrainCore {
   }
 
   /**
-   * Loads existing .bugbrain/config.json or returns null if uninitialized.
+   * Loads existing .code-cache/config.json or returns null if uninitialized.
    * Automatically migrates legacy .repomind/ if present.
    */
-  public async loadConfig(): Promise<BugBrainConfig | null> {
-    const configPath = path.join(this.projectRoot, '.bugbrain', 'config.json');
+  public async loadConfig(): Promise < CodeCacheConfig | null > {
+    const configPath = path.join(this.projectRoot, '.code-cache', 'config.json');
     let content: string;
     try {
       content = await fs.readFile(configPath, 'utf8');
@@ -146,26 +146,26 @@ export class BugBrainCore {
       }
     }
 
-    const parsed = BugBrainConfigSchema.parse(JSON.parse(content));
+    const parsed = CodeCacheConfigSchema.parse(JSON.parse(content));
     this.config = parsed;
     this.initDatabase();
     return parsed;
   }
 
   /**
-   * Initializes a new BugBrain workspace.
+   * Initializes a new code-cache workspace.
    */
-  public async init(projectName?: string): Promise<BugBrainConfig> {
+  public async init(projectName ?: string): Promise < CodeCacheConfig > {
     // Check if legacy workspace exists and migrate
     try {
       const legacyStat = await fs.stat(path.join(this.projectRoot, '.repomind'));
-      if (legacyStat.isDirectory()) {
-        await migrateLegacy(this.projectRoot);
-      }
-    } catch {}
+      if(legacyStat.isDirectory()) {
+    await migrateLegacy(this.projectRoot);
+  }
+} catch { }
 
-    const bugbrainDir = path.join(this.projectRoot, '.bugbrain');
-    await fs.mkdir(bugbrainDir, { recursive: true });
+    const codeCacheDir = path.join(this.projectRoot, '.code-cache');
+    await fs.mkdir(codeCacheDir, { recursive: true });
 
     const name = projectName || path.basename(this.projectRoot);
     const existing = await this.loadConfig();
@@ -173,886 +173,886 @@ export class BugBrainCore {
       return existing;
     }
 
-    const newConfig: BugBrainConfig = {
+    const newConfig: CodeCacheConfig = {
       ...DEFAULT_CONFIG,
       projectId: crypto.randomUUID(),
       projectName: name,
     };
 
-    const configPath = path.join(bugbrainDir, 'config.json');
-    await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2), 'utf8');
-    this.config = newConfig;
+    const configPath = path.join(codeCacheDir, 'config.json');
+await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2), 'utf8');
+this.config = newConfig;
 
-    this.initDatabase();
-    this.projectRepo.upsert({
-      id: newConfig.projectId,
-      rootPath: this.projectRoot,
-      name: newConfig.projectName,
-      configHash: crypto.createHash('sha256').update(JSON.stringify(newConfig)).digest('hex'),
-      syncEnabled: newConfig.sync.enabled,
-    });
+this.initDatabase();
+this.projectRepo.upsert({
+  id: newConfig.projectId,
+  rootPath: this.projectRoot,
+  name: newConfig.projectName,
+  configHash: crypto.createHash('sha256').update(JSON.stringify(newConfig)).digest('hex'),
+  syncEnabled: newConfig.sync.enabled,
+});
 
-    return newConfig;
+return newConfig;
   }
 
   private initDatabase(): void {
-    if (this.db) return;
-    const dbPath = path.join(this.projectRoot, '.bugbrain', 'bugbrain.db');
-    this.db = new BugBrainDatabase({ filename: dbPath });
+  if(this.db) return;
+  const dbPath = path.join(this.projectRoot, '.code-cache', 'code-cache.db');
+  this.db = new CodeCacheDatabase({ filename: dbPath });
 
-    const migrator = new DatabaseMigrator(this.db);
-    migrator.migrate();
+  const migrator = new DatabaseMigrator(this.db);
+  migrator.migrate();
 
-    this.projectRepo = new ProjectRepository(this.db);
-    this.fileRepo = new FileRepository(this.db);
-    this.analysisRepo = new AnalysisRepository(this.db);
-    this.depRepo = new DependencyRepository(this.db);
-    this.decisionRepo = new DecisionRepository(this.db);
-    this.sessionRepo = new SessionRepository(this.db);
-    this.ecosystemRepo = new EcosystemRepository(this.db);
-    this.syncEngine = new HybridSyncEngine(this.db, this.config.projectId);
+  this.projectRepo = new ProjectRepository(this.db);
+  this.fileRepo = new FileRepository(this.db);
+  this.analysisRepo = new AnalysisRepository(this.db);
+  this.depRepo = new DependencyRepository(this.db);
+  this.decisionRepo = new DecisionRepository(this.db);
+  this.sessionRepo = new SessionRepository(this.db);
+  this.ecosystemRepo = new EcosystemRepository(this.db);
+  this.syncEngine = new HybridSyncEngine(this.db, this.config.projectId);
 
-    this.contextEngine = new TaskContextEngine({
-      projectId: this.config.projectId,
-      projectRoot: this.projectRoot,
-      fileRepo: this.fileRepo,
-      analysisRepo: this.analysisRepo,
-      depRepo: this.depRepo,
-      decisionRepo: this.decisionRepo,
-      graph: this.graph,
-    });
+  this.contextEngine = new TaskContextEngine({
+    projectId: this.config.projectId,
+    projectRoot: this.projectRoot,
+    fileRepo: this.fileRepo,
+    analysisRepo: this.analysisRepo,
+    depRepo: this.depRepo,
+    decisionRepo: this.decisionRepo,
+    graph: this.graph,
+  });
 
-    // Populate memory graph from stored dependencies
-    this.reloadDependencyGraph();
-  }
+  // Populate memory graph from stored dependencies
+  this.reloadDependencyGraph();
+}
 
   private reloadDependencyGraph(): void {
-    if (!this.depRepo || !this.config || !this.fileRepo) return;
-    try {
-      const allFiles = this.fileRepo.getAllByProject(this.config.projectId);
-      for (const f of allFiles.values()) {
-        this.graph.addNode(f.relativePath);
-      }
+  if(!this.depRepo || !this.config || !this.fileRepo) return;
+  try {
+    const allFiles = this.fileRepo.getAllByProject(this.config.projectId);
+    for(const f of allFiles.values()) {
+  this.graph.addNode(f.relativePath);
+}
 
-      const edges = this.depRepo.getAllEdgesByProject(this.config.projectId);
-      for (const edge of edges) {
-        if (edge.targetPath) {
-          // Resolve source file path
-          const sourceFile = this.fileRepo.getById(edge.sourceFileId);
-          if (sourceFile) {
-            this.graph.addEdge(sourceFile.relativePath, edge.targetPath);
-          }
-        }
-      }
-    } catch {}
+const edges = this.depRepo.getAllEdgesByProject(this.config.projectId);
+for (const edge of edges) {
+  if (edge.targetPath) {
+    // Resolve source file path
+    const sourceFile = this.fileRepo.getById(edge.sourceFileId);
+    if (sourceFile) {
+      this.graph.addEdge(sourceFile.relativePath, edge.targetPath);
+    }
+  }
+}
+    } catch { }
   }
 
   private ensureInitialized(): void {
-    if (!this.config || !this.db) {
-      throw new ConfigurationError(
-        `BugBrain is not initialized in ${this.projectRoot}. Run "bugbrain init" first.`
-      );
-    }
+  if(!this.config || !this.db) {
+  throw new ConfigurationError(
+    `code-cache is not initialized in ${this.projectRoot}. Run "code-cache init" first.`
+  );
+}
   }
 
   /**
    * Performs incremental scan, hash comparison, AST parsing, and conservative invalidation.
    */
-  public async scan(options: { force?: boolean } = {}): Promise<ScanSummary> {
-    this.ensureInitialized();
-    const startTime = Date.now();
+  public async scan(options: { force?: boolean } = {}): Promise < ScanSummary > {
+  this.ensureInitialized();
+  const startTime = Date.now();
 
-    const scanner = new FileScanner({
-      projectRoot: this.projectRoot,
-      config: this.config,
-    });
-    await scanner.init();
+  const scanner = new FileScanner({
+    projectRoot: this.projectRoot,
+    config: this.config,
+  });
+  await scanner.init();
 
-    const scanResult = await scanner.scan();
-    const currentFingerprints = scanResult.fingerprints;
+  const scanResult = await scanner.scan();
+  const currentFingerprints = scanResult.fingerprints;
 
-    // Load previous file snapshots
-    const previousSnapshots = this.fileRepo.getAllByProject(this.config.projectId);
-    const diff = options.force
-      ? {
-        unchanged: [],
-        modified: Array.from(currentFingerprints.values()),
-        added: [],
-        deleted: [],
-        renamed: [],
-      }
-      : diffFingerprints(currentFingerprints, previousSnapshots);
-
-    // Handle deleted files
-    for (const deleted of diff.deleted) {
-      this.fileRepo.markDeleted(this.config.projectId, deleted.relativePath);
-      this.graph.removeNode(deleted.relativePath);
+  // Load previous file snapshots
+  const previousSnapshots = this.fileRepo.getAllByProject(this.config.projectId);
+  const diff = options.force
+    ? {
+      unchanged: [],
+      modified: Array.from(currentFingerprints.values()),
+      added: [],
+      deleted: [],
+      renamed: [],
     }
+    : diffFingerprints(currentFingerprints, previousSnapshots);
 
-    // Handle renamed files
-    for (const rename of diff.renamed) {
-      this.fileRepo.markDeleted(this.config.projectId, rename.from.relativePath);
-      this.graph.removeNode(rename.from.relativePath);
-    }
+  // Handle deleted files
+  for(const deleted of diff.deleted) {
+  this.fileRepo.markDeleted(this.config.projectId, deleted.relativePath);
+  this.graph.removeNode(deleted.relativePath);
+}
 
-    const filesToAnalyze = [...diff.added, ...diff.modified, ...diff.renamed.map((r) => r.to)];
-    const allKnownPaths = new Set(currentFingerprints.keys());
+// Handle renamed files
+for (const rename of diff.renamed) {
+  this.fileRepo.markDeleted(this.config.projectId, rename.from.relativePath);
+  this.graph.removeNode(rename.from.relativePath);
+}
 
-    let invalidatedDependentsCount = 0;
-    const invalidator = new ConservativeInvalidator(this.graph);
+const filesToAnalyze = [...diff.added, ...diff.modified, ...diff.renamed.map((r) => r.to)];
+const allKnownPaths = new Set(currentFingerprints.keys());
 
-    // Analyze new and modified files
-    for (const fp of filesToAnalyze) {
-      const absPath = path.join(this.projectRoot, fp.relativePath);
-      let analysisOutput;
-      try {
-        analysisOutput = await this.analyzer.analyzeFile(absPath, fp.relativePath, fp.language);
-      } catch (err) {
-        defaultLogger.warn(`Failed to parse AST for ${fp.relativePath}`, err);
-        continue;
-      }
+let invalidatedDependentsCount = 0;
+const invalidator = new ConservativeInvalidator(this.graph);
 
-      // Check conservative invalidation for modified files
-      const existingSnapshot = previousSnapshots.get(fp.relativePath);
-      if (existingSnapshot) {
-        const prevAnalysis = this.analysisRepo.getLatestByFileId(existingSnapshot.id);
-        if (prevAnalysis) {
-          const decision = invalidator.evaluateImpact(
-            fp.relativePath,
-            prevAnalysis.astMetadata.exports,
-            analysisOutput.astMetadata.exports
-          );
-          if (decision.action === 'invalidate_dependents') {
-            for (const depRelPath of decision.blastRadius) {
-              const depSnap = previousSnapshots.get(depRelPath);
-              if (depSnap) {
-                this.fileRepo.updateStatus(depSnap.id, 'stale');
-                this.analysisRepo.markStaleByFileId(depSnap.id);
-                invalidatedDependentsCount++;
-              }
-            }
+// Analyze new and modified files
+for (const fp of filesToAnalyze) {
+  const absPath = path.join(this.projectRoot, fp.relativePath);
+  let analysisOutput;
+  try {
+    analysisOutput = await this.analyzer.analyzeFile(absPath, fp.relativePath, fp.language);
+  } catch (err) {
+    defaultLogger.warn(`Failed to parse AST for ${fp.relativePath}`, err);
+    continue;
+  }
+
+  // Check conservative invalidation for modified files
+  const existingSnapshot = previousSnapshots.get(fp.relativePath);
+  if (existingSnapshot) {
+    const prevAnalysis = this.analysisRepo.getLatestByFileId(existingSnapshot.id);
+    if (prevAnalysis) {
+      const decision = invalidator.evaluateImpact(
+        fp.relativePath,
+        prevAnalysis.astMetadata.exports,
+        analysisOutput.astMetadata.exports
+      );
+      if (decision.action === 'invalidate_dependents') {
+        for (const depRelPath of decision.blastRadius) {
+          const depSnap = previousSnapshots.get(depRelPath);
+          if (depSnap) {
+            this.fileRepo.updateStatus(depSnap.id, 'stale');
+            this.analysisRepo.markStaleByFileId(depSnap.id);
+            invalidatedDependentsCount++;
           }
         }
       }
-
-      // Save file snapshot
-      const savedSnapshot = this.fileRepo.upsertFile({
-        projectId: this.config.projectId,
-        relativePath: fp.relativePath,
-        contentHash: fp.contentHash,
-        language: fp.language,
-        fileSize: fp.fileSize,
-        status: 'valid',
-        lastScannedAt: new Date().toISOString(),
-      });
-
-      this.graph.addNode(fp.relativePath);
-
-      // Save analysis
-      this.analysisRepo.saveAnalysis({
-        fileId: savedSnapshot.id,
-        contentHash: fp.contentHash,
-        summary: analysisOutput.summary,
-        astMetadata: analysisOutput.astMetadata,
-        analyzerVersion: analysisOutput.analyzerVersion,
-        schemaVersion: analysisOutput.schemaVersion,
-        status: 'valid',
-      });
-
-      // Resolve imports and update dependencies
-      const resolvedEdges: Array<{
-        targetPath: string;
-        targetFileId?: string;
-        dependencyType: string;
-        confidence: number;
-      }> = [];
-
-      for (const imp of analysisOutput.astMetadata.imports) {
-        const resolvedPath = resolveImportSpecifier(imp.source, fp.relativePath, allKnownPaths);
-        if (resolvedPath) {
-          const targetSnap = previousSnapshots.get(resolvedPath);
-          resolvedEdges.push({
-            targetPath: resolvedPath,
-            targetFileId: targetSnap?.id,
-            dependencyType: imp.isTypeOnly ? 'type_reference' : 'import',
-            confidence: 1.0,
-          });
-          this.graph.addEdge(fp.relativePath, resolvedPath);
-        }
-      }
-
-      this.depRepo.replaceFileDependencies(this.config.projectId, savedSnapshot.id, resolvedEdges);
     }
+  }
 
-    // Index polyglot ecosystems, package dependencies, commands, and workspaces
-    try {
-      const commands = await this.ecosystemRegistry.extractAllCommands(this.projectRoot);
-      this.ecosystemRepo.replaceProjectCommands(this.config.projectId, commands);
+  // Save file snapshot
+  const savedSnapshot = this.fileRepo.upsertFile({
+    projectId: this.config.projectId,
+    relativePath: fp.relativePath,
+    contentHash: fp.contentHash,
+    language: fp.language,
+    fileSize: fp.fileSize,
+    status: 'valid',
+    lastScannedAt: new Date().toISOString(),
+  });
 
-      const deps = await this.ecosystemRegistry.extractAllDependencies(this.projectRoot);
-      this.ecosystemRepo.replacePackageDependencies(this.config.projectId, 'manifest-root', deps);
+  this.graph.addNode(fp.relativePath);
 
-      const workspaces = await this.ecosystemRegistry.detectAllWorkspaces(this.projectRoot);
-      this.ecosystemRepo.replaceWorkspaceMembers(this.config.projectId, workspaces);
-    } catch (err) {
-      defaultLogger.warn('Ecosystem indexing error:', err);
+  // Save analysis
+  this.analysisRepo.saveAnalysis({
+    fileId: savedSnapshot.id,
+    contentHash: fp.contentHash,
+    summary: analysisOutput.summary,
+    astMetadata: analysisOutput.astMetadata,
+    analyzerVersion: analysisOutput.analyzerVersion,
+    schemaVersion: analysisOutput.schemaVersion,
+    status: 'valid',
+  });
+
+  // Resolve imports and update dependencies
+  const resolvedEdges: Array<{
+    targetPath: string;
+    targetFileId?: string;
+    dependencyType: string;
+    confidence: number;
+  }> = [];
+
+  for (const imp of analysisOutput.astMetadata.imports) {
+    const resolvedPath = resolveImportSpecifier(imp.source, fp.relativePath, allKnownPaths);
+    if (resolvedPath) {
+      const targetSnap = previousSnapshots.get(resolvedPath);
+      resolvedEdges.push({
+        targetPath: resolvedPath,
+        targetFileId: targetSnap?.id,
+        dependencyType: imp.isTypeOnly ? 'type_reference' : 'import',
+        confidence: 1.0,
+      });
+      this.graph.addEdge(fp.relativePath, resolvedPath);
     }
+  }
 
-    return {
-      scanned: currentFingerprints.size,
-      unchanged: diff.unchanged.length,
-      modified: diff.modified.length,
-      added: diff.added.length,
-      deleted: diff.deleted.length,
-      renamed: diff.renamed.length,
-      invalidatedDependents: invalidatedDependentsCount,
-      durationMs: Date.now() - startTime,
-    };
+  this.depRepo.replaceFileDependencies(this.config.projectId, savedSnapshot.id, resolvedEdges);
+}
+
+// Index polyglot ecosystems, package dependencies, commands, and workspaces
+try {
+  const commands = await this.ecosystemRegistry.extractAllCommands(this.projectRoot);
+  this.ecosystemRepo.replaceProjectCommands(this.config.projectId, commands);
+
+  const deps = await this.ecosystemRegistry.extractAllDependencies(this.projectRoot);
+  this.ecosystemRepo.replacePackageDependencies(this.config.projectId, 'manifest-root', deps);
+
+  const workspaces = await this.ecosystemRegistry.detectAllWorkspaces(this.projectRoot);
+  this.ecosystemRepo.replaceWorkspaceMembers(this.config.projectId, workspaces);
+} catch (err) {
+  defaultLogger.warn('Ecosystem indexing error:', err);
+}
+
+return {
+  scanned: currentFingerprints.size,
+  unchanged: diff.unchanged.length,
+  modified: diff.modified.length,
+  added: diff.added.length,
+  deleted: diff.deleted.length,
+  renamed: diff.renamed.length,
+  invalidatedDependents: invalidatedDependentsCount,
+  durationMs: Date.now() - startTime,
+};
   }
 
   /**
    * Re-analyzes a specific file or all modified files.
    */
-  public async refreshFile(relativePath?: string): Promise<{ refreshed: number; details: string }> {
-    this.ensureInitialized();
-    if (!relativePath) {
-      const summary = await this.scan();
-      return {
-        refreshed: summary.modified + summary.added,
-        details: `Scanned ${summary.scanned} files (${summary.modified} modified, ${summary.added} added refreshed).`,
-      };
-    }
+  public async refreshFile(relativePath ?: string): Promise < { refreshed: number; details: string } > {
+  this.ensureInitialized();
+  if(!relativePath) {
+    const summary = await this.scan();
+    return {
+      refreshed: summary.modified + summary.added,
+      details: `Scanned ${summary.scanned} files (${summary.modified} modified, ${summary.added} added refreshed).`,
+    };
+  }
 
     const normalized = normalizePath(relativePath);
-    const absPath = path.join(this.projectRoot, normalized);
+  const absPath = path.join(this.projectRoot, normalized);
 
-    try {
-      await fs.access(absPath);
-    } catch {
-      return { refreshed: 0, details: `File ${normalized} does not exist.` };
-    }
+  try {
+    await fs.access(absPath);
+  } catch {
+    return { refreshed: 0, details: `File ${normalized} does not exist.` };
+  }
 
     const fp = await computeFingerprint(absPath, this.projectRoot);
-    const analysis = await this.analyzer.analyzeFile(absPath, normalized, fp.language);
+  const analysis = await this.analyzer.analyzeFile(absPath, normalized, fp.language);
 
-    const savedSnapshot = this.fileRepo.upsertFile({
-      projectId: this.config.projectId,
-      relativePath: normalized,
-      contentHash: fp.contentHash,
-      language: fp.language,
-      fileSize: fp.fileSize,
-      status: 'valid',
-      lastScannedAt: new Date().toISOString(),
-    });
+  const savedSnapshot = this.fileRepo.upsertFile({
+    projectId: this.config.projectId,
+    relativePath: normalized,
+    contentHash: fp.contentHash,
+    language: fp.language,
+    fileSize: fp.fileSize,
+    status: 'valid',
+    lastScannedAt: new Date().toISOString(),
+  });
 
-    this.analysisRepo.saveAnalysis({
-      fileId: savedSnapshot.id,
-      contentHash: fp.contentHash,
-      summary: analysis.summary,
-      astMetadata: analysis.astMetadata,
-      analyzerVersion: analysis.analyzerVersion,
-      schemaVersion: analysis.schemaVersion,
-      status: 'valid',
-    });
+  this.analysisRepo.saveAnalysis({
+    fileId: savedSnapshot.id,
+    contentHash: fp.contentHash,
+    summary: analysis.summary,
+    astMetadata: analysis.astMetadata,
+    analyzerVersion: analysis.analyzerVersion,
+    schemaVersion: analysis.schemaVersion,
+    status: 'valid',
+  });
 
-    return { refreshed: 1, details: `Successfully refreshed analysis for ${normalized}` };
-  }
+  return { refreshed: 1, details: `Successfully refreshed analysis for ${normalized}` };
+}
 
   /**
    * Returns current diff (added, modified, deleted) against database snapshots without saving.
    */
-  public async getDiff(): Promise<{
-    added: string[];
-    modified: string[];
-    deleted: string[];
-    unchanged: number;
-  }> {
-    this.ensureInitialized();
-    const scanner = new FileScanner({
-      projectRoot: this.projectRoot,
-      config: this.config,
-    });
-    await scanner.init();
+  public async getDiff(): Promise < {
+  added: string[];
+  modified: string[];
+  deleted: string[];
+  unchanged: number;
+} > {
+  this.ensureInitialized();
+  const scanner = new FileScanner({
+    projectRoot: this.projectRoot,
+    config: this.config,
+  });
+  await scanner.init();
 
-    const scanResult = await scanner.scan();
-    const previousSnapshots = this.fileRepo.getAllByProject(this.config.projectId);
-    const diff = diffFingerprints(scanResult.fingerprints, previousSnapshots);
+  const scanResult = await scanner.scan();
+  const previousSnapshots = this.fileRepo.getAllByProject(this.config.projectId);
+  const diff = diffFingerprints(scanResult.fingerprints, previousSnapshots);
 
-    return {
-      added: diff.added.map((f) => f.relativePath),
-      modified: diff.modified.map((f) => f.relativePath),
-      deleted: diff.deleted.map((f) => f.relativePath),
-      unchanged: diff.unchanged.length,
-    };
-  }
+  return {
+    added: diff.added.map((f) => f.relativePath),
+    modified: diff.modified.map((f) => f.relativePath),
+    deleted: diff.deleted.map((f) => f.relativePath),
+    unchanged: diff.unchanged.length,
+  };
+}
 
   /**
    * Retrieves high-level workspace health and memory status.
    */
   public getStatus(): StatusSummary {
-    this.ensureInitialized();
-    const files = this.fileRepo.getAllByProject(this.config.projectId);
-    const decisions = this.decisionRepo.listByProject(this.config.projectId);
-    const sessions = this.sessionRepo.listByProject(this.config.projectId);
+  this.ensureInitialized();
+  const files = this.fileRepo.getAllByProject(this.config.projectId);
+  const decisions = this.decisionRepo.listByProject(this.config.projectId);
+  const sessions = this.sessionRepo.listByProject(this.config.projectId);
 
-    let total = 0;
-    let valid = 0;
-    let stale = 0;
-    let lastScan: string | undefined;
+  let total = 0;
+  let valid = 0;
+  let stale = 0;
+  let lastScan: string | undefined;
 
-    for (const f of files.values()) {
-      if (f.status === 'deleted') continue;
-      total++;
-      if (f.status === 'valid') valid++;
-      else stale++;
-      if (!lastScan || f.lastScannedAt > lastScan) {
-        lastScan = f.lastScannedAt;
-      }
+  for (const f of files.values()) {
+    if (f.status === 'deleted') continue;
+    total++;
+    if (f.status === 'valid') valid++;
+    else stale++;
+    if (!lastScan || f.lastScannedAt > lastScan) {
+      lastScan = f.lastScannedAt;
     }
-
-    return {
-      projectId: this.config.projectId,
-      projectName: this.config.projectName,
-      rootPath: this.projectRoot,
-      totalFiles: total,
-      validAnalyses: valid,
-      staleAnalyses: stale,
-      decisionsCount: decisions.length,
-      sessionsCount: sessions.length,
-      lastScannedAt: lastScan,
-    };
   }
+
+  return {
+    projectId: this.config.projectId,
+    projectName: this.config.projectName,
+    rootPath: this.projectRoot,
+    totalFiles: total,
+    validAnalyses: valid,
+    staleAnalyses: stale,
+    decisionsCount: decisions.length,
+    sessionsCount: sessions.length,
+    lastScannedAt: lastScan,
+  };
+}
 
   /**
    * Explains a specific file, including its analysis, exports, imports, and blast radius.
    */
   public explain(relativePath: string) {
-    this.ensureInitialized();
-    const normalized = normalizePath(relativePath);
-    const files = this.fileRepo.getAllByProject(this.config.projectId);
-    const snap = files.get(normalized);
-    if (!snap) return null;
+  this.ensureInitialized();
+  const normalized = normalizePath(relativePath);
+  const files = this.fileRepo.getAllByProject(this.config.projectId);
+  const snap = files.get(normalized);
+  if (!snap) return null;
 
-    const analysis = this.analysisRepo.getLatestByFileId(snap.id);
-    const deps = this.depRepo.getUpstreamDependencies(snap.id);
-    const dependents = this.depRepo.getDownstreamDependents(snap.id);
-    const blastRadius = this.graph.getBlastRadius([normalized]);
+  const analysis = this.analysisRepo.getLatestByFileId(snap.id);
+  const deps = this.depRepo.getUpstreamDependencies(snap.id);
+  const dependents = this.depRepo.getDownstreamDependents(snap.id);
+  const blastRadius = this.graph.getBlastRadius([normalized]);
 
-    return {
-      file: snap,
-      analysis,
-      dependencies: deps,
-      dependents,
-      blastRadius,
-    };
-  }
+  return {
+    file: snap,
+    analysis,
+    dependencies: deps,
+    dependents,
+    blastRadius,
+  };
+}
 
   /**
    * Returns dependency details, blast radius, and cycle detection for a path.
    */
   public getDependencies(relativePath: string) {
-    this.ensureInitialized();
-    const normalized = normalizePath(relativePath);
-    const files = this.fileRepo.getAllByProject(this.config.projectId);
-    const snap = files.get(normalized);
-    if (!snap) return null;
+  this.ensureInitialized();
+  const normalized = normalizePath(relativePath);
+  const files = this.fileRepo.getAllByProject(this.config.projectId);
+  const snap = files.get(normalized);
+  if (!snap) return null;
 
-    const upstream = this.depRepo.getUpstreamDependencies(snap.id);
-    const downstream = this.depRepo.getDownstreamDependents(snap.id);
-    const blastRadius = this.graph.getBlastRadius([normalized]);
-    const cycles = this.graph.findCycles();
-    const involvedCycles = cycles.filter((c) => c.includes(normalized));
+  const upstream = this.depRepo.getUpstreamDependencies(snap.id);
+  const downstream = this.depRepo.getDownstreamDependents(snap.id);
+  const blastRadius = this.graph.getBlastRadius([normalized]);
+  const cycles = this.graph.findCycles();
+  const involvedCycles = cycles.filter((c) => c.includes(normalized));
 
-    return {
-      file: normalized,
-      upstream: upstream.map((u) => u.targetPath),
-      downstream: downstream.map((d) => d.targetPath),
-      blastRadius,
-      cycles: involvedCycles,
-    };
-  }
+  return {
+    file: normalized,
+    upstream: upstream.map((u) => u.targetPath),
+    downstream: downstream.map((d) => d.targetPath),
+    blastRadius,
+    cycles: involvedCycles,
+  };
+}
 
   /**
    * Returns the most load-bearing files with the highest in-degree (dependents).
    */
   public getHotFiles(limit = 10): HotFileEntry[] {
-    this.ensureInitialized();
-    const entries: HotFileEntry[] = [];
-    for (const node of this.graph.getNodes()) {
-      const dependents = this.graph.getDependents(node);
-      entries.push({
-        relativePath: node,
-        inDegree: dependents.length,
-        dependents,
-      });
-    }
-
-    entries.sort((a, b) => b.inDegree - a.inDegree);
-    return entries.slice(0, limit);
+  this.ensureInitialized();
+  const entries: HotFileEntry[] = [];
+  for (const node of this.graph.getNodes()) {
+    const dependents = this.graph.getDependents(node);
+    entries.push({
+      relativePath: node,
+      inDegree: dependents.length,
+      dependents,
+    });
   }
+
+  entries.sort((a, b) => b.inDegree - a.inDegree);
+  return entries.slice(0, limit);
+}
 
   /**
    * Computes the transitive blast radius cone for a given list of files (e.g. from git diff).
    */
   public getBlastRadius(relativePaths: string[]): string[] {
-    this.ensureInitialized();
-    const normalized = relativePaths.map((p) => normalizePath(p));
-    return this.graph.getBlastRadius(normalized);
-  }
+  this.ensureInitialized();
+  const normalized = relativePaths.map((p) => normalizePath(p));
+  return this.graph.getBlastRadius(normalized);
+}
 
   /**
    * Searches project memory across file paths, symbols, routes, and architectural decisions.
    */
   public search(query: string, limit = 20): SearchResult {
-    this.ensureInitialized();
-    const q = query.toLowerCase();
-    const result: SearchResult = {
-      files: [],
-      symbols: [],
-      routes: [],
-      decisions: [],
-    };
+  this.ensureInitialized();
+  const q = query.toLowerCase();
+  const result: SearchResult = {
+    files: [],
+    symbols: [],
+    routes: [],
+    decisions: [],
+  };
 
-    const files = this.fileRepo.getAllByProject(this.config.projectId);
-    for (const f of files.values()) {
-      if (f.status === 'deleted') continue;
-      if (f.relativePath.toLowerCase().includes(q)) {
-        result.files.push({
-          relativePath: f.relativePath,
-          language: f.language,
-          status: f.status,
-        });
-      }
+  const files = this.fileRepo.getAllByProject(this.config.projectId);
+  for (const f of files.values()) {
+    if (f.status === 'deleted') continue;
+    if (f.relativePath.toLowerCase().includes(q)) {
+      result.files.push({
+        relativePath: f.relativePath,
+        language: f.language,
+        status: f.status,
+      });
+    }
 
-      const analysis = this.analysisRepo.getLatestByFileId(f.id);
-      if (analysis) {
-        for (const sym of analysis.astMetadata.symbols || []) {
-          if (sym.name.toLowerCase().includes(q)) {
-            result.symbols.push({
-              file: f.relativePath,
-              name: sym.name,
-              kind: sym.kind,
-            });
-          }
+    const analysis = this.analysisRepo.getLatestByFileId(f.id);
+    if (analysis) {
+      for (const sym of analysis.astMetadata.symbols || []) {
+        if (sym.name.toLowerCase().includes(q)) {
+          result.symbols.push({
+            file: f.relativePath,
+            name: sym.name,
+            kind: sym.kind,
+          });
         }
-        for (const rt of analysis.astMetadata.routes || []) {
-          if (rt.path.toLowerCase().includes(q) || rt.method.toLowerCase().includes(q)) {
-            result.routes.push({
-              file: f.relativePath,
-              method: rt.method,
-              path: rt.path,
-            });
-          }
+      }
+      for (const rt of analysis.astMetadata.routes || []) {
+        if (rt.path.toLowerCase().includes(q) || rt.method.toLowerCase().includes(q)) {
+          result.routes.push({
+            file: f.relativePath,
+            method: rt.method,
+            path: rt.path,
+          });
         }
       }
     }
-
-    const decisions = this.decisionRepo.listByProject(this.config.projectId);
-    for (const d of decisions) {
-      if (
-        d.title.toLowerCase().includes(q) ||
-        d.decision.toLowerCase().includes(q) ||
-        d.rationale.toLowerCase().includes(q)
-      ) {
-        result.decisions.push({
-          id: d.id,
-          title: d.title,
-          decision: d.decision,
-        });
-      }
-    }
-
-    result.files = result.files.slice(0, limit);
-    result.symbols = result.symbols.slice(0, limit);
-    result.routes = result.routes.slice(0, limit);
-    result.decisions = result.decisions.slice(0, limit);
-
-    return result;
   }
+
+  const decisions = this.decisionRepo.listByProject(this.config.projectId);
+  for (const d of decisions) {
+    if (
+      d.title.toLowerCase().includes(q) ||
+      d.decision.toLowerCase().includes(q) ||
+      d.rationale.toLowerCase().includes(q)
+    ) {
+      result.decisions.push({
+        id: d.id,
+        title: d.title,
+        decision: d.decision,
+      });
+    }
+  }
+
+  result.files = result.files.slice(0, limit);
+  result.symbols = result.symbols.slice(0, limit);
+  result.routes = result.routes.slice(0, limit);
+  result.decisions = result.decisions.slice(0, limit);
+
+  return result;
+}
 
   /**
    * Records an Architectural Decision Record (ADR).
    */
   public recordDecision(params: {
-    title: string;
-    decision: string;
-    rationale: string;
-    affectedFiles?: string[];
-    sessionId?: string;
-  }): DecisionRecord {
-    this.ensureInitialized();
-    return this.decisionRepo.recordDecision({
-      projectId: this.config.projectId,
-      title: params.title,
-      decision: params.decision,
-      rationale: params.rationale,
-      affectedFiles: params.affectedFiles || [],
-      sessionId: params.sessionId,
-    });
-  }
+  title: string;
+  decision: string;
+  rationale: string;
+  affectedFiles?: string[];
+  sessionId?: string;
+}): DecisionRecord {
+  this.ensureInitialized();
+  return this.decisionRepo.recordDecision({
+    projectId: this.config.projectId,
+    title: params.title,
+    decision: params.decision,
+    rationale: params.rationale,
+    affectedFiles: params.affectedFiles || [],
+    sessionId: params.sessionId,
+  });
+}
 
   /**
    * Records an Agent session.
    */
   public recordSession(params: {
-    agentName: string;
-    summary?: string;
-    metadata?: Record<string, unknown>;
-  }): AgentSession {
-    this.ensureInitialized();
-    const session = this.sessionRepo.startSession(this.config.projectId, params.agentName, params.metadata);
-    if (params.summary) {
-      this.sessionRepo.endSession(session.id, params.summary);
-      session.summary = params.summary;
-    }
-    return session;
+  agentName: string;
+  summary?: string;
+  metadata?: Record<string, unknown>;
+}): AgentSession {
+  this.ensureInitialized();
+  const session = this.sessionRepo.startSession(this.config.projectId, params.agentName, params.metadata);
+  if (params.summary) {
+    this.sessionRepo.endSession(session.id, params.summary);
+    session.summary = params.summary;
   }
+  return session;
+}
 
   /**
    * Retrieves session activity history.
    */
   public getHistory(limit = 20): AgentSession[] {
-    this.ensureInitialized();
-    return this.sessionRepo.listByProject(this.config.projectId, limit);
-  }
+  this.ensureInitialized();
+  return this.sessionRepo.listByProject(this.config.projectId, limit);
+}
 
   /**
    * Exports project memory into portable JSON.
    */
-  public async exportMemory(): Promise<object> {
-    this.ensureInitialized();
-    const files = Array.from(this.fileRepo.getAllByProject(this.config.projectId).values());
-    const analyses: FileAnalysis[] = [];
-    for (const f of files) {
-      const a = this.analysisRepo.getLatestByFileId(f.id);
-      if (a) analyses.push(a);
-    }
-    const decisions = this.decisionRepo.listByProject(this.config.projectId);
-    const sessions = this.sessionRepo.listByProject(this.config.projectId, 100);
-
-    return {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      config: this.config,
-      files,
-      analyses,
-      decisions,
-      sessions,
-    };
+  public async exportMemory(): Promise < object > {
+  this.ensureInitialized();
+  const files = Array.from(this.fileRepo.getAllByProject(this.config.projectId).values());
+  const analyses: FileAnalysis[] = [];
+  for(const f of files) {
+    const a = this.analysisRepo.getLatestByFileId(f.id);
+    if (a) analyses.push(a);
   }
+    const decisions = this.decisionRepo.listByProject(this.config.projectId);
+  const sessions = this.sessionRepo.listByProject(this.config.projectId, 100);
+
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    config: this.config,
+    files,
+    analyses,
+    decisions,
+    sessions,
+  };
+}
 
   /**
    * Imports project memory from JSON.
    */
-  public async importMemory(data: any): Promise<{ importedFiles: number; importedDecisions: number }> {
-    this.ensureInitialized();
-    let importedFiles = 0;
-    let importedDecisions = 0;
+  public async importMemory(data: any): Promise < { importedFiles: number; importedDecisions: number } > {
+  this.ensureInitialized();
+  let importedFiles = 0;
+  let importedDecisions = 0;
 
-    if (Array.isArray(data.files)) {
-      for (const f of data.files) {
-        this.fileRepo.upsertFile({
-          projectId: this.config.projectId,
-          relativePath: f.relativePath,
-          contentHash: f.contentHash,
-          language: f.language,
-          fileSize: f.fileSize,
-          status: f.status || 'valid',
-          lastScannedAt: f.lastScannedAt || new Date().toISOString(),
-        });
-        importedFiles++;
-      }
-    }
+  if(Array.isArray(data.files)) {
+  for (const f of data.files) {
+    this.fileRepo.upsertFile({
+      projectId: this.config.projectId,
+      relativePath: f.relativePath,
+      contentHash: f.contentHash,
+      language: f.language,
+      fileSize: f.fileSize,
+      status: f.status || 'valid',
+      lastScannedAt: f.lastScannedAt || new Date().toISOString(),
+    });
+    importedFiles++;
+  }
+}
 
-    if (Array.isArray(data.decisions)) {
-      for (const d of data.decisions) {
-        this.decisionRepo.recordDecision({
-          projectId: this.config.projectId,
-          title: d.title,
-          decision: d.decision,
-          rationale: d.rationale,
-          affectedFiles: d.affectedFiles || [],
-        });
-        importedDecisions++;
-      }
-    }
+if (Array.isArray(data.decisions)) {
+  for (const d of data.decisions) {
+    this.decisionRepo.recordDecision({
+      projectId: this.config.projectId,
+      title: d.title,
+      decision: d.decision,
+      rationale: d.rationale,
+      affectedFiles: d.affectedFiles || [],
+    });
+    importedDecisions++;
+  }
+}
 
-    return { importedFiles, importedDecisions };
+return { importedFiles, importedDecisions };
   }
 
   /**
    * Safely backs up the SQLite database file to a destination path.
    */
-  public async backupDatabase(destinationPath?: string): Promise<string> {
-    this.ensureInitialized();
-    const dbPath = path.join(this.projectRoot, '.bugbrain', 'bugbrain.db');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const dest = destinationPath || path.join(this.projectRoot, '.bugbrain', `bugbrain.backup-${timestamp}.db`);
+  public async backupDatabase(destinationPath ?: string): Promise < string > {
+  this.ensureInitialized();
+  const dbPath = path.join(this.projectRoot, '.code-cache', 'code-cache.db');
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const dest = destinationPath || path.join(this.projectRoot, '.code-cache', `code-cache.backup-${timestamp}.db`);
 
-    // Run PRAGMA wal_checkpoint(FULL) to ensure all writes are flushed
-    try {
-      this.db.db.exec('PRAGMA wal_checkpoint(FULL);');
-    } catch {}
+  // Run PRAGMA wal_checkpoint(FULL) to ensure all writes are flushed
+  try {
+    this.db.db.exec('PRAGMA wal_checkpoint(FULL);');
+  } catch {}
 
     await fs.copyFile(dbPath, dest);
-    return dest;
-  }
+  return dest;
+}
 
   /**
    * Runs diagnostic checks on database, permissions, and schema.
    */
   public doctor(): { healthy: boolean; checks: Array<{ name: string; passed: boolean; message: string }> } {
-    this.ensureInitialized();
-    const checks = [];
+  this.ensureInitialized();
+  const checks = [];
 
-    // 1. SQLite integrity check
-    try {
-      const integrity = this.db.db.prepare('PRAGMA integrity_check;').get() as { integrity_check: string };
-      const ok = integrity.integrity_check === 'ok';
-      checks.push({
-        name: 'SQLite Database Integrity',
-        passed: ok,
-        message: ok ? 'Database integrity check passed (WAL mode active)' : `Corrupt: ${integrity.integrity_check}`,
-      });
-    } catch (err: any) {
-      checks.push({ name: 'SQLite Database Integrity', passed: false, message: err.message });
-    }
-
-    // 2. Directory write permission
-    try {
-      const testFile = path.join(this.projectRoot, '.bugbrain', '.write-test');
-      this.db.db.exec('SELECT 1;');
-      checks.push({
-        name: 'Storage Permissions',
-        passed: true,
-        message: 'Write and read permissions confirmed for .bugbrain directory',
-      });
-    } catch (err: any) {
-      checks.push({ name: 'Storage Permissions', passed: false, message: err.message });
-    }
-
-    const healthy = checks.every((c) => c.passed);
-    return { healthy, checks };
+  // 1. SQLite integrity check
+  try {
+    const integrity = this.db.db.prepare('PRAGMA integrity_check;').get() as { integrity_check: string };
+    const ok = integrity.integrity_check === 'ok';
+    checks.push({
+      name: 'SQLite Database Integrity',
+      passed: ok,
+      message: ok ? 'Database integrity check passed (WAL mode active)' : `Corrupt: ${integrity.integrity_check}`,
+    });
+  } catch (err: any) {
+    checks.push({ name: 'SQLite Database Integrity', passed: false, message: err.message });
   }
+
+  // 2. Directory write permission
+  try {
+    const testFile = path.join(this.projectRoot, '.code-cache', '.write-test');
+    this.db.db.exec('SELECT 1;');
+    checks.push({
+      name: 'Storage Permissions',
+      passed: true,
+      message: 'Write and read permissions confirmed for .code-cache directory',
+    });
+  } catch (err: any) {
+    checks.push({ name: 'Storage Permissions', passed: false, message: err.message });
+  }
+
+  const healthy = checks.every((c) => c.passed);
+  return { healthy, checks };
+}
 
   /**
    * Universal Language Detection: Computes language distributions and monorepo components.
    */
-  public async getLanguages(): Promise<{ stats: LanguageStat[]; components: MonorepoComponent[] }> {
-    this.ensureInitialized();
-    const files = this.fileRepo.getAllByProject(this.config.projectId);
-    const stats = await this.languageDetector.detectLanguages(this.projectRoot, files);
-    const components = await this.languageDetector.detectMonorepoComponents(this.projectRoot);
-    return { stats, components };
-  }
+  public async getLanguages(): Promise < { stats: LanguageStat[]; components: MonorepoComponent[] } > {
+  this.ensureInitialized();
+  const files = this.fileRepo.getAllByProject(this.config.projectId);
+  const stats = await this.languageDetector.detectLanguages(this.projectRoot, files);
+  const components = await this.languageDetector.detectMonorepoComponents(this.projectRoot);
+  return { stats, components };
+}
 
   /**
    * Returns active and supported ecosystem adapters.
    */
-  public async getEcosystems(): Promise<Array<{ id: string; displayName: string; supportedLanguages: string[]; active: boolean }>> {
-    this.ensureInitialized();
-    const all = this.ecosystemRegistry.getAllAdapters();
-    const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
-    const activeIds = new Set(active.map((a) => a.id));
-    return all.map((a) => ({
-      id: a.id,
-      displayName: a.displayName,
-      supportedLanguages: a.supportedLanguages,
-      active: activeIds.has(a.id),
-    }));
-  }
+  public async getEcosystems(): Promise < Array < { id: string; displayName: string; supportedLanguages: string[]; active: boolean } >> {
+  this.ensureInitialized();
+  const all = this.ecosystemRegistry.getAllAdapters();
+  const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
+  const activeIds = new Set(active.map((a) => a.id));
+  return all.map((a) => ({
+    id: a.id,
+    displayName: a.displayName,
+    supportedLanguages: a.supportedLanguages,
+    active: activeIds.has(a.id),
+  }));
+}
 
   /**
    * Retrieves package dependencies discovered across active manifests.
    */
   public getPackageDependencies(): StoredPackageDependency[] {
-    this.ensureInitialized();
-    return this.ecosystemRepo.getPackageDependencies(this.config.projectId);
-  }
+  this.ensureInitialized();
+  return this.ecosystemRepo.getPackageDependencies(this.config.projectId);
+}
 
   /**
    * Retrieves project commands discovered across active manifests and scripts.
    */
-  public getProjectCommands(category?: string): StoredProjectCommand[] {
-    this.ensureInitialized();
-    return this.ecosystemRepo.getProjectCommands(this.config.projectId, category);
-  }
+  public getProjectCommands(category ?: string): StoredProjectCommand[] {
+  this.ensureInitialized();
+  return this.ecosystemRepo.getProjectCommands(this.config.projectId, category);
+}
 
   /**
    * Retrieves monorepo workspaces and members.
    */
   public getWorkspaces(): StoredWorkspaceMember[] {
-    this.ensureInitialized();
-    return this.ecosystemRepo.getWorkspaceMembers(this.config.projectId);
-  }
+  this.ensureInitialized();
+  return this.ecosystemRepo.getWorkspaceMembers(this.config.projectId);
+}
 
   /**
    * Probes system toolchain versions and checks project requirements.
    */
-  public async getEnvironmentStatus(): Promise<RuntimeEnvironment[]> {
-    const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
-    const activeIds = active.map((a) => a.id);
-    return this.environmentDetector.probeEnvironment(activeIds.length > 0 ? activeIds : undefined);
-  }
+  public async getEnvironmentStatus(): Promise < RuntimeEnvironment[] > {
+  const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
+  const activeIds = active.map((a) => a.id);
+  return this.environmentDetector.probeEnvironment(activeIds.length > 0 ? activeIds : undefined);
+}
 
   /**
    * Inspects a command and checks safety warnings and side effects.
    */
   public inspectCommand(commandName: string): CommandInspection | null {
-    this.ensureInitialized();
-    const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
-    const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
-    if (!found) return null;
-    return this.commandRunner.inspectCommand(found as any);
-  }
+  this.ensureInitialized();
+  const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
+  const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
+  if (!found) return null;
+  return this.commandRunner.inspectCommand(found as any);
+}
 
   /**
    * Safely executes an authorized command with timeout and safety validation.
    */
-  public async executeCommand(commandName: string): Promise<{ success: boolean; output: string }> {
-    this.ensureInitialized();
-    const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
-    const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
-    if (!found) {
-      return { success: false, output: `Command "${commandName}" is not discovered in this project.` };
-    }
+  public async executeCommand(commandName: string): Promise < { success: boolean; output: string } > {
+  this.ensureInitialized();
+  const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
+  const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
+  if(!found) {
+    return { success: false, output: `Command "${commandName}" is not discovered in this project.` };
+  }
 
     const validation = this.commandRunner.validateExecution(found as any);
-    if (!validation.allowed) {
-      return { success: false, output: `Security block: ${validation.reason}` };
-    }
+  if(!validation.allowed) {
+  return { success: false, output: `Security block: ${validation.reason}` };
+}
 
-    try {
-      const { stdout, stderr } = await execAsync(found.rawCommand, {
-        cwd: path.resolve(this.projectRoot, found.workingDir),
-        timeout: 30000,
-        maxBuffer: 10 * 1024 * 1024,
-      });
-      return { success: true, output: (stdout || stderr).trim() };
-    } catch (err: any) {
-      return { success: false, output: err.message };
-    }
+try {
+  const { stdout, stderr } = await execAsync(found.rawCommand, {
+    cwd: path.resolve(this.projectRoot, found.workingDir),
+    timeout: 30000,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  return { success: true, output: (stdout || stderr).trim() };
+} catch (err: any) {
+  return { success: false, output: err.message };
+}
   }
 
   /**
    * Retrieves the full Causal Dependency Graph with in-degree ranking and cycle detection.
    */
   public getCausalGraph(hotThreshold = 1): CausalGraphData {
-    this.ensureInitialized();
-    return this.cartographer.getCausalGraph(hotThreshold);
-  }
+  this.ensureInitialized();
+  return this.cartographer.getCausalGraph(hotThreshold);
+}
 
   /**
    * Computes the blast cone of potential breakage from a git diff or diff patch.
    */
   public blastDiff(diffText: string, maxDepth = 10): BlastRadiusResult {
-    this.ensureInitialized();
-    return this.cartographer.blastDiff(diffText, maxDepth);
-  }
+  this.ensureInitialized();
+  return this.cartographer.blastDiff(diffText, maxDepth);
+}
 
   /**
    * Returns current hybrid sync status, cursor, and offline queue depth.
    */
   public getSyncStatus() {
-    this.ensureInitialized();
-    return this.syncEngine?.getStatus() || { status: 'unconfigured' };
-  }
+  this.ensureInitialized();
+  return this.syncEngine?.getStatus() || { status: 'unconfigured' };
+}
 
   /**
    * Retrieves architectural decision records (ADRs).
    */
   public getDecisions(): DecisionRecord[] {
-    this.ensureInitialized();
-    return this.decisionRepo.listByProject(this.config.projectId);
-  }
+  this.ensureInitialized();
+  return this.decisionRepo.listByProject(this.config.projectId);
+}
 
   /**
-   * Generates a sync push payload for BugBrain Cloud or authorized peers.
+   * Generates a sync push payload for code-cache Cloud or authorized peers.
    */
   public pushSyncPayload(): SyncPayload {
-    this.ensureInitialized();
-    if (!this.syncEngine) {
-      throw new Error('Sync engine not initialized.');
-    }
-    const fileMap = this.fileRepo.getAllByProject(this.config.projectId);
-    const files = Array.from(fileMap.values());
-
-    const fileRecords = files.map((f) => {
-      const an = this.analysisRepo.getLatestByFileId(f.id);
-      return {
-        relativePath: f.relativePath,
-        hash: f.contentHash,
-        language: f.language,
-        summary: an?.summary,
-      };
-    });
-
-    const edges = this.depRepo.getAllEdgesByProject(this.config.projectId).map((e) => {
-      const src = files.find((f) => f.id === e.sourceFileId);
-      return {
-        source: src?.relativePath || e.sourceFileId,
-        target: e.targetPath,
-        type: e.dependencyType,
-      };
-    });
-
-    const decisions = this.decisionRepo.listByProject(this.config.projectId).map((d) => ({
-      id: d.id,
-      title: d.title,
-      decision: d.decision,
-      rationale: d.rationale,
-      affectedFiles: d.affectedFiles,
-      recordedAt: d.createdAt,
-    }));
-
-    return this.syncEngine.generatePushPayload(fileRecords, edges, decisions);
+  this.ensureInitialized();
+  if (!this.syncEngine) {
+    throw new Error('Sync engine not initialized.');
   }
+  const fileMap = this.fileRepo.getAllByProject(this.config.projectId);
+  const files = Array.from(fileMap.values());
+
+  const fileRecords = files.map((f) => {
+    const an = this.analysisRepo.getLatestByFileId(f.id);
+    return {
+      relativePath: f.relativePath,
+      hash: f.contentHash,
+      language: f.language,
+      summary: an?.summary,
+    };
+  });
+
+  const edges = this.depRepo.getAllEdgesByProject(this.config.projectId).map((e) => {
+    const src = files.find((f) => f.id === e.sourceFileId);
+    return {
+      source: src?.relativePath || e.sourceFileId,
+      target: e.targetPath,
+      type: e.dependencyType,
+    };
+  });
+
+  const decisions = this.decisionRepo.listByProject(this.config.projectId).map((d) => ({
+    id: d.id,
+    title: d.title,
+    decision: d.decision,
+    rationale: d.rationale,
+    affectedFiles: d.affectedFiles,
+    recordedAt: d.createdAt,
+  }));
+
+  return this.syncEngine.generatePushPayload(fileRecords, edges, decisions);
+}
 
   /**
-   * Applies an incoming sync payload from peer or BugBrain Cloud with deterministic merge.
+   * Applies an incoming sync payload from peer or code-cache Cloud with deterministic merge.
    */
   public pullSyncPayload(incoming: SyncPayload): SyncResult {
-    this.ensureInitialized();
-    if (!this.syncEngine) {
-      throw new Error('Sync engine not initialized.');
-    }
-    return this.syncEngine.applyRemotePayload(incoming);
+  this.ensureInitialized();
+  if (!this.syncEngine) {
+    throw new Error('Sync engine not initialized.');
   }
+  return this.syncEngine.applyRemotePayload(incoming);
+}
 
   /**
-   * Starts the BugBrain local REST API server and Cartographer UI dashboard.
+   * Starts the code-cache local REST API server and Cartographer UI dashboard.
    */
-  public async startRestServer(options: ServerOptions = {}): Promise<{ port: number; host: string; url: string }> {
-    this.ensureInitialized();
-    this.restServer = new BugBrainRestServer(this);
-    return this.restServer.start(options);
-  }
+  public async startRestServer(options: ServerOptions = {}): Promise < { port: number; host: string; url: string } > {
+  this.ensureInitialized();
+  this.restServer = new CodeCacheRestServer(this);
+  return this.restServer.start(options);
+}
 
   /**
-   * Stops the BugBrain REST API server if running.
+   * Stops the code-cache REST API server if running.
    */
-  public async stopRestServer(): Promise<void> {
-    if (this.restServer) {
-      await this.restServer.stop();
-      this.restServer = undefined;
-    }
+  public async stopRestServer(): Promise < void> {
+  if(this.restServer) {
+  await this.restServer.stop();
+  this.restServer = undefined;
+}
   }
 
   public clean(staleOnly = false): void {
-    this.ensureInitialized();
-    if (staleOnly) {
-      this.db.db.exec("DELETE FROM analyses WHERE status = 'stale';");
-    } else {
-      this.db.db.exec('DELETE FROM analyses; DELETE FROM dependencies; DELETE FROM file_versions; DELETE FROM files;');
-    }
+  this.ensureInitialized();
+  if(staleOnly) {
+    this.db.db.exec("DELETE FROM analyses WHERE status = 'stale';");
+  } else {
+    this.db.db.exec('DELETE FROM analyses; DELETE FROM dependencies; DELETE FROM file_versions; DELETE FROM files;');
   }
+}
 
   public close(): void {
-    if (this.restServer) {
-      this.restServer.stop().catch(() => {});
-    }
-    if (this.db) {
-      this.db.close();
-    }
+  if(this.restServer) {
+  this.restServer.stop().catch(() => { });
+}
+if (this.db) {
+  this.db.close();
+}
   }
 }

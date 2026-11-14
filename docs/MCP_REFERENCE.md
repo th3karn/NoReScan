@@ -1,7 +1,7 @@
-# BugBrain — Model Context Protocol (MCP) Reference
+# code-cache — Model Context Protocol (MCP) Reference
 
-**Server Name:** `bugbrain`  
-**URI Namespace:** `bugbrain://`  
+**Server Name:** `code-cache`  
+**URI Namespace:** `code-cache://`  
 **Transport:** `stdio` (StdioServerTransport)  
 
 ---
@@ -27,10 +27,10 @@
 
 ## 2. Exposed Resources
 
-- `bugbrain://project/overview`
-- `bugbrain://project/status`
-- `bugbrain://project/architecture`
-- `bugbrain://project/files`
-- `bugbrain://project/decisions`
-- `bugbrain://session/latest`
+- `code-cache://project/overview`
+- `code-cache://project/status`
+- `code-cache://project/architecture`
+- `code-cache://project/files`
+- `code-cache://project/decisions`
+- `code-cache://session/latest`
 

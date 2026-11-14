@@ -1,8 +1,8 @@
-# BugBrain — Workspace Audit & Baseline Report
+# code-cache — Workspace Audit & Baseline Report
 
 **Audit Date:** 2026-11-14  
 **Auditor:** LostGit Solutions Architecture Team  
-**Repository:** `BugBrain CLI` (`e:\Clg_Projects\BugBrain CLI`)  
+**Repository:** `code-cache CLI` (`e:\Clg_Projects\code-cache CLI`)  
 **Operating System:** Windows 11 (PowerShell environment)  
 **Node.js Version:** v26.7.0  
 **pnpm Version:** 12.16.1  
@@ -62,7 +62,7 @@ The documentation generated in the preliminary design gate was evaluated against
    - *Mitigation strategy:* Test install `better-sqlite3`. If prebuilt binaries are unavailable for Node 26 on Windows, evaluate compatibility or use an established pure/prebuilt SQLite binding or ensure standard node-gyp build flags.
 2. **Path Normalization (Windows Backslashes):**
    - *Risk:* Windows uses `\` while Git, globbing libraries, and MCP clients expect POSIX `/`.
-   - *Mitigation strategy:* Enforce a strict path normalization utility in `@bugbrain/shared` that converts all internal and database paths to normalized forward slashes.
+   - *Mitigation strategy:* Enforce a strict path normalization utility in `@code-cache/shared` that converts all internal and database paths to normalized forward slashes.
 3. **Circular Dependencies in Monorepo:**
    - *Risk:* Tightly coupled package boundaries can cause compilation cycles.
    - *Mitigation strategy:* Strict DAG package structure: `shared` -> `database` & `scanner` & `fingerprint` -> `analyzer` -> `dependency-graph` -> `memory` -> `context-engine` -> `mcp-server` & `cli`.
@@ -74,7 +74,7 @@ The documentation generated in the preliminary design gate was evaluated against
 - **Immediate Phase:** **Phase 0 (Foundation & Monorepo Setup)** and **Phase 1 (Core Foundation Packages)**.
 - **Tasks:**
   1. Complete missing architecture docs (`DATA_MODEL.md`, `API_SPECIFICATION.md`, `INTEGRATION_MATRIX.md`, `DECISIONS.md`).
-  2. Setup root monorepo config (`package.json`, `pnpm-workspace.yaml`, `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.BugBrainignore`).
-  3. Implement `@bugbrain/shared` (types, error classes, path utils, logging).
+  2. Setup root monorepo config (`package.json`, `pnpm-workspace.yaml`, `turbo.json`, `tsconfig.base.json`, `.gitignore`, `.code-cacheignore`).
+  3. Implement `@code-cache/shared` (types, error classes, path utils, logging).
   4. Implement database persistence layer and run initial migrations.
 

@@ -1,6 +1,6 @@
-# BugBrain — Final Implementation & Verification Report
+# code-cache — Final Implementation & Verification Report
 
-**Product:** BugBrain  
+**Product:** code-cache  
 **Tagline:** Remember Your Code. Not Your Agent's Repeated Work.  
 **Organization:** LostGit Solutions  
 **Version:** 0.1.0 (Production-Ready Architecture)  
@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-BugBrain has been engineered from the ground up as a production-grade, universal, local-first codebase-memory infrastructure for AI coding agents.
+code-cache has been engineered from the ground up as a production-grade, universal, local-first codebase-memory infrastructure for AI coding agents.
 
 All non-negotiable development rules, architecture principles, and quality gates have been executed and verified:
 - **Zero Hallucinated Metrics:** 100% of counts, hashes, AST symbols, and dependencies are dynamically computed and stored in SQLite.
@@ -25,18 +25,18 @@ All non-negotiable development rules, architecture principles, and quality gates
 
 | Package | Purpose | Test Status |
 | :--- | :--- | :---: |
-| **`@bugbrain/shared`** | Core domain models, typed error hierarchy, path security, Zod config | 9/9 passed |
-| **`@bugbrain/fingerprint`** | SHA-256 content hasher, file stat extractor, rename/diff engine | 4/4 passed |
-| **`@bugbrain/scanner`** | Recursive walker, `.gitignore`/`.BugBrainignore`, secret protection | 4/4 passed |
-| **`@bugbrain/database`** | Native `node:sqlite` in WAL mode, forward migrations, 6 typed DAOs | 6/6 passed |
-| **`@bugbrain/analyzer`** | AST parsers for TypeScript, JavaScript, Python, SQL, and JSON | 4/4 passed |
-| **`@bugbrain/dependency-graph`** | Directed graph, cycle detection, blast radius, conservative invalidator | 7/7 passed |
-| **`@bugbrain/context-engine`** | Task query tokenizer, multi-vector relevance scoring, token budgeter | 3/3 passed |
-| **`@bugbrain/core`** | Central workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`) | 5/5 passed |
-| **`BugBrain` (CLI)** | Commander.js executable supporting `--json`, `--quiet`, and all subcommands | 2/2 passed |
-| **`@bugbrain/mcp`** | Universal Model Context Protocol server (10 tools, 3 resources) | 3/3 passed |
-| **`@bugbrain/agent-adapters`** | Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code | 3/3 passed |
-| **`skills/BugBrain-memory`** | Portable Agent Skill adhering to the Open Agent Skills specification | Verified |
+| **`@code-cache/shared`** | Core domain models, typed error hierarchy, path security, Zod config | 9/9 passed |
+| **`@code-cache/fingerprint`** | SHA-256 content hasher, file stat extractor, rename/diff engine | 4/4 passed |
+| **`@code-cache/scanner`** | Recursive walker, `.gitignore`/`.code-cacheignore`, secret protection | 4/4 passed |
+| **`@code-cache/database`** | Native `node:sqlite` in WAL mode, forward migrations, 6 typed DAOs | 6/6 passed |
+| **`@code-cache/analyzer`** | AST parsers for TypeScript, JavaScript, Python, SQL, and JSON | 4/4 passed |
+| **`@code-cache/dependency-graph`** | Directed graph, cycle detection, blast radius, conservative invalidator | 7/7 passed |
+| **`@code-cache/context-engine`** | Task query tokenizer, multi-vector relevance scoring, token budgeter | 3/3 passed |
+| **`@code-cache/core`** | Central workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`) | 5/5 passed |
+| **`code-cache` (CLI)** | Commander.js executable supporting `--json`, `--quiet`, and all subcommands | 2/2 passed |
+| **`@code-cache/mcp`** | Universal Model Context Protocol server (10 tools, 3 resources) | 3/3 passed |
+| **`@code-cache/agent-adapters`** | Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code | 3/3 passed |
+| **`skills/code-cache-memory`** | Portable Agent Skill adhering to the Open Agent Skills specification | Verified |
 
 **Overall Test Suite:** 50 passed out of 50 tests across 11 packages (100% passing).
 
@@ -44,7 +44,7 @@ All non-negotiable development rules, architecture principles, and quality gates
 
 ## 3. Verified Scenarios & Invariant Testing
 
-1. **Clean Workspace Initialization:** Running `BugBrain init` creates `.BugBrain/config.json` and initializes `memory.db` in WAL mode with 11 tables and optimal b-tree indexes.
+1. **Clean Workspace Initialization:** Running `code-cache init` creates `.code-cache/config.json` and initializes `memory.db` in WAL mode with 11 tables and optimal b-tree indexes.
 2. **Initial Codebase Scan:** Discovers all non-ignored project files, computes fingerprints, parses AST metadata, extracts routes, and builds the module dependency graph.
 3. **Unchanged File Analysis Avoidance:** Subsequent scans on unmodified files detect 100% hash equivalence and reuse cached structural analysis with **0 re-parsing operations**.
 4. **Incremental Change & Conservative Invalidation:**
@@ -53,15 +53,15 @@ All non-negotiable development rules, architecture principles, and quality gates
    - If only internal logic changed, dependent caches remain valid.
 5. **Secret Exclusion Protection:** Files matching `.env*`, `*.pem`, `*.key`, `id_rsa*` are blocked at the scanner level before reading or hashing.
 6. **Path Traversal Protection:** All file paths are strictly asserted against `projectRoot` (`assertPathContained`).
-7. **Task-Based Context Delivery:** `BugBrain context "<query>"` accurately ranks relevant files, AST summaries, and historical ADRs within user-specified token budgets.
-8. **Universal Coding Agent Adapters:** `BugBrain agent install <agent>` configures Antigravity, Cursor, Claude Code, and Codex idempotently without overwriting user configuration.
+7. **Task-Based Context Delivery:** `code-cache context "<query>"` accurately ranks relevant files, AST summaries, and historical ADRs within user-specified token budgets.
+8. **Universal Coding Agent Adapters:** `code-cache agent install <agent>` configures Antigravity, Cursor, Claude Code, and Codex idempotently without overwriting user configuration.
 
 ---
 
 ## 4. Git Repository & Distribution Status
 
-- **Git Commit:** `3312f0c` (*feat: initial commit of BugBrain v0.1.0 - universal persistent codebase memory*)
+- **Git Commit:** `3312f0c` (*feat: initial commit of code-cache v0.1.0 - universal persistent codebase memory*)
 - **Documentation:** `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, `.github/workflows/ci.yml`, and exhaustive `docs/` specifications.
 - **Organization:** LostGit Solutions
-- **Target Distribution:** Open-source npm packages (`BugBrain`, `@bugbrain/*`) under Apache-2.0.
+- **Target Distribution:** Open-source npm packages (`code-cache`, `@code-cache/*`) under Apache-2.0.
 

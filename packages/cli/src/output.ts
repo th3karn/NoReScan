@@ -1,4 +1,4 @@
-import { CliResponse } from '@bugbrain/shared';
+import { CliResponse } from '@code-cache/shared';
 import pc from 'picocolors';
 
 export class CliOutput {

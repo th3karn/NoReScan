@@ -13,7 +13,7 @@ describe('Universal Polyglot Ecosystems & Intelligence', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-eco-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-eco-test-'));
   });
 
   afterEach(async () => {

@@ -1,25 +1,25 @@
 import http from 'node:http';
-import { BugBrainCore } from './core.js';
+import { CodeCacheCore } from './core.js';
 import { Cartographer } from './cartographer.js';
 import { renderDashboardHtml } from './dashboard.js';
-import { defaultLogger } from '@bugbrain/shared';
+import { defaultLogger } from '@code-cache/shared';
 
 export interface ServerOptions {
   port?: number;
   host?: string;
 }
 
-export class BugBrainRestServer {
-  private core: BugBrainCore;
+export class CodeCacheRestServer {
+  private core: CodeCacheCore;
   private server: http.Server | null = null;
   private cartographer: Cartographer;
 
-  constructor(core: BugBrainCore) {
+  constructor(core: CodeCacheCore) {
     this.core = core;
     this.cartographer = new Cartographer((core as any).graph);
   }
 
-  public async start(options: ServerOptions = {}): Promise<{ port: number; host: string; url: string }> {
+  public async start(options: ServerOptions = {}): Promise < { port: number; host: string; url: string } > {
     const port = options.port || 31415;
     const host = options.host || '127.0.0.1';
 
@@ -177,7 +177,7 @@ export class BugBrainRestServer {
     });
   }
 
-  public stop(): Promise<void> {
+  public stop(): Promise < void> {
     return new Promise((resolve) => {
       if (this.server) {
         this.server.close(() => resolve());

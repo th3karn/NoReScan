@@ -43,6 +43,18 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# BugBrain Database
-.BugBrain/memory.db*
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# code-cache Database & Workspace
+.code-cache/
+.codecache/
+.bugbrain/
+*.db
+*.db-wal
+*.db-shm
 

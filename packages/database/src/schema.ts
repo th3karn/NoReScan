@@ -1,5 +1,5 @@
 export const INITIAL_MIGRATION_V1 = `
--- Migration 001: Initial BugBrain Schema
+-- Migration 001: Initial code-cache Schema
 
 CREATE TABLE IF NOT EXISTS schema_migrations (
   version INTEGER PRIMARY KEY,

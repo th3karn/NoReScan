@@ -1,4 +1,4 @@
-# BugBrain Default Ignore Rules
+# code-cache Default Ignore Rules
 node_modules/
 .git/
 .turbo/
@@ -8,7 +8,7 @@ out/
 coverage/
 .cache/
 .pnpm-store/
-.BugBrain/
+.code-cache/
 
 # Secrets & Keys
 .env

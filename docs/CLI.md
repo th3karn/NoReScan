@@ -1,8 +1,8 @@
-# BugBrain — Command-Line Interface (CLI) Specification
+# code-cache — Command-Line Interface (CLI) Specification
 
-**Executable:** `BugBrain`  
+**Executable:** `code-cache`  
 **Framework:** Commander.js  
-**Package:** `BugBrain-cli` (or `@bugbrain/cli`)  
+**Package:** `code-cache-cli` (or `@code-cache/cli`)  
 
 ---
 
@@ -20,13 +20,13 @@ Every command supports standard global flags:
 
 ## 2. Command Reference
 
-### `BugBrain init`
-Initializes BugBrain in the current repository.
+### `code-cache init`
+Initializes code-cache in the current repository.
 - Scans for existing Git or project configuration.
-- Creates `.BugBrain/` directory with `config.json` and initializes `memory.db` with migrations.
-- Creates `.BugBrainignore` if absent.
+- Creates `.code-cache/` directory with `config.json` and initializes `memory.db` with migrations.
+- Creates `.code-cacheignore` if absent.
 
-### `BugBrain scan`
+### `code-cache scan`
 Discovers and fingerprints all files in the project.
 - Flags:
   - `--force`: Force re-indexing of all files regardless of cached hash.
@@ -35,17 +35,17 @@ Discovers and fingerprints all files in the project.
   - Total files scanned, unchanged files, modified files, new files, deleted files.
   - Duration in milliseconds.
 
-### `BugBrain status`
+### `code-cache status`
 Displays the current memory and indexing health of the repository.
 - Output summary:
   - Total indexed files, cache hit ratio, valid vs stale analyses.
   - Last scan timestamp and Git HEAD commit.
   - Number of tracked sessions and recorded architectural decisions.
 
-### `BugBrain refresh`
+### `code-cache refresh`
 Re-runs analysis specifically on stale or modified files and updates their dependency graphs.
 
-### `BugBrain context "<task-description>"`
+### `code-cache context "<task-description>"`
 Retrieves task-relevant codebase context, dependency subgraphs, and historical decisions.
 - Arguments:
   - `<task-description>`: Natural language query (e.g. `"Refactor authentication token rotation"`).
@@ -54,39 +54,39 @@ Retrieves task-relevant codebase context, dependency subgraphs, and historical d
   - `--format <markdown|json>`: Output format (default: markdown).
   - `--include-decisions`: Include matching architectural decisions (default: true).
 
-### `BugBrain diff`
+### `code-cache diff`
 Shows files modified, added, or deleted since the last scan, including affected dependency blast radius.
 
-### `BugBrain explain <path>`
+### `code-cache explain <path>`
 Outputs stored structural analysis, extracted exports, imports, and downstream dependencies for a given file.
 
-### `BugBrain decisions`
+### `code-cache decisions`
 Lists or manages architectural decisions.
-- `BugBrain decisions`: List all recorded ADRs.
-- `BugBrain decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
+- `code-cache decisions`: List all recorded ADRs.
+- `code-cache decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
 
-### `BugBrain history`
+### `code-cache history`
 Shows previous agent sessions, modified files, and completion statuses.
 
-### `BugBrain mcp`
-Launches the BugBrain Model Context Protocol (MCP) server.
+### `code-cache mcp`
+Launches the code-cache Model Context Protocol (MCP) server.
 - Default transport: `stdio` (for integration with Antigravity, Cursor, Claude Code).
 - Flags:
   - `--port <number>`: Optional HTTP transport mode.
 
-### `BugBrain agent`
+### `code-cache agent`
 Installs agent integrations and skills.
-- `BugBrain agent list`: Shows supported agents and detection status.
-- `BugBrain agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
+- `code-cache agent list`: Shows supported agents and detection status.
+- `code-cache agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
 
-### `BugBrain doctor`
+### `code-cache doctor`
 Runs comprehensive system diagnostics:
 - Verifies SQLite database integrity (`PRAGMA integrity_check`).
 - Verifies filesystem read/write access.
 - Validates analyzer versions and schema migration versions.
 
-### `BugBrain clean`
-Removes stale cache records, clears session history, or resets the `.BugBrain` database.
+### `code-cache clean`
+Removes stale cache records, clears session history, or resets the `.code-cache` database.
 - Flags:
   - `--all`: Complete purge and re-initialization.
   - `--stale`: Purge only obsolete analyses.

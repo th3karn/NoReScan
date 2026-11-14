@@ -1,6 +1,6 @@
-# Contributing to BugBrain
+# Contributing to code-cache
 
-Thank you for your interest in contributing to BugBrain! We welcome contributions from developers, researchers, and open-source enthusiasts.
+Thank you for your interest in contributing to code-cache! We welcome contributions from developers, researchers, and open-source enthusiasts.
 
 ## Development Setup
 
@@ -11,8 +11,8 @@ Thank you for your interest in contributing to BugBrain! We welcome contribution
 
 2. **Clone & Install:**
    ```bash
-   git clone https://github.com/LostGit/BugBrain.git
-   cd BugBrain
+   git clone https://github.com/LostGit/code-cache.git
+   cd code-cache
    pnpm install
    ```
 

@@ -1,4 +1,4 @@
-# BugBrain — Architecture Decision Records (ADRs)
+# code-cache — Architecture Decision Records (ADRs)
 
 ---
 
@@ -35,7 +35,7 @@
 
 ## ADR-0004: Official Model Context Protocol (MCP) TypeScript SDK
 - **Status:** Accepted
-- **Context:** Agents need a standard, vendor-neutral protocol to query BugBrain.
+- **Context:** Agents need a standard, vendor-neutral protocol to query code-cache.
 - **Decision:** Implement MCP server using official `@modelcontextprotocol/sdk` supporting `stdio` transport for local agents.
 - **Consequences:** Native, out-of-the-box compatibility with Google Antigravity, Cursor, Windsurf, Claude Code, and future MCP clients.
 

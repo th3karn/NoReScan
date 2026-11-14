@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { BugBrainCore } from '@bugbrain/core';
+import { CodeCacheCore } from '@code-cache/core';
 
 async function main() {
-  const core = new BugBrainCore(process.cwd());
+  const core = new CodeCacheCore(process.cwd());
   const config = await core.loadConfig();
   if (!config) {
-    console.error('BugBrain is not initialized in this workspace. Run "bugbrain init".');
+    console.error('code-cache is not initialized in this workspace. Run "code-cache init".');
     process.exit(1);
   }
   const status = core.getStatus();

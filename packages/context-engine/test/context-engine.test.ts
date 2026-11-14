@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  BugBrainDatabase,
+  CodeCacheDatabase,
   DatabaseMigrator,
   FileRepository,
   AnalysisRepository,
   DependencyRepository,
   DecisionRepository,
   ProjectRepository,
-} from '@bugbrain/database';
+} from '@code-cache/database';
 import { TaskContextEngine, extractQueryTokens } from '../src/index.js';
 
 describe('TaskContextEngine', () => {
-  let db: BugBrainDatabase;
+  let db: CodeCacheDatabase;
   let engine: TaskContextEngine;
 
   beforeEach(() => {
-    db = new BugBrainDatabase({ filename: ':memory:' });
+    db = new CodeCacheDatabase({ filename: ':memory:' });
     new DatabaseMigrator(db).migrate();
 
     const projectRepo = new ProjectRepository(db);
@@ -152,7 +152,7 @@ describe('TaskContextEngine', () => {
 
   it('formats context as Markdown with safety directives', () => {
     const markdown = engine.getContextMarkdown('Fix authentication login');
-    expect(markdown).toContain('# BugBrain Context Manifest');
+    expect(markdown).toContain('# code-cache Context Manifest');
     expect(markdown).toContain('file:///C:/repos/test-app/src/auth/auth.controller.ts');
     expect(markdown).toContain('Always read physical source files before writing modifications');
   });

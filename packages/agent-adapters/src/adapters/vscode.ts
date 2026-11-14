@@ -20,8 +20,8 @@ export class VSCodeAdapter implements AgentAdapter {
       if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
     } catch { }
 
-    mcpConfig.mcpServers.bugbrain = {
-      command: 'bugbrain-mcp',
+    mcpConfig.mcpServers['code-cache'] = {
+      command: 'code-cache-mcp',
       args: [],
     };
 
@@ -34,7 +34,7 @@ export class VSCodeAdapter implements AgentAdapter {
     // 2. .github/copilot-instructions.md
     const githubDir = path.join(projectRoot, '.github');
     const copilotFile = path.join(githubDir, 'copilot-instructions.md');
-    const banner = '<!-- BUGBRAIN:COPILOT:START -->';
+    const banner = '<!-- code-cache:COPILOT:START -->';
     let existing = '';
     try {
       existing = await fs.readFile(copilotFile, 'utf8');
@@ -43,9 +43,9 @@ export class VSCodeAdapter implements AgentAdapter {
     if (!existing.includes(banner)) {
       const instructions = `
 ${banner}
-# BugBrain Context Protocol
-Query BugBrain (\`bugbrain context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
-<!-- BUGBRAIN:COPILOT:END -->
+# code-cache Context Protocol
+Query code-cache (\`code-cache context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
+<!-- code-cache:COPILOT:END -->
 `;
       const updated = existing ? `${existing.trim()}\n\n${instructions.trim()}\n` : instructions.trim() + '\n';
       if (!dryRun) {
@@ -64,8 +64,8 @@ Query BugBrain (\`bugbrain context "<task>"\`) before modifying code to inspect 
     try {
       const content = await fs.readFile(mcpFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.bugbrain) {
-        delete parsed.mcpServers.bugbrain;
+      if (parsed.mcpServers?.['code-cache']) {
+        delete parsed.mcpServers['code-cache'];
         if (!dryRun) await fs.writeFile(mcpFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(mcpFile);
       }
@@ -78,7 +78,7 @@ Query BugBrain (\`bugbrain context "<task>"\`) before modifying code to inspect 
     try {
       const mcpFile = path.join(projectRoot, '.vscode', 'mcp.json');
       const content = await fs.readFile(mcpFile, 'utf8');
-      return content.includes('bugbrain-mcp');
+      return content.includes('code-cache-mcp');
     } catch {
       return false;
     }

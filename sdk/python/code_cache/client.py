@@ -6,21 +6,21 @@ import urllib.error
 from typing import Any, Dict, List, Optional
 
 
-class BugBrainClient:
+class CodeCacheClient:
     """
-    Python client for BugBrain codebase memory layer.
+    Python client for code-cache codebase memory layer.
     Supports direct local SQLite queries (zero network dependencies) or REST API.
     """
 
     def __init__(self, project_path: str = ".", api_url: Optional[str] = None):
         self.project_path = os.path.abspath(project_path)
-        self.db_path = os.path.join(self.project_path, ".bugbrain", "bugbrain.db")
+        self.db_path = os.path.join(self.project_path, ".code-cache", "code-cache.db")
         self.api_url = api_url.rstrip("/") if api_url else None
 
     def _get_db(self) -> sqlite3.Connection:
         if not os.path.isfile(self.db_path):
             raise FileNotFoundError(
-                f"BugBrain database not found at {self.db_path}. Run 'bugbrain init' and 'bugbrain scan' first."
+                f"code-cache database not found at {self.db_path}. Run 'code-cache init' and 'code-cache scan' first."
             )
         conn = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
@@ -163,7 +163,7 @@ class BugBrainClient:
 
     def _fetch_api(self, endpoint: str) -> Any:
         url = f"{self.api_url}{endpoint}"
-        req = urllib.request.Request(url, headers={"User-Agent": "BugBrain-Python-SDK/0.1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "code-cache-Python-SDK/0.1.0"})
         with urllib.request.urlopen(req) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
@@ -173,7 +173,7 @@ class BugBrainClient:
         req = urllib.request.Request(
             url,
             data=payload,
-            headers={"Content-Type": "application/json", "User-Agent": "BugBrain-Python-SDK/0.1.0"},
+            headers={"Content-Type": "application/json", "User-Agent": "code-cache-Python-SDK/0.1.0"},
             method="POST",
         )
         with urllib.request.urlopen(req) as resp:

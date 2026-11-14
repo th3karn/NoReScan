@@ -1,4 +1,4 @@
-# BugBrain Community Code of Conduct
+# code-cache Community Code of Conduct
 
 ## Our Pledge
 

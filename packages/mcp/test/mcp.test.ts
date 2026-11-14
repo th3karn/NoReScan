@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createMcpServer } from '../src/server.js';
-import { BugBrainCore } from '@bugbrain/core';
+import { CodeCacheCore } from '@code-cache/core';
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
@@ -11,12 +11,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('BugBrain MCP Server Protocol Tests', () => {
+describe('code-cache MCP Server Protocol Tests', () => {
   let tempDir: string;
-  let core: BugBrainCore;
+  let core: CodeCacheCore;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-mcp-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-mcp-test-'));
 
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
     await fs.writeFile(
@@ -25,7 +25,7 @@ describe('BugBrain MCP Server Protocol Tests', () => {
     );
     await fs.writeFile(path.join(tempDir, 'package.json'), '{"name": "mcp-demo"}');
 
-    core = new BugBrainCore(tempDir);
+    core = new CodeCacheCore(tempDir);
     await core.init('mcp-demo');
     await core.scan();
   });
@@ -68,15 +68,15 @@ describe('BugBrain MCP Server Protocol Tests', () => {
     const resourcesResult = await resourcesHandler({ method: 'resources/list', params: {} });
     const uris = resourcesResult.resources.map((r: any) => r.uri);
 
-    expect(uris).toContain('bugbrain://project/overview');
-    expect(uris).toContain('bugbrain://project/status');
-    expect(uris).toContain('bugbrain://project/decisions');
-    expect(uris).toContain('bugbrain://project/dependencies');
-    expect(uris).toContain('bugbrain://project/hot-files');
-    expect(uris).toContain('bugbrain://project/schema');
-    expect(uris).toContain('bugbrain://project/languages');
-    expect(uris).toContain('bugbrain://project/causal-graph');
-    expect(uris).toContain('bugbrain://project/sync');
+    expect(uris).toContain('code-cache://project/overview');
+    expect(uris).toContain('code-cache://project/status');
+    expect(uris).toContain('code-cache://project/decisions');
+    expect(uris).toContain('code-cache://project/dependencies');
+    expect(uris).toContain('code-cache://project/hot-files');
+    expect(uris).toContain('code-cache://project/schema');
+    expect(uris).toContain('code-cache://project/languages');
+    expect(uris).toContain('code-cache://project/causal-graph');
+    expect(uris).toContain('code-cache://project/sync');
   });
 
   it('executes get_task_context tool call cleanly', async () => {
@@ -96,7 +96,7 @@ describe('BugBrain MCP Server Protocol Tests', () => {
 
     expect(result.content).toBeDefined();
     expect(result.content[0].type).toBe('text');
-    expect(result.content[0].text).toContain('BugBrain Context Manifest');
+    expect(result.content[0].text).toContain('code-cache Context Manifest');
     expect(result.content[0].text).toContain('src/auth.ts');
   });
 
@@ -148,7 +148,7 @@ describe('BugBrain MCP Server Protocol Tests', () => {
     const resourceHandler = (server as any)._requestHandlers.get(ReadResourceRequestSchema.shape.method.value);
     const readResult = await resourceHandler({
       method: 'resources/read',
-      params: { uri: 'bugbrain://project/decisions' },
+      params: { uri: 'code-cache://project/decisions' },
     });
 
     const parsedDecisions = JSON.parse(readResult.contents[0].text);

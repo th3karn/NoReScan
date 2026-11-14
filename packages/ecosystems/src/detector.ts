@@ -154,7 +154,7 @@ export class UniversalLanguageDetector {
     const entries = await fs.readdir(projectRoot, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      if (['node_modules', '.git', '.bugbrain', 'dist', 'build', '.venv', 'venv'].includes(entry.name)) continue;
+      if (['node_modules', '.git', '.code-cache', 'dist', 'build', '.venv', 'venv'].includes(entry.name)) continue;
 
       const subPath = path.join(projectRoot, entry.name);
 
@@ -201,7 +201,7 @@ export class UniversalLanguageDetector {
       try {
         await fs.access(path.join(dirPath, m));
         return true;
-      } catch {}
+      } catch { }
     }
     return false;
   }
@@ -212,21 +212,21 @@ export class UniversalLanguageDetector {
       ecosystem: string;
       lang: SupportedLanguage;
     }> = [
-      { manifest: 'package.json', ecosystem: 'npm', lang: 'typescript' },
-      { manifest: 'pyproject.toml', ecosystem: 'python', lang: 'python' },
-      { manifest: 'requirements.txt', ecosystem: 'pip', lang: 'python' },
-      { manifest: 'Cargo.toml', ecosystem: 'cargo', lang: 'rust' },
-      { manifest: 'go.mod', ecosystem: 'golang', lang: 'golang' },
-      { manifest: 'pom.xml', ecosystem: 'maven', lang: 'java' },
-      { manifest: 'build.gradle', ecosystem: 'gradle', lang: 'java' },
-      { manifest: 'build.gradle.kts', ecosystem: 'gradle', lang: 'kotlin' },
-      { manifest: 'composer.json', ecosystem: 'composer', lang: 'php' },
-      { manifest: 'Gemfile', ecosystem: 'bundler', lang: 'ruby' },
-      { manifest: 'CMakeLists.txt', ecosystem: 'cmake', lang: 'cpp' },
-      { manifest: 'Package.swift', ecosystem: 'spm', lang: 'swift' },
-      { manifest: 'pubspec.yaml', ecosystem: 'pub', lang: 'dart' },
-      { manifest: 'mix.exs', ecosystem: 'mix', lang: 'elixir' },
-    ];
+        { manifest: 'package.json', ecosystem: 'npm', lang: 'typescript' },
+        { manifest: 'pyproject.toml', ecosystem: 'python', lang: 'python' },
+        { manifest: 'requirements.txt', ecosystem: 'pip', lang: 'python' },
+        { manifest: 'Cargo.toml', ecosystem: 'cargo', lang: 'rust' },
+        { manifest: 'go.mod', ecosystem: 'golang', lang: 'golang' },
+        { manifest: 'pom.xml', ecosystem: 'maven', lang: 'java' },
+        { manifest: 'build.gradle', ecosystem: 'gradle', lang: 'java' },
+        { manifest: 'build.gradle.kts', ecosystem: 'gradle', lang: 'kotlin' },
+        { manifest: 'composer.json', ecosystem: 'composer', lang: 'php' },
+        { manifest: 'Gemfile', ecosystem: 'bundler', lang: 'ruby' },
+        { manifest: 'CMakeLists.txt', ecosystem: 'cmake', lang: 'cpp' },
+        { manifest: 'Package.swift', ecosystem: 'spm', lang: 'swift' },
+        { manifest: 'pubspec.yaml', ecosystem: 'pub', lang: 'dart' },
+        { manifest: 'mix.exs', ecosystem: 'mix', lang: 'elixir' },
+      ];
 
     for (const check of manifestChecks) {
       const manifestFile = path.join(dirPath, check.manifest);
@@ -239,7 +239,7 @@ export class UniversalLanguageDetector {
           ecosystemId: check.ecosystem,
           manifestPath: path.join(relativeName, check.manifest).replace(/\\/g, '/'),
         };
-      } catch {}
+      } catch { }
     }
 
     return null;
@@ -259,7 +259,7 @@ export class UniversalLanguageDetector {
         if (allDeps['fastify']) frameworks.push('Fastify');
         if (allDeps['nestjs'] || allDeps['@nestjs/core']) frameworks.push('NestJS');
         if (allDeps['svelte']) frameworks.push('Svelte');
-      } catch {}
+      } catch { }
     } else if (lang === 'python') {
       try {
         const files = ['pyproject.toml', 'requirements.txt'];
@@ -271,7 +271,7 @@ export class UniversalLanguageDetector {
           if (content.includes('torch')) frameworks.push('PyTorch');
           if (content.includes('pydantic')) frameworks.push('Pydantic');
         }
-      } catch {}
+      } catch { }
     } else if (lang === 'rust') {
       try {
         const cargo = await fs.readFile(path.join(projectRoot, 'Cargo.toml'), 'utf8');
@@ -279,14 +279,14 @@ export class UniversalLanguageDetector {
         if (cargo.includes('axum')) frameworks.push('Axum');
         if (cargo.includes('actix-web')) frameworks.push('Actix');
         if (cargo.includes('serde')) frameworks.push('Serde');
-      } catch {}
+      } catch { }
     } else if (lang === 'golang') {
       try {
         const mod = await fs.readFile(path.join(projectRoot, 'go.mod'), 'utf8');
         if (mod.includes('gin-gonic/gin')) frameworks.push('Gin');
         if (mod.includes('go-chi/chi')) frameworks.push('Chi');
         if (mod.includes('gofiber/fiber')) frameworks.push('Fiber');
-      } catch {}
+      } catch { }
     }
 
     return Array.from(new Set(frameworks));

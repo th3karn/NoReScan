@@ -1,4 +1,4 @@
-import { FileSnapshot } from '@bugbrain/shared';
+import { FileSnapshot } from '@code-cache/shared';
 import { FileFingerprint } from './fingerprint.js';
 
 export interface DiffResult {

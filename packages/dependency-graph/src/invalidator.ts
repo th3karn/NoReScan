@@ -1,4 +1,4 @@
-import { ExportDefinition } from '@bugbrain/shared';
+import { ExportDefinition } from '@code-cache/shared';
 import { DependencyGraph } from './graph.js';
 
 export interface InvalidationDecision {

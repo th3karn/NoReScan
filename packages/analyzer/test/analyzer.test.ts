@@ -94,7 +94,7 @@ async def read_item(item_id: int):
   });
 
   it('analyzes JSON configuration files', () => {
-    const json = JSON.stringify({ name: 'BugBrain', version: '0.1.0', private: true });
+    const json = JSON.stringify({ name: 'code-cache', version: '0.1.0', private: true });
     const result = analyzer.analyzeSource(json, 'package.json', 'json');
 
     expect(result.summary).toContain('JSON configuration with keys: name, version, private');

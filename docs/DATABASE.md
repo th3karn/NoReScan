@@ -1,7 +1,7 @@
-# BugBrain — Database Specification & Schema Architecture
+# code-cache — Database Specification & Schema Architecture
 
 **Database Engine:** SQLite (via `better-sqlite3`)  
-**Storage Location:** `.BugBrain/memory.db`  
+**Storage Location:** `.code-cache/memory.db`  
 **Journal Mode:** Write-Ahead Logging (WAL)  
 **Synchronous Mode:** NORMAL (optimal balance of ACID safety and performance)  
 

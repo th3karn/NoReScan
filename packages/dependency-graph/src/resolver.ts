@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { normalizePath } from '@bugbrain/shared';
+import { normalizePath } from '@code-cache/shared';
 
 const RESOLUTION_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json', '/index.ts', '/index.js'];
 

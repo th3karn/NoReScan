@@ -1,18 +1,21 @@
 import unittest
 import tempfile
 import os
+import sys
 import sqlite3
 import json
-from bugbrain.client import BugBrainClient
 
-class TestBugBrainClient(unittest.TestCase):
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from code_cache.client import CodeCacheClient
+
+class TestCodeCacheClient(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
-        self.bugbrain_dir = os.path.join(self.temp_dir, ".bugbrain")
-        os.makedirs(self.bugbrain_dir)
-        self.db_path = os.path.join(self.bugbrain_dir, "bugbrain.db")
+        self.code_cache_dir = os.path.join(self.temp_dir, ".code-cache")
+        os.makedirs(self.code_cache_dir)
+        self.db_path = os.path.join(self.code_cache_dir, "code-cache.db")
 
-        # Create mock SQLite database matching BugBrain schema
+        # Create mock SQLite database matching code-cache schema
         conn = sqlite3.connect(self.db_path)
         conn.execute("""
             CREATE TABLE projects (
@@ -94,7 +97,7 @@ class TestBugBrainClient(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        self.client = BugBrainClient(self.temp_dir)
+        self.client = CodeCacheClient(self.temp_dir)
 
     def tearDown(self):
         import shutil

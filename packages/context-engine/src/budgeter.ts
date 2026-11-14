@@ -1,4 +1,4 @@
-import { TaskContextManifest } from '@bugbrain/shared';
+import { TaskContextManifest } from '@code-cache/shared';
 
 export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 4);
@@ -10,7 +10,7 @@ export function estimateTokenCount(text: string): number {
 export function formatManifestToMarkdown(manifest: TaskContextManifest, projectRoot: string): string {
   const lines: string[] = [];
 
-  lines.push(`# BugBrain Context Manifest`);
+  lines.push(`# code-cache Context Manifest`);
   lines.push(`**Task Query:** \`${manifest.query}\``);
   lines.push(`**Generated At:** ${manifest.generatedAt}`);
   lines.push(`**Estimated Token Budget Used:** ~${manifest.totalTokensEstimated} tokens`);

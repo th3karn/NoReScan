@@ -4,9 +4,9 @@ import {
   DependencyRepository,
   DecisionRepository,
   ProjectRepository,
-} from '@bugbrain/database';
-import { DependencyGraph } from '@bugbrain/dependency-graph';
-import { TaskContextManifest } from '@bugbrain/shared';
+} from '@code-cache/database';
+import { DependencyGraph } from '@code-cache/dependency-graph';
+import { TaskContextManifest } from '@code-cache/shared';
 import { extractQueryTokens } from './tokenizer.js';
 import { scoreFileRelevance, scoreDecisionRelevance } from './scorer.js';
 import { formatManifestToMarkdown, estimateTokenCount } from './budgeter.js';
@@ -100,7 +100,7 @@ export class TaskContextEngine {
       decisions: scoredDecisions.slice(0, 5),
       warnings,
       instructions:
-        'Always read physical source files before writing modifications. BugBrain provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
+        'Always read physical source files before writing modifications. code-cache provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
     };
   }
 

@@ -5,7 +5,7 @@ import path from 'node:path';
 export class CursorAdapter implements AgentAdapter {
   public readonly name = 'cursor';
   public readonly displayName = 'Cursor / Windsurf';
-  public readonly description = 'Configures Cursor project MCP server in .cursor/mcp.json and rules in .cursor/rules/bugbrain.mdc';
+  public readonly description = 'Configures Cursor project MCP server in .cursor/mcp.json and rules in .cursor/rules/code-cache.mdc';
 
   public async install(projectRoot: string, dryRun = false): Promise<string[]> {
     const created: string[] = [];
@@ -20,8 +20,8 @@ export class CursorAdapter implements AgentAdapter {
       if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
     } catch { }
 
-    mcpConfig.mcpServers.bugbrain = {
-      command: 'bugbrain-mcp',
+    mcpConfig.mcpServers['code-cache'] = {
+      command: 'code-cache-mcp',
       args: [],
     };
 
@@ -31,15 +31,15 @@ export class CursorAdapter implements AgentAdapter {
     }
     created.push(mcpFile);
 
-    // 2. .cursor/rules/bugbrain.mdc
+    // 2. .cursor/rules/code-cache.mdc
     const rulesDir = path.join(cursorDir, 'rules');
-    const ruleFile = path.join(rulesDir, 'bugbrain.mdc');
+    const ruleFile = path.join(rulesDir, 'code-cache.mdc');
     const ruleContent = `---
-description: BugBrain Persistent Codebase Memory Rules
+description: code-cache Persistent Codebase Memory Rules
 globs: *
 ---
 Before major refactoring or implementing features:
-- Query BugBrain via MCP tools (get_task_context) to retrieve relevant files and dependencies.
+- Query code-cache via MCP tools (get_task_context) to retrieve relevant files and dependencies.
 - Avoid re-analyzing unchanged files when verified cached knowledge is available.
 - Read physical source code before writing edits.
 - Record architectural decisions using record_decision.
@@ -60,14 +60,14 @@ Before major refactoring or implementing features:
     try {
       const content = await fs.readFile(mcpFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.bugbrain) {
-        delete parsed.mcpServers.bugbrain;
+      if (parsed.mcpServers?.['code-cache']) {
+        delete parsed.mcpServers['code-cache'];
         if (!dryRun) await fs.writeFile(mcpFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(mcpFile);
       }
     } catch { }
 
-    const ruleFile = path.join(projectRoot, '.cursor', 'rules', 'bugbrain.mdc');
+    const ruleFile = path.join(projectRoot, '.cursor', 'rules', 'code-cache.mdc');
     try {
       if (!dryRun) await fs.unlink(ruleFile);
       removed.push(ruleFile);
@@ -80,7 +80,7 @@ Before major refactoring or implementing features:
     try {
       const mcpFile = path.join(projectRoot, '.cursor', 'mcp.json');
       const content = await fs.readFile(mcpFile, 'utf8');
-      return content.includes('bugbrain-mcp');
+      return content.includes('code-cache-mcp');
     } catch {
       return false;
     }

@@ -1,8 +1,8 @@
-# BugBrain — System Architecture & Component Specification
+# code-cache — System Architecture & Component Specification
 
-**Product:** BugBrain  
+**Product:** code-cache  
 **Organization:** LostGit Solutions  
-**Repository:** [https://github.com/th3karn/BugBrain](https://github.com/th3karn/BugBrain)  
+**Repository:** [https://github.com/th3karn/code-cache](https://github.com/th3karn/code-cache)  
 
 ---
 
@@ -17,14 +17,14 @@
                       +--------------+--------------+
                       |                             |
                       v                             v
-             [ BugBrain CLI ]              [ BugBrain MCP Server ]
-             (bugbrain executable)         (stdio / HTTP transport)
+             [ code-cache CLI ]              [ code-cache MCP Server ]
+             (code-cache executable)         (stdio / HTTP transport)
                       |                             |
                       +--------------+--------------+
                                      |
                                      v
                       +-----------------------------+
-                      |        BugBrain Core        |
+                      |        code-cache Core        |
                       +-----------------------------+
                       | * Scanner & Ignore Engine   |
                       | * SHA-256 Hasher & Diff     |
@@ -37,7 +37,7 @@
                                      v
                       +-----------------------------+
                       |     Local SQLite Store      |
-                      |   (.bugbrain/bugbrain.db)   |
+                      |   (.code-cache/code-cache.db)   |
                       +-----------------------------+
 ```
 
@@ -45,17 +45,17 @@
 
 ## 2. Monorepo Package Topology (`pnpm` workspaces)
 
-All packages are strictly named using lowercase `@bugbrain/<pkg>`:
+All packages are strictly named using lowercase `@code-cache/<pkg>`:
 
-- **`@bugbrain/shared`:** Domain models, typed error hierarchy, path security containment, configuration schemas.
-- **`@bugbrain/fingerprint`:** SHA-256 content hasher, file stat extractor, rename/diff engine.
-- **`@bugbrain/scanner`:** Recursive directory walker, ignore rules, secret and binary exclusions.
-- **`@bugbrain/database`:** SQLite persistence (`node:sqlite`) in WAL mode, forward migrations, 6 typed DAOs.
-- **`@bugbrain/analyzer`:** AST parsers for TypeScript, JavaScript, Python, SQL, and JSON.
-- **`@bugbrain/dependency-graph`:** Directed graph, cycle detection, blast-radius calculation, conservative invalidator.
-- **`@bugbrain/context-engine`:** Task query tokenizer, multi-vector relevance scoring, token budgeter.
-- **`@bugbrain/core`:** Workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`, `migrateLegacy`).
-- **`bugbrain` (CLI):** Commander.js developer CLI binary.
-- **`@bugbrain/mcp`:** Universal Model Context Protocol (MCP) server for AI coding agents.
-- **`@bugbrain/agent-adapters`:** Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code.
-- **`skills/bugbrain-memory`:** Portable Agent Skill adhering to the Open Agent Skills specification.
+- **`@code-cache/shared`:** Domain models, typed error hierarchy, path security containment, configuration schemas.
+- **`@code-cache/fingerprint`:** SHA-256 content hasher, file stat extractor, rename/diff engine.
+- **`@code-cache/scanner`:** Recursive directory walker, ignore rules, secret and binary exclusions.
+- **`@code-cache/database`:** SQLite persistence (`node:sqlite`) in WAL mode, forward migrations, 6 typed DAOs.
+- **`@code-cache/analyzer`:** AST parsers for TypeScript, JavaScript, Python, SQL, and JSON.
+- **`@code-cache/dependency-graph`:** Directed graph, cycle detection, blast-radius calculation, conservative invalidator.
+- **`@code-cache/context-engine`:** Task query tokenizer, multi-vector relevance scoring, token budgeter.
+- **`@code-cache/core`:** Workflow coordinator (`init`, `scan`, `getStatus`, `doctor`, `clean`, `migrateLegacy`).
+- **`code-cache` (CLI):** Commander.js developer CLI binary.
+- **`@code-cache/mcp`:** Universal Model Context Protocol (MCP) server for AI coding agents.
+- **`@code-cache/agent-adapters`:** Installers for Antigravity, Cursor, Claude Code, Codex, and VS Code.
+- **`skills/code-cache-memory`:** Portable Agent Skill adhering to the Open Agent Skills specification.

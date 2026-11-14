@@ -4,11 +4,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('BugBrain CLI Commands', () => {
+describe('code-cache CLI Commands', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-cli-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-cli-test-'));
 
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
     await fs.writeFile(
@@ -32,7 +32,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'init', 'my-test-proj']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'init', 'my-test-proj']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -46,7 +46,7 @@ describe('BugBrain CLI Commands', () => {
   it('runs scan, status, diff, search, and doctor end-to-end', async () => {
     // 1. Init
     let program = createProgram();
-    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'init']);
+    await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--quiet', 'init']);
 
     // 2. Scan
     program = createProgram();
@@ -58,7 +58,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'scan']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'scan']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -77,7 +77,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'status']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'status']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -96,7 +96,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'diff']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'diff']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -114,7 +114,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'search', 'main']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'search', 'main']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -132,7 +132,7 @@ describe('BugBrain CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'doctor']);
+      await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', 'doctor']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -145,9 +145,9 @@ describe('BugBrain CLI Commands', () => {
   it('runs polyglot, causal graph, blast, and sync CLI commands', async () => {
     // 1. Init & Scan
     let program = createProgram();
-    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'init']);
+    await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--quiet', 'init']);
     program = createProgram();
-    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'scan']);
+    await program.parseAsync(['node', 'code-cache', '--project', tempDir, '--quiet', 'scan']);
 
     const runJson = async (args: string[]) => {
       const prog = createProgram();
@@ -158,7 +158,7 @@ describe('BugBrain CLI Commands', () => {
         return true;
       };
       try {
-        await prog.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', ...args]);
+        await prog.parseAsync(['node', 'code-cache', '--project', tempDir, '--json', ...args]);
       } finally {
         process.stdout.write = origWrite;
       }

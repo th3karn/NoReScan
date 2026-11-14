@@ -1,4 +1,4 @@
-# BugBrain — API Reference
+# code-cache — API Reference
 
 ---
 
@@ -24,12 +24,12 @@ export interface CliResponse<T = unknown> {
 
 ---
 
-## 2. Core Programmatic API (`@bugbrain/core`)
+## 2. Core Programmatic API (`@code-cache/core`)
 
 ```typescript
-import { BugBrainCore } from '@bugbrain/core';
+import { CodeCacheCore } from '@code-cache/core';
 
-const core = new BugBrainCore(process.cwd());
+const core = new CodeCacheCore(process.cwd());
 await core.init('my-project');
 
 // Scan and index

@@ -1,6 +1,6 @@
-# BugBrain — Phase 7 Completion Report (CLI Implementation)
+# code-cache — Phase 7 Completion Report (CLI Implementation)
 
-**Phase:** Phase 7 — Production CLI Implementation (`BugBrain`)  
+**Phase:** Phase 7 — Production CLI Implementation (`code-cache`)  
 **Status:** Completed & Verified  
 **Date:** 2026-11-14  
 **Auditor/Engineer:** LostGit Solutions Engineering Team  
@@ -9,21 +9,21 @@
 
 ## 1. What Was Implemented
 
-1. **`@bugbrain/core` Package:**
-   - Unified orchestration engine integrating `@bugbrain/scanner`, `@bugbrain/fingerprint`, `@bugbrain/database`, `@bugbrain/analyzer`, `@bugbrain/dependency-graph`, and `@bugbrain/context-engine`.
+1. **`@code-cache/core` Package:**
+   - Unified orchestration engine integrating `@code-cache/scanner`, `@code-cache/fingerprint`, `@code-cache/database`, `@code-cache/analyzer`, `@code-cache/dependency-graph`, and `@code-cache/context-engine`.
    - Workflows: `init()`, `scan()`, `getStatus()`, `explain()`, `doctor()`, and `clean()`.
    - Foreign key integrity bug identified and resolved in `FileRepository.upsertFile`.
-2. **`BugBrain` CLI Binary Package (`packages/cli`):**
-   - Built with Commander.js, featuring an executable bin (`bin/BugBrain.js`).
+2. **`code-cache` CLI Binary Package (`packages/cli`):**
+   - Built with Commander.js, featuring an executable bin (`bin/code-cache.js`).
    - Supports commands:
-     - `BugBrain init [name]`
-     - `BugBrain scan [--force]`
-     - `BugBrain status`
-     - `BugBrain context <query> [--budget <tokens>] [--format <markdown|json>]`
-     - `BugBrain explain <path>`
-     - `BugBrain decisions [list | add]`
-     - `BugBrain doctor`
-     - `BugBrain clean [--stale | --all]`
+     - `code-cache init [name]`
+     - `code-cache scan [--force]`
+     - `code-cache status`
+     - `code-cache context <query> [--budget <tokens>] [--format <markdown|json>]`
+     - `code-cache explain <path>`
+     - `code-cache decisions [list | add]`
+     - `code-cache doctor`
+     - `code-cache clean [--stale | --all]`
    - Formatter supporting pure parseable JSON (`--json`), human terminal output with ANSI colors, `--quiet`, and `--project <path>`.
 
 ---
@@ -47,8 +47,8 @@
 
 ## 3. Tests Executed & Results
 
-- **`@bugbrain/core`:** 5 integration tests passed (lifecycle, caching reuse, incremental modification, context retrieval, system doctor).
-- **`BugBrain` CLI:** 2 tests passed (CLI options, JSON parsing, end-to-end execution).
+- **`@code-cache/core`:** 5 integration tests passed (lifecycle, caching reuse, incremental modification, context retrieval, system doctor).
+- **`code-cache` CLI:** 2 tests passed (CLI options, JSON parsing, end-to-end execution).
 - **Manual CLI Verification:** `node ./packages/cli/dist/bin.js --help` verified with 0 errors.
 - **Cumulative Repository Tests:** 44 tests passed across 9 packages, 0 failures.
 

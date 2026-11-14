@@ -8,8 +8,8 @@ describe('IgnoreEngine', () => {
     expect(engine.ignores('.git/HEAD')).toBe(true);
     expect(engine.ignores('dist/bundle.js')).toBe(true);
     expect(engine.ignores('.turbo/cache')).toBe(true);
-    expect(engine.ignores('.bugbrain/bugbrain.db')).toBe(true);
-    expect(engine.ignores('.BugBrain/memory.db')).toBe(true);
+    expect(engine.ignores('.code-cache/code-cache.db')).toBe(true);
+    expect(engine.ignores('.code-cache/memory.db')).toBe(true);
     expect(engine.ignores('.repomind/memory.db')).toBe(true);
   });
 

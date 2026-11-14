@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { diffFingerprints } from '../src/diff.js';
 import { FileFingerprint } from '../src/fingerprint.js';
-import { FileSnapshot } from '@bugbrain/shared';
+import { FileSnapshot } from '@code-cache/shared';
 
 describe('diffFingerprints', () => {
   it('correctly categorizes unchanged, modified, added, deleted, and renamed files', () => {

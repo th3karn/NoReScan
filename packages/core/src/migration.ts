@@ -8,13 +8,13 @@ export interface MigrationResult {
 }
 
 /**
- * Checks for legacy .repomind/ directory and migrates data to .bugbrain/
+ * Checks for legacy .repomind/ directory and migrates data to .code-cache/
  * with automatic backup, preserving all file analyses, fingerprints,
  * dependencies, and decisions.
  */
 export async function migrateLegacy(projectRoot: string): Promise<MigrationResult> {
   const repomindDir = path.join(projectRoot, '.repomind');
-  const bugbrainDir = path.join(projectRoot, '.bugbrain');
+  const codeCacheDir = path.join(projectRoot, '.code-cache');
 
   let repomindExists = false;
   try {
@@ -36,32 +36,32 @@ export async function migrateLegacy(projectRoot: string): Promise<MigrationResul
   const backupDir = path.join(projectRoot, `.repomind.backup-${timestamp}`);
   await fs.cp(repomindDir, backupDir, { recursive: true });
 
-  let bugbrainExists = false;
+  let codeCacheExists = false;
   try {
-    const stat = await fs.stat(bugbrainDir);
-    bugbrainExists = stat.isDirectory();
+    const stat = await fs.stat(codeCacheDir);
+    codeCacheExists = stat.isDirectory();
   } catch {
-    bugbrainExists = false;
+    codeCacheExists = false;
   }
 
-  if (!bugbrainExists) {
-    // Copy .repomind to .bugbrain
-    await fs.cp(repomindDir, bugbrainDir, { recursive: true });
+  if (!codeCacheExists) {
+    // Copy .repomind to .code-cache
+    await fs.cp(repomindDir, codeCacheDir, { recursive: true });
 
-    // In .bugbrain, rename memory.db to bugbrain.db if needed
-    const oldDb = path.join(bugbrainDir, 'memory.db');
-    const newDb = path.join(bugbrainDir, 'bugbrain.db');
+    // In .code-cache, rename memory.db to code-cache.db if needed
+    const oldDb = path.join(codeCacheDir, 'memory.db');
+    const newDb = path.join(codeCacheDir, 'code-cache.db');
     try {
       await fs.stat(oldDb);
       await fs.rename(oldDb, newDb);
       // check WAL/shm
-      try { await fs.rename(path.join(bugbrainDir, 'memory.db-wal'), path.join(bugbrainDir, 'bugbrain.db-wal')); } catch {}
-      try { await fs.rename(path.join(bugbrainDir, 'memory.db-shm'), path.join(bugbrainDir, 'bugbrain.db-shm')); } catch {}
-    } catch {}
+      try { await fs.rename(path.join(codeCacheDir, 'memory.db-wal'), path.join(codeCacheDir, 'code-cache.db-wal')); } catch { }
+      try { await fs.rename(path.join(codeCacheDir, 'memory.db-shm'), path.join(codeCacheDir, 'code-cache.db-shm')); } catch { }
+    } catch { }
 
-    // Check .repomindignore -> .bugbrainignore
+    // Check .repomindignore -> .code-cacheignore
     const oldIgnore = path.join(projectRoot, '.repomindignore');
-    const newIgnore = path.join(projectRoot, '.bugbrainignore');
+    const newIgnore = path.join(projectRoot, '.code-cacheignore');
     try {
       await fs.stat(oldIgnore);
       try {
@@ -70,39 +70,39 @@ export async function migrateLegacy(projectRoot: string): Promise<MigrationResul
         // copy if newIgnore does not exist
         await fs.copyFile(oldIgnore, newIgnore);
       }
-    } catch {}
+    } catch { }
 
     return {
       migrated: true,
       backupPath: backupDir,
-      message: `Successfully migrated legacy .repomind workspace to .bugbrain. Backup saved at ${backupDir}`,
+      message: `Successfully migrated legacy .repomind workspace to .code-cache. Backup saved at ${backupDir}`,
     };
   }
 
-  // If .bugbrain already exists, ensure bugbrain.db is present
-  const bugbrainDb = path.join(bugbrainDir, 'bugbrain.db');
+  // If .code-cache already exists, ensure code-cache.db is present
+  const codeCacheDb = path.join(codeCacheDir, 'code-cache.db');
   let hasDb = false;
   try {
-    await fs.stat(bugbrainDb);
+    await fs.stat(codeCacheDb);
     hasDb = true;
-  } catch {}
+  } catch { }
 
   if (!hasDb) {
     const oldDb = path.join(repomindDir, 'memory.db');
     try {
-      await fs.copyFile(oldDb, bugbrainDb);
+      await fs.copyFile(oldDb, codeCacheDb);
       return {
         migrated: true,
         backupPath: backupDir,
-        message: `Restored legacy memory.db from .repomind to .bugbrain/bugbrain.db. Backup saved at ${backupDir}`,
+        message: `Restored legacy memory.db from .repomind to .code-cache/code-cache.db. Backup saved at ${backupDir}`,
       };
-    } catch {}
+    } catch { }
   }
 
   return {
     migrated: false,
     backupPath: backupDir,
-    message: `.bugbrain workspace already exists. Legacy backup preserved at ${backupDir}`,
+    message: `.code-cache workspace already exists. Legacy backup preserved at ${backupDir}`,
   };
 }
 

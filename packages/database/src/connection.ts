@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { DatabaseError } from '@bugbrain/shared';
+import { DatabaseError } from '@code-cache/shared';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -8,7 +8,7 @@ export interface DatabaseConnectionOptions {
   readOnly?: boolean;
 }
 
-export class BugBrainDatabase {
+export class CodeCacheDatabase {
   public readonly db: DatabaseSync;
   public readonly filename: string;
 
@@ -40,7 +40,7 @@ export class BugBrainDatabase {
   public close(): void {
     try {
       this.db.close();
-    } catch (err) {
+    } catch(err) {
       throw new DatabaseError(`Failed to close SQLite database at ${this.filename}`, err);
     }
   }

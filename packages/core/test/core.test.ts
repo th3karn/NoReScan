@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { BugBrainCore } from '../src/index.js';
+import { CodeCacheCore } from '../src/index.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('BugBrainCore Integration Lifecycle', () => {
+describe('CodeCacheCore Integration Lifecycle', () => {
   let tempDir: string;
-  let core: BugBrainCore;
+  let core: CodeCacheCore;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-core-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-core-test-'));
 
     // Create a mock mini-codebase
     await fs.mkdir(path.join(tempDir, 'src', 'auth'), { recursive: true });
@@ -26,7 +26,7 @@ describe('BugBrainCore Integration Lifecycle', () => {
       '{"name": "demo-app", "version": "1.0.0"}'
     );
 
-    core = new BugBrainCore(tempDir);
+    core = new CodeCacheCore(tempDir);
   });
 
   afterEach(async () => {
@@ -34,15 +34,15 @@ describe('BugBrainCore Integration Lifecycle', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('initializes workspace, creates .bugbrain files, and registers project', async () => {
+  it('initializes workspace, creates .code-cache files, and registers project', async () => {
     const config = await core.init('demo-app');
 
     expect(config.projectName).toBe('demo-app');
     expect(config.projectId).toBeDefined();
 
-    const configExists = await fs.stat(path.join(tempDir, '.bugbrain', 'config.json'));
+    const configExists = await fs.stat(path.join(tempDir, '.code-cache', 'config.json'));
     expect(configExists.isFile()).toBe(true);
-    const dbExists = await fs.stat(path.join(tempDir, '.bugbrain', 'bugbrain.db'));
+    const dbExists = await fs.stat(path.join(tempDir, '.code-cache', 'code-cache.db'));
     expect(dbExists.isFile()).toBe(true);
   });
 
@@ -146,7 +146,7 @@ describe('BugBrainCore Integration Lifecycle', () => {
     expect(manifest.files.map((f) => f.relativePath)).toContain('src/auth/auth.service.ts');
 
     const markdown = core.contextEngine.getContextMarkdown('Refactor auth service login logic');
-    expect(markdown).toContain('BugBrain Context Manifest');
+    expect(markdown).toContain('code-cache Context Manifest');
     expect(markdown).toContain('src/auth/auth.service.ts');
   });
 
@@ -175,7 +175,7 @@ describe('BugBrainCore Integration Lifecycle', () => {
     await fs.mkdir(path.join(tempDir, 'src', 'bin'), { recursive: true });
     await fs.writeFile(
       path.join(tempDir, 'src', 'bin', 'main.rs'),
-      'fn main() { println!("Hello BugBrain"); }'
+      'fn main() { println!("Hello code-cache"); }'
     );
 
     await core.init('demo-app');

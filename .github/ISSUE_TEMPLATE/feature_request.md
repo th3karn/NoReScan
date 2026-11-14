@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea or new capability for BugBrain
+about: Suggest an idea or new capability for code-cache
 title: '[FEAT] '
 labels: enhancement
 assignees: ''

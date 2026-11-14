@@ -1,4 +1,4 @@
-# BugBrain — Phase 6 Completion Report (Context Retrieval & Token Budgeter)
+# code-cache — Phase 6 Completion Report (Context Retrieval & Token Budgeter)
 
 **Phase:** Phase 6 — Context Retrieval & Token Budgeter  
 **Status:** Completed & Verified  
@@ -44,7 +44,7 @@
 
 ## 3. Tests Executed & Results
 
-- **`@bugbrain/context-engine`:** 3 test suites passed:
+- **`@code-cache/context-engine`:** 3 test suites passed:
   - Query tokenization with camelCase and stop-word filtering.
   - Multi-file relevance ranking (correctly retrieved auth service & controller while strictly excluding unrelated payment files).
   - Markdown formatting with safety directives.
@@ -54,6 +54,6 @@
 
 ## 4. Next Phase Prerequisites
 
-- **Next Phase:** **Phase 7 — CLI Implementation (`BugBrain`)**.
+- **Next Phase:** **Phase 7 — CLI Implementation (`code-cache`)**.
 - **Prerequisites Satisfied:** Scanner, fingerprints, SQLite DB, AST analyzer, dependency graph, and context engine are verified.
 

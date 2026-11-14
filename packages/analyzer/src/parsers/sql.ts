@@ -1,4 +1,4 @@
-import { AstMetadata, ModelDefinition, SymbolDefinition } from '@bugbrain/shared';
+import { AstMetadata, ModelDefinition, SymbolDefinition } from '@code-cache/shared';
 
 export function parseSql(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const models: ModelDefinition[] = [];

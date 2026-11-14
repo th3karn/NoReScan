@@ -5,14 +5,14 @@ import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { BugBrainCore } from '@bugbrain/core';
-import { assertPathContained, defaultLogger } from '@bugbrain/shared';
+import { CodeCacheCore } from '@code-cache/core';
+import { assertPathContained, defaultLogger } from '@code-cache/shared';
 import path from 'node:path';
 
-export function createMcpServer(core: BugBrainCore): Server {
+export function createMcpServer(core: CodeCacheCore): Server {
   const server = new Server(
     {
-      name: 'bugbrain',
+      name: 'code-cache',
       version: '0.1.0',
     },
     {
@@ -280,7 +280,7 @@ export function createMcpServer(core: BugBrainCore): Server {
           if (!details) {
             return {
               isError: true,
-              content: [{ type: 'text', text: `File "${filePath}" is not indexed in BugBrain.` }],
+              content: [{ type: 'text', text: `File "${filePath}" is not indexed in code-cache.` }],
             };
           }
           return {
@@ -534,79 +534,79 @@ export function createMcpServer(core: BugBrainCore): Server {
     return {
       resources: [
         {
-          uri: 'bugbrain://project/overview',
+          uri: 'code-cache://project/overview',
           name: 'Project Overview',
           mimeType: 'application/json',
           description: 'Summary of registered project metadata and structure',
         },
         {
-          uri: 'bugbrain://project/status',
+          uri: 'code-cache://project/status',
           name: 'Project Status',
           mimeType: 'application/json',
           description: 'Real-time cache freshness and file indexing stats',
         },
         {
-          uri: 'bugbrain://project/decisions',
+          uri: 'code-cache://project/decisions',
           name: 'Architectural Decisions',
           mimeType: 'application/json',
           description: 'All recorded architectural decisions (ADRs)',
         },
         {
-          uri: 'bugbrain://project/dependencies',
+          uri: 'code-cache://project/dependencies',
           name: 'Project Dependency Graph',
           mimeType: 'application/json',
           description: 'Complete directed import dependency graph',
         },
         {
-          uri: 'bugbrain://project/hot-files',
+          uri: 'code-cache://project/hot-files',
           name: 'Hot Load-Bearing Files',
           mimeType: 'application/json',
           description: 'Files with highest in-degree (most dependents)',
         },
         {
-          uri: 'bugbrain://project/schema',
+          uri: 'code-cache://project/schema',
           name: 'Memory Schema Definition',
           mimeType: 'text/plain',
           description: 'Active SQLite database schema and indexes',
         },
         {
-          uri: 'bugbrain://project/languages',
+          uri: 'code-cache://project/languages',
           name: 'Detected Languages',
           mimeType: 'application/json',
           description: 'Language breakdown and monorepo components',
         },
         {
-          uri: 'bugbrain://project/ecosystems',
+          uri: 'code-cache://project/ecosystems',
           name: 'Ecosystem Adapters',
           mimeType: 'application/json',
           description: 'Active and supported package manager ecosystems',
         },
         {
-          uri: 'bugbrain://project/commands',
+          uri: 'code-cache://project/commands',
           name: 'Project Commands',
           mimeType: 'application/json',
           description: 'Discovered build, test, and run commands',
         },
         {
-          uri: 'bugbrain://project/packages',
+          uri: 'code-cache://project/packages',
           name: 'Package Dependencies',
           mimeType: 'application/json',
           description: 'Package dependencies from active manifests',
         },
         {
-          uri: 'bugbrain://project/workspaces',
+          uri: 'code-cache://project/workspaces',
           name: 'Monorepo Workspaces',
           mimeType: 'application/json',
           description: 'Monorepo workspace members and dependency graph',
         },
         {
-          uri: 'bugbrain://project/causal-graph',
+          uri: 'code-cache://project/causal-graph',
           name: 'Causal Dependency Graph',
           mimeType: 'application/json',
           description: 'Full graph with in-degrees, out-degrees, and cycles',
         },
         {
-          uri: 'bugbrain://project/sync',
+          uri: 'code-cache://project/sync',
           name: 'Hybrid Sync Status',
           mimeType: 'application/json',
           description: 'Sync cursor, device ID, and offline queue status',
@@ -619,25 +619,25 @@ export function createMcpServer(core: BugBrainCore): Server {
     const { uri } = request.params;
 
     switch (uri) {
-      case 'bugbrain://project/overview': {
+      case 'code-cache://project/overview': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'bugbrain://project/status': {
+      case 'code-cache://project/status': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'bugbrain://project/decisions': {
+      case 'code-cache://project/decisions': {
         const decisions = core.decisionRepo.listByProject(core.config.projectId);
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(decisions, null, 2) }],
         };
       }
-      case 'bugbrain://project/dependencies': {
+      case 'code-cache://project/dependencies': {
         const nodes = core.graph.getNodes();
         const graphData: Record<string, string[]> = {};
         for (const n of nodes) {
@@ -647,60 +647,60 @@ export function createMcpServer(core: BugBrainCore): Server {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(graphData, null, 2) }],
         };
       }
-      case 'bugbrain://project/hot-files': {
+      case 'code-cache://project/hot-files': {
         const hotFiles = core.getHotFiles(20);
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(hotFiles, null, 2) }],
         };
       }
-      case 'bugbrain://project/schema': {
+      case 'code-cache://project/schema': {
         return {
           contents: [
             {
               uri,
               mimeType: 'text/plain',
-              text: 'BugBrain SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events, ecosystem_manifests, package_dependencies, project_commands, workspace_members, sync_cursors, sync_offline_queue.',
+              text: 'code-cache SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events, ecosystem_manifests, package_dependencies, project_commands, workspace_members, sync_cursors, sync_offline_queue.',
             },
           ],
         };
       }
-      case 'bugbrain://project/languages': {
+      case 'code-cache://project/languages': {
         const langs = await core.getLanguages();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(langs, null, 2) }],
         };
       }
-      case 'bugbrain://project/ecosystems': {
+      case 'code-cache://project/ecosystems': {
         const eco = await core.getEcosystems();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(eco, null, 2) }],
         };
       }
-      case 'bugbrain://project/commands': {
+      case 'code-cache://project/commands': {
         const cmds = core.getProjectCommands();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cmds, null, 2) }],
         };
       }
-      case 'bugbrain://project/packages': {
+      case 'code-cache://project/packages': {
         const pkgs = core.getPackageDependencies();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(pkgs, null, 2) }],
         };
       }
-      case 'bugbrain://project/workspaces': {
+      case 'code-cache://project/workspaces': {
         const ws = core.getWorkspaces();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(ws, null, 2) }],
         };
       }
-      case 'bugbrain://project/causal-graph': {
+      case 'code-cache://project/causal-graph': {
         const cg = core.getCausalGraph();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cg, null, 2) }],
         };
       }
-      case 'bugbrain://project/sync': {
+      case 'code-cache://project/sync': {
         const syncStatus = core.getSyncStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(syncStatus, null, 2) }],

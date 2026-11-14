@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { hashFile } from './hasher.js';
-import { normalizePath } from '@bugbrain/shared';
+import { normalizePath } from '@code-cache/shared';
 
 export interface FileFingerprint {
   relativePath: string;

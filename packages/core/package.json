@@ -1,35 +1,35 @@
 ﻿{
-    "name":  "@bugbrain/core",
-    "version":  "0.1.0",
-    "description":  "Central coordinator and workflow engine for BugBrain",
-    "main":  "./dist/index.js",
-    "types":  "./dist/index.d.ts",
-    "scripts":  {
-                    "build":  "tsc",
-                    "clean":  "rimraf dist",
-                    "typecheck":  "tsc --noEmit",
-                    "test":  "vitest run"
-                },
-    "dependencies":  {
-                         "@bugbrain/analyzer":  "workspace:*",
-                         "@bugbrain/context-engine":  "workspace:*",
-                         "@bugbrain/database":  "workspace:*",
-                         "@bugbrain/dependency-graph":  "workspace:*",
-                         "@bugbrain/ecosystems":  "workspace:*",
-                         "@bugbrain/fingerprint":  "workspace:*",
-                         "@bugbrain/scanner":  "workspace:*",
-                         "@bugbrain/shared":  "workspace:*"
-                     },
-    "devDependencies":  {
-                            "@types/node":  "^22.13.10",
-                            "typescript":  "^5.8.2",
-                            "vitest":  "^3.0.8"
-                        },
-    "publishConfig":  {
-                          "access":  "public"
-                      },
-    "license":  "Apache-2.0",
-    "files":  [
-                  "dist"
-              ]
+    "name": "@code-cache/core",
+    "version": "0.1.0",
+    "description": "Central coordinator and workflow engine for code-cache",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "clean": "rimraf dist",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@code-cache/analyzer": "workspace:*",
+        "@code-cache/context-engine": "workspace:*",
+        "@code-cache/database": "workspace:*",
+        "@code-cache/dependency-graph": "workspace:*",
+        "@code-cache/ecosystems": "workspace:*",
+        "@code-cache/fingerprint": "workspace:*",
+        "@code-cache/scanner": "workspace:*",
+        "@code-cache/shared": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "^22.13.10",
+        "typescript": "^5.8.2",
+        "vitest": "^3.0.8"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "Apache-2.0",
+    "files": [
+        "dist"
+    ]
 }

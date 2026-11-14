@@ -1,4 +1,4 @@
-import { DependencyGraph } from '@bugbrain/dependency-graph';
+import { DependencyGraph } from '@code-cache/dependency-graph';
 
 export interface GraphNode {
   id: string; // relativePath
@@ -231,7 +231,7 @@ export class Cartographer {
    * Renders the causal graph in Graphviz DOT format.
    */
   public toDot(): string {
-    const lines = ['digraph BugBrainCausalGraph {', '  rankdir=LR;', '  node [shape=box, style="rounded,filled", fillcolor="#1e293b", fontcolor="#f8fafc", fontname="sans-serif"];', '  edge [color="#64748b"];'];
+    const lines = ['digraph CodeCacheCausalGraph {', '  rankdir=LR;', '  node [shape=box, style="rounded,filled", fillcolor="#1e293b", fontcolor="#f8fafc", fontname="sans-serif"];', '  edge [color="#64748b"];'];
     const graphData = this.getCausalGraph();
 
     for (const node of graphData.nodes) {

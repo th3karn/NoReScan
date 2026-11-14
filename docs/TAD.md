@@ -1,6 +1,6 @@
-# BugBrain — Technical Architecture Document (TAD)
+# code-cache — Technical Architecture Document (TAD)
 
-**System:** BugBrain Infrastructure  
+**System:** code-cache Infrastructure  
 **Author:** LostGit Solutions Architecture Team  
 **Version:** 1.0.0-draft  
 **Target Runtime:** Node.js 22+ (LTS / Current)  
@@ -9,25 +9,25 @@
 
 ## 1. System Overview & Architecture Diagram
 
-BugBrain sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
+code-cache sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
 
 ```
                     +------------------------------------------+
                     |             DEVELOPER WORKSPACE          |
-                    | (Project Files, Git Repo, .BugBrain/)    |
+                    | (Project Files, Git Repo, .code-cache/)    |
                     +--------------------+---------------------+
                                          |
                        +-----------------+-----------------+
                        |                                   |
                        v                                   v
-             [ BugBrain CLI ]                      [ BugBrain MCP Server ]
+             [ code-cache CLI ]                      [ code-cache MCP Server ]
              (Commander.js)                        (Official MCP SDK stdio)
                        |                                   |
                        +-----------------+-----------------+
                                          |
                                          v
                       +--------------------------------------+
-                      |            BugBrain Core             |
+                      |            code-cache Core             |
                       +--------------------------------------+
                       | * Project Registry & Config          |
                       | * File Scanner (Ignorer, Filter)     |
@@ -47,7 +47,7 @@ BugBrain sits as an intelligent caching and context layer between the developer'
             * sessions, decisions                * adapters & config injectors
                        |
                        v (Opt-in Encrypted)
-            [ BugBrain Cloud Sync ]
+            [ code-cache Cloud Sync ]
             (PostgreSQL / Fastify API)
 ```
 
@@ -55,10 +55,10 @@ BugBrain sits as an intelligent caching and context layer between the developer'
 
 ## 2. Monorepo Package Topology
 
-BugBrain is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
+code-cache is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
 
 ```
-BugBrain/
+code-cache/
 ├── packages/
 │   ├── core/               # Central coordinator, project registry, pipeline orchestrator
 │   ├── database/           # SQLite migrations, connection manager, DAO repositories
@@ -68,12 +68,12 @@ BugBrain/
 │   ├── dependency-graph/   # Graph data structure, topological sorting, blast-radius calculation
 │   ├── memory/             # 5-layer memory coordinator (File, Architecture, Session, Decision, Dep)
 │   ├── context-engine/     # Task-based ranking, keyword/path/graph scoring, token budgeting
-│   ├── cli/                # Commander.js CLI binary executable (`BugBrain`)
+│   ├── cli/                # Commander.js CLI binary executable (`code-cache`)
 │   ├── mcp-server/         # Standard MCP server implementation (stdio & HTTP)
 │   └── agent-adapters/     # Configuration generators & adapters for Antigravity, Cursor, Claude
 │
 ├── skills/
-│   └── BugBrain-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
+│   └── code-cache-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
 │
 ├── docs/                   # PRD, TAD, ARCHITECTURE, DATABASE, SECURITY, etc.
 ├── tests/                  # Integration and E2E test suites

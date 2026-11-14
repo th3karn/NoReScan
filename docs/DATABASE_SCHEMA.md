@@ -1,6 +1,6 @@
-# BugBrain — Database Schema Specification
+# code-cache — Database Schema Specification
 
-**Database File:** `.bugbrain/bugbrain.db`  
+**Database File:** `.code-cache/code-cache.db`  
 **Engine:** SQLite via native `node:sqlite` in WAL mode (`PRAGMA journal_mode = WAL;`)  
 
 ---

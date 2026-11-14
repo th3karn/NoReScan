@@ -1,29 +1,29 @@
 ﻿{
-    "name":  "@bugbrain/ecosystems",
-    "version":  "0.1.0",
-    "description":  "Universal polyglot language detection, package manager adapters, command intelligence, and environment probing for BugBrain",
-    "main":  "./dist/index.js",
-    "types":  "./dist/index.d.ts",
-    "files":  [
-                  "dist"
-              ],
-    "scripts":  {
-                    "build":  "tsc",
-                    "clean":  "rimraf dist",
-                    "typecheck":  "tsc --noEmit",
-                    "test":  "vitest run"
-                },
-    "dependencies":  {
-                         "@bugbrain/shared":  "workspace:*",
-                         "zod":  "^3.24.2"
-                     },
-    "devDependencies":  {
-                            "@types/node":  "^22.13.10",
-                            "typescript":  "^5.8.2",
-                            "vitest":  "^3.0.8"
-                        },
-    "publishConfig":  {
-                          "access":  "public"
-                      },
-    "license":  "Apache-2.0"
+    "name": "@code-cache/ecosystems",
+    "version": "0.1.0",
+    "description": "Universal polyglot language detection, package manager adapters, command intelligence, and environment probing for code-cache",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "clean": "rimraf dist",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@code-cache/shared": "workspace:*",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@types/node": "^22.13.10",
+        "typescript": "^5.8.2",
+        "vitest": "^3.0.8"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "Apache-2.0"
 }

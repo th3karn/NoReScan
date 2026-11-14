@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { migrateLegacy, BugBrainCore } from '../src/index.js';
-import { BugBrainDatabase, DatabaseMigrator } from '@bugbrain/database';
+import { migrateLegacy, CodeCacheCore } from '../src/index.js';
+import { CodeCacheDatabase, DatabaseMigrator } from '@code-cache/database';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('Legacy Migration Subsystem (.repomind -> .bugbrain)', () => {
+describe('Legacy Migration Subsystem (.repomind -> .code-cache)', () => {
   let tempDir: string;
-  let core: BugBrainCore | undefined;
+  let core: CodeCacheCore | undefined;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-migration-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'code-cache-migration-test-'));
   });
 
   afterEach(async () => {
@@ -43,7 +43,7 @@ describe('Legacy Migration Subsystem (.repomind -> .bugbrain)', () => {
 
     // Create a real legacy SQLite database with migration v1
     const legacyDbPath = path.join(repomindDir, 'memory.db');
-    const legacyDb = new BugBrainDatabase({ filename: legacyDbPath });
+    const legacyDb = new CodeCacheDatabase({ filename: legacyDbPath });
     const migrator = new DatabaseMigrator(legacyDb);
     migrator.migrate();
     legacyDb.close();
@@ -59,19 +59,19 @@ describe('Legacy Migration Subsystem (.repomind -> .bugbrain)', () => {
     const backupStat = await fs.stat(result.backupPath!);
     expect(backupStat.isDirectory()).toBe(true);
 
-    // 4. Verify .bugbrain files exist
-    const bugbrainDir = path.join(tempDir, '.bugbrain');
-    const configStat = await fs.stat(path.join(bugbrainDir, 'config.json'));
+    // 4. Verify .code-cache files exist
+    const codeCacheDir = path.join(tempDir, '.code-cache');
+    const configStat = await fs.stat(path.join(codeCacheDir, 'config.json'));
     expect(configStat.isFile()).toBe(true);
 
-    const dbStat = await fs.stat(path.join(bugbrainDir, 'bugbrain.db'));
+    const dbStat = await fs.stat(path.join(codeCacheDir, 'code-cache.db'));
     expect(dbStat.isFile()).toBe(true);
 
-    const ignoreStat = await fs.stat(path.join(tempDir, '.bugbrainignore'));
+    const ignoreStat = await fs.stat(path.join(tempDir, '.code-cacheignore'));
     expect(ignoreStat.isFile()).toBe(true);
 
-    // 5. Verify BugBrainCore automatically loads migrated config
-    core = new BugBrainCore(tempDir);
+    // 5. Verify CodeCacheCore automatically loads migrated config
+    core = new CodeCacheCore(tempDir);
     const loaded = await core.loadConfig();
     expect(loaded).toBeDefined();
     expect(loaded?.projectName).toBe('legacy-app');

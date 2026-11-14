@@ -1,4 +1,4 @@
-import { DependencyType } from '@bugbrain/shared';
+import { DependencyType } from '@code-cache/shared';
 
 export interface GraphEdge {
   source: string; // File path or ID that has the dependency

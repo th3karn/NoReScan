@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseConfig, BugBrainConfigSchema } from '../src/config.js';
+import { parseConfig, CodeCacheConfigSchema } from '../src/config.js';
 import { ZodError } from 'zod';
 
 describe('config schema', () => {

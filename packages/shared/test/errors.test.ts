@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { BugBrainError, SecurityViolationError, DatabaseError } from '../src/errors.js';
+import { CodeCacheError, SecurityViolationError, DatabaseError } from '../src/errors.js';
 
 describe('error classes', () => {
-  it('serializes BugBrainError to JSON properly', () => {
+  it('serializes CodeCacheError to JSON properly', () => {
     const err = new SecurityViolationError('Unauthorized traversal', { target: '../secret' });
     expect(err.code).toBe('SECURITY_VIOLATION');
     expect(err.recoverable).toBe(false);
@@ -15,7 +15,7 @@ describe('error classes', () => {
 
   it('preserves error inheritance hierarchy', () => {
     const dbErr = new DatabaseError('Disk full');
-    expect(dbErr instanceof BugBrainError).toBe(true);
+    expect(dbErr instanceof CodeCacheError).toBe(true);
     expect(dbErr instanceof Error).toBe(true);
   });
 });

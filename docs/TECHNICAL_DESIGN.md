@@ -1,8 +1,8 @@
-# BugBrain — Technical Design Document (TDD)
+# code-cache — Technical Design Document (TDD)
 
-**System:** BugBrain Core Infrastructure  
+**System:** code-cache Core Infrastructure  
 **Author:** LostGit Solutions Engineering Team  
-**Repository:** [https://github.com/th3karn/BugBrain](https://github.com/th3karn/BugBrain)  
+**Repository:** [https://github.com/th3karn/code-cache](https://github.com/th3karn/code-cache)  
 
 ---
 
@@ -38,11 +38,11 @@ if (file.hashChanged) {
 
 ### 1.4 Safe Legacy Migration Engine
 When initializing or running commands in a repository with `.repomind/`:
-1. Check if `.bugbrain/` already exists. If both exist, keep `.bugbrain/` as primary.
-2. If `.bugbrain/` does not exist:
+1. Check if `.code-cache/` already exists. If both exist, keep `.code-cache/` as primary.
+2. If `.code-cache/` does not exist:
    - Create a safe timestamped backup archive of `.repomind/`.
-   - Copy `config.json` (updating internal `repoMind` references to `bugbrain`).
-   - Copy `memory.db` to `.bugbrain/bugbrain.db`.
+   - Copy `config.json` (updating internal `repoMind` references to `code-cache`).
+   - Copy `memory.db` to `.code-cache/code-cache.db`.
    - Record migration event in database.
    - Leave legacy `.repomind/` intact (never silently delete).
 

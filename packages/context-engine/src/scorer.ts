@@ -1,4 +1,4 @@
-import { FileSnapshot, FileAnalysis, DecisionRecord } from '@bugbrain/shared';
+import { FileSnapshot, FileAnalysis, DecisionRecord } from '@code-cache/shared';
 
 export interface ScoredFile {
   file: FileSnapshot;

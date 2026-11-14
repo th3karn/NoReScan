@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const BugBrainConfigSchema = z.object({
+export const CodeCacheConfigSchema = z.object({
   version: z.number().int().default(1),
   projectId: z.string().uuid(),
   projectName: z.string().min(1),
@@ -14,20 +14,20 @@ export const BugBrainConfigSchema = z.object({
   }).default({ enabled: false }),
 });
 
-export type BugBrainConfig = z.infer<typeof BugBrainConfigSchema>;
+export type CodeCacheConfig = z.infer < typeof CodeCacheConfigSchema >;
 
-export const DEFAULT_CONFIG: Omit<BugBrainConfig, 'projectId' | 'projectName'> = {
+export const DEFAULT_CONFIG: Omit<CodeCacheConfig, 'projectId' | 'projectName' > = {
   version: 1,
-  maxFileSizeKb: 2048,
-  ignorePatterns: [],
-  contextBudgetTokens: 8000,
-  conservativeInvalidation: true,
-  sync: {
+    maxFileSizeKb: 2048,
+      ignorePatterns: [],
+        contextBudgetTokens: 8000,
+          conservativeInvalidation: true,
+            sync: {
     enabled: false,
   },
 };
 
-export function parseConfig(raw: unknown): BugBrainConfig {
-  return BugBrainConfigSchema.parse(raw);
+export function parseConfig(raw: unknown): CodeCacheConfig {
+  return CodeCacheConfigSchema.parse(raw);
 }
 
