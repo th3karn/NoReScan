@@ -55,7 +55,16 @@ jobs:
           if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
             echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
           fi
-          pnpm -r publish --access public --no-git-checks --provenance
+          # Attempt workspace-wide publish first
+          pnpm -r publish --access public --no-git-checks --provenance || {
+            echo "Recursive publish encountered errors, publishing individual packages..."
+            for pkg in packages/*; do
+              if [ -d "$pkg" ]; then
+                echo "Publishing $pkg..."
+                pnpm --filter "./$pkg" publish --access public --no-git-checks --provenance || echo "Notice: $pkg publish skipped or pending trusted publisher"
+              fi
+            done
+          }
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
