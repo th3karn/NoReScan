@@ -1,0 +1,41 @@
+# RepoMind Default Ignore Rules
+node_modules/
+.git/
+.turbo/
+dist/
+build/
+out/
+coverage/
+.cache/
+.pnpm-store/
+.repomind/
+
+# Secrets & Keys
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Binary & Media Files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.zip
+*.tar
+*.gz
+*.exe
+*.dll
+*.so
+*.dylib
+*.woff
+*.woff2
+*.ttf
+*.eot
+

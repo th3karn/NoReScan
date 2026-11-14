@@ -1,0 +1,27 @@
+{
+  "name": "@repomind/core",
+  "version": "0.1.0",
+  "description": "Central coordinator and workflow engine for RepoMind",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repomind/analyzer": "workspace:*",
+    "@repomind/context-engine": "workspace:*",
+    "@repomind/database": "workspace:*",
+    "@repomind/dependency-graph": "workspace:*",
+    "@repomind/fingerprint": "workspace:*",
+    "@repomind/scanner": "workspace:*",
+    "@repomind/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
