@@ -1,33 +1,56 @@
-{
-  "name": "bugbrain",
-  "version": "0.1.0",
-  "description": "Universal persistent codebase memory CLI for AI coding agents",
-  "bin": {
-    "bugbrain": "./dist/bin.js"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "clean": "rimraf dist",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "@bugbrain/agent-adapters": "workspace:*",
-    "@bugbrain/core": "workspace:*",
-    "@bugbrain/mcp": "workspace:*",
-    "@bugbrain/shared": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.6.1",
-    "commander": "^13.1.0",
-    "picocolors": "^1.1.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.13.10",
-    "typescript": "^5.8.2",
-    "vitest": "^3.0.8"
-  }
+﻿{
+    "name":  "bugbrain",
+    "version":  "0.1.0",
+    "description":  "Universal persistent codebase memory CLI for AI coding agents",
+    "license":  "Apache-2.0",
+    "author":  "LostGit Solutions",
+    "homepage":  "https://github.com/th3karn/BugBrain#readme",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/th3karn/BugBrain.git",
+                       "directory":  "packages/cli"
+                   },
+    "keywords":  [
+                     "ai",
+                     "memory",
+                     "codebase",
+                     "mcp",
+                     "context",
+                     "agent",
+                     "antigravity",
+                     "cursor",
+                     "windsurf",
+                     "developer-tools"
+                 ],
+    "bin":  {
+                "bugbrain":  "./dist/bin.js"
+            },
+    "main":  "./dist/index.js",
+    "types":  "./dist/index.d.ts",
+    "files":  [
+                  "dist"
+              ],
+    "publishConfig":  {
+                          "access":  "public"
+                      },
+    "scripts":  {
+                    "build":  "tsc",
+                    "clean":  "rimraf dist",
+                    "typecheck":  "tsc --noEmit",
+                    "test":  "vitest run"
+                },
+    "dependencies":  {
+                         "@bugbrain/agent-adapters":  "workspace:*",
+                         "@bugbrain/core":  "workspace:*",
+                         "@bugbrain/mcp":  "workspace:*",
+                         "@bugbrain/shared":  "workspace:*",
+                         "@modelcontextprotocol/sdk":  "^1.6.1",
+                         "commander":  "^13.1.0",
+                         "picocolors":  "^1.1.1"
+                     },
+    "devDependencies":  {
+                            "@types/node":  "^22.13.10",
+                            "typescript":  "^5.8.2",
+                            "vitest":  "^3.0.8"
+                        }
 }
