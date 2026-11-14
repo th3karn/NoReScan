@@ -1,6 +1,6 @@
-﻿{
+{
     "name": "@code-cache/shared",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Shared domain types, errors, utilities, and configuration schemas for code-cache",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",

@@ -1,6 +1,6 @@
-﻿{
+{
     "name": "@code-cache/scanner",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Recursive file discovery with ignore rules and security sandboxing for code-cache",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",

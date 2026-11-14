@@ -1,6 +1,6 @@
-﻿{
+{
     "name": "@code-cache/analyzer",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Multi-language AST and structural code analyzer for code-cache",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",

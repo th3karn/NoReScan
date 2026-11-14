@@ -1,6 +1,6 @@
-﻿{
+{
     "name": "@code-cache/core",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Central coordinator and workflow engine for code-cache",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
