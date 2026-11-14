@@ -11,7 +11,7 @@ export function createProgram(): Command {
   program
     .name('norescan')
     .description('Universal persistent codebase memory infrastructure for AI coding agents')
-    .version('0.1.0')
+    .version('0.1.1')
     .option('--json', 'Output results as pure JSON to stdout', false)
     .option('--quiet', 'Suppress non-essential console output', false)
     .option('--verbose', 'Enable verbose logging', false)
