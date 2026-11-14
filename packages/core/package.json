@@ -1,6 +1,6 @@
 {
   "name": "@norescan/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Central coordinator and workflow engine for norescan",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -37,5 +37,14 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/core"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "core",
+    "codebase-memory",
+    "ast",
+    "dependency-graph",
+    "blast-radius",
+    "ai-context"
+  ]
 }

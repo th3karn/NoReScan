@@ -1,6 +1,6 @@
 {
   "name": "@norescan/fingerprint",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cryptographic SHA-256 fingerprinting and change detection for norescan",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -30,5 +30,14 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/fingerprint"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "fingerprint",
+    "sha256",
+    "hasher",
+    "diff",
+    "caching",
+    "invalidation"
+  ]
 }

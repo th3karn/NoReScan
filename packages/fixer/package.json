@@ -1,6 +1,6 @@
 {
   "name": "@norescan/fixer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Autonomous test diagnostic, blast-radius error localization, and auto-fix engine for NoReScan",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -34,5 +34,14 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/fixer"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "fixer",
+    "auto-heal",
+    "test-runner",
+    "error-parser",
+    "blast-radius",
+    "self-healing-code"
+  ]
 }

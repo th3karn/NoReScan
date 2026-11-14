@@ -1,6 +1,6 @@
 {
   "name": "@norescan/ecosystems",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Universal polyglot language detection, package manager adapters, command intelligence, and environment probing for norescan",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,5 +31,15 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/ecosystems"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "ecosystems",
+    "polyglot",
+    "runtime-detection",
+    "node",
+    "python",
+    "rust",
+    "go"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@norescan/database",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "SQLite local persistence and migration engine for norescan using native node:sqlite",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -30,5 +30,14 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/database"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "database",
+    "sqlite",
+    "wal-mode",
+    "persistence",
+    "migrations",
+    "embedded-db"
+  ]
 }

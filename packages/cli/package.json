@@ -1,6 +1,6 @@
 {
   "name": "@norescan/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Universal persistent codebase memory CLI for AI coding agents",
   "license": "Apache-2.0",
   "author": "LostGit Solutions",
@@ -11,16 +11,16 @@
     "directory": "packages/cli"
   },
   "keywords": [
-    "ai",
-    "memory",
-    "codebase",
+    "norescan",
+    "cli",
+    "ai-agents",
     "mcp",
-    "context",
-    "agent",
+    "codebase-memory",
+    "developer-tools",
+    "ast",
     "antigravity",
     "cursor",
-    "windsurf",
-    "developer-tools"
+    "claude-code"
   ],
   "bin": {
     "norescan": "./dist/bin.js",

@@ -1,6 +1,6 @@
 {
   "name": "@norescan/mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Universal Model Context Protocol (MCP) server for norescan",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -37,5 +37,15 @@
     "type": "git",
     "url": "https://github.com/th3karn/NoReScan.git",
     "directory": "packages/mcp"
-  }
+  },
+  "keywords": [
+    "norescan",
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "llm",
+    "claude",
+    "cursor",
+    "antigravity"
+  ]
 }
