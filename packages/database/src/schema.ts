@@ -135,3 +135,98 @@ CREATE TABLE IF NOT EXISTS memory_events (
 CREATE INDEX IF NOT EXISTS idx_memory_events_time ON memory_events(project_id, occurred_at);
 `;
 
+export const MIGRATION_V2_ECOSYSTEMS = `
+-- Migration 002: Polyglot Ecosystems, Package Dependencies, Commands, and Workspaces
+
+CREATE TABLE IF NOT EXISTS ecosystem_manifests (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  ecosystem_id TEXT NOT NULL,
+  file_path TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  parsed_metadata TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_eco_manifests_proj ON ecosystem_manifests(project_id, ecosystem_id);
+
+CREATE TABLE IF NOT EXISTS package_dependencies (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  manifest_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  declared_version TEXT NOT NULL,
+  resolved_version TEXT,
+  dependency_type TEXT NOT NULL,
+  registry TEXT,
+  is_direct INTEGER DEFAULT 1,
+  is_optional INTEGER DEFAULT 0,
+  platform_condition TEXT,
+  recorded_at TEXT NOT NULL,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_pkg_deps_name ON package_dependencies(project_id, name);
+
+CREATE TABLE IF NOT EXISTS project_commands (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  raw_command TEXT NOT NULL,
+  category TEXT NOT NULL,
+  source_file TEXT NOT NULL,
+  working_dir TEXT NOT NULL,
+  description TEXT,
+  safe_to_run INTEGER DEFAULT 1,
+  requires_network INTEGER DEFAULT 0,
+  ecosystem_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_proj_cmds_cat ON project_commands(project_id, category);
+
+CREATE TABLE IF NOT EXISTS workspace_members (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  relative_path TEXT NOT NULL,
+  ecosystem_id TEXT NOT NULL,
+  manifest_path TEXT NOT NULL,
+  dependencies TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_ws_members_proj ON workspace_members(project_id);
+`;
+
+export const MIGRATION_V3_HYBRID_SYNC = `
+-- Hybrid Memory and Synchronization Schema (Architecture Section 11)
+CREATE TABLE IF NOT EXISTS sync_cursors (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  device_id TEXT NOT NULL,
+  last_synced_at TEXT NOT NULL,
+  sync_cursor TEXT NOT NULL,
+  sync_version INTEGER DEFAULT 1,
+  status TEXT NOT NULL,
+  metadata TEXT,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_sync_cursors_proj ON sync_cursors(project_id, device_id);
+
+CREATE TABLE IF NOT EXISTS sync_offline_queue (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  operation TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  status TEXT DEFAULT 'PENDING',
+  attempt_count INTEGER DEFAULT 0,
+  error_message TEXT,
+  FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_offline_queue(project_id, status);
+`;
+
+

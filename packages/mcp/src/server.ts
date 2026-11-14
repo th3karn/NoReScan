@@ -163,6 +163,74 @@ export function createMcpServer(core: BugBrainCore): Server {
             required: ['agentName', 'summary'],
           },
         },
+        {
+          name: 'get_languages',
+          description: 'Detect programming languages, file distribution, byte percentages, and monorepo components',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'get_ecosystems',
+          description: 'List active and supported package managers and ecosystem adapters (npm, pip, cargo, go, etc.)',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'get_package_dependencies',
+          description: 'List package dependencies discovered across active manifests and lockfiles',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'get_project_commands',
+          description: 'List discovered build, test, lint, dev, and run commands',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              category: { type: 'string', description: 'Optional filter: build, test, lint, dev, run' },
+            },
+          },
+        },
+        {
+          name: 'get_environment_status',
+          description: 'Probe installed system runtimes and validate project toolchain compatibility',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'get_workspaces',
+          description: 'List monorepo workspace packages and member directories',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'execute_command',
+          description: 'Safely execute an authorized project command with pre-flight security validation',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string', description: 'Name or raw command line of the discovered command' },
+            },
+            required: ['command'],
+          },
+        },
+        {
+          name: 'get_causal_graph',
+          description: 'Retrieve full causal dependency graph, including in-degrees, out-degrees, density, and cycles',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'blast_diff',
+          description: 'Blast a git diff patch to compute the transitive upstream cone of affected files',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              diff: { type: 'string', description: 'Unified git diff string' },
+              maxDepth: { type: 'number', description: 'Maximum upstream depth to traverse (default 10)' },
+            },
+            required: ['diff'],
+          },
+        },
+        {
+          name: 'get_sync_status',
+          description: 'Retrieve hybrid memory synchronization status, device ID, cursor, and offline queue depth',
+          inputSchema: { type: 'object', properties: {} },
+        },
       ],
     };
   });
@@ -373,6 +441,80 @@ export function createMcpServer(core: BugBrainCore): Server {
           };
         }
 
+        case 'get_languages': {
+          const langs = await core.getLanguages();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(langs, null, 2) }],
+          };
+        }
+
+        case 'get_ecosystems': {
+          const eco = await core.getEcosystems();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(eco, null, 2) }],
+          };
+        }
+
+        case 'get_package_dependencies': {
+          const deps = core.getPackageDependencies();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(deps, null, 2) }],
+          };
+        }
+
+        case 'get_project_commands': {
+          const cat = args?.category ? String(args.category) : undefined;
+          const cmds = core.getProjectCommands(cat);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(cmds, null, 2) }],
+          };
+        }
+
+        case 'get_environment_status': {
+          const envs = await core.getEnvironmentStatus();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(envs, null, 2) }],
+          };
+        }
+
+        case 'get_workspaces': {
+          const ws = core.getWorkspaces();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(ws, null, 2) }],
+          };
+        }
+
+        case 'execute_command': {
+          const cmd = String(args?.command || '');
+          const res = await core.executeCommand(cmd);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+          };
+        }
+
+        case 'get_causal_graph': {
+          const graphData = core.getCausalGraph();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(graphData, null, 2) }],
+          };
+        }
+
+        case 'blast_diff': {
+          const diffText = String(args?.diff || '');
+          const maxDepth = typeof args?.maxDepth === 'number' ? args.maxDepth : 10;
+          const blast = core.blastDiff(diffText, maxDepth);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(blast, null, 2) }],
+          };
+        }
+
+        case 'get_sync_status': {
+          const syncStatus = core.getSyncStatus();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(syncStatus, null, 2) }],
+          };
+        }
+
         default:
           return {
             isError: true,
@@ -427,6 +569,48 @@ export function createMcpServer(core: BugBrainCore): Server {
           mimeType: 'text/plain',
           description: 'Active SQLite database schema and indexes',
         },
+        {
+          uri: 'bugbrain://project/languages',
+          name: 'Detected Languages',
+          mimeType: 'application/json',
+          description: 'Language breakdown and monorepo components',
+        },
+        {
+          uri: 'bugbrain://project/ecosystems',
+          name: 'Ecosystem Adapters',
+          mimeType: 'application/json',
+          description: 'Active and supported package manager ecosystems',
+        },
+        {
+          uri: 'bugbrain://project/commands',
+          name: 'Project Commands',
+          mimeType: 'application/json',
+          description: 'Discovered build, test, and run commands',
+        },
+        {
+          uri: 'bugbrain://project/packages',
+          name: 'Package Dependencies',
+          mimeType: 'application/json',
+          description: 'Package dependencies from active manifests',
+        },
+        {
+          uri: 'bugbrain://project/workspaces',
+          name: 'Monorepo Workspaces',
+          mimeType: 'application/json',
+          description: 'Monorepo workspace members and dependency graph',
+        },
+        {
+          uri: 'bugbrain://project/causal-graph',
+          name: 'Causal Dependency Graph',
+          mimeType: 'application/json',
+          description: 'Full graph with in-degrees, out-degrees, and cycles',
+        },
+        {
+          uri: 'bugbrain://project/sync',
+          name: 'Hybrid Sync Status',
+          mimeType: 'application/json',
+          description: 'Sync cursor, device ID, and offline queue status',
+        },
       ],
     };
   });
@@ -475,9 +659,51 @@ export function createMcpServer(core: BugBrainCore): Server {
             {
               uri,
               mimeType: 'text/plain',
-              text: 'BugBrain SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events.',
+              text: 'BugBrain SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events, ecosystem_manifests, package_dependencies, project_commands, workspace_members, sync_cursors, sync_offline_queue.',
             },
           ],
+        };
+      }
+      case 'bugbrain://project/languages': {
+        const langs = await core.getLanguages();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(langs, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/ecosystems': {
+        const eco = await core.getEcosystems();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(eco, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/commands': {
+        const cmds = core.getProjectCommands();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cmds, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/packages': {
+        const pkgs = core.getPackageDependencies();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(pkgs, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/workspaces': {
+        const ws = core.getWorkspaces();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(ws, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/causal-graph': {
+        const cg = core.getCausalGraph();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(cg, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/sync': {
+        const syncStatus = core.getSyncStatus();
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(syncStatus, null, 2) }],
         };
       }
       default:

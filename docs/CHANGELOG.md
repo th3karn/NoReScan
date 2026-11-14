@@ -21,3 +21,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MCP Server (`@bugbrain/mcp`):** Model Context Protocol server exposing 14 tools and 6 resources over stdio.
 - **Portable Agent Skill (`skills/bugbrain-memory`):** Open Agent Skills specification standard for persistent codebase memory.
 - **Universal Agent Adapters (`@bugbrain/agent-adapters`):** Installers for Google Antigravity, Cursor, Claude Code, OpenAI Codex, and VS Code.
+

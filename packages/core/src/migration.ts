@@ -105,3 +105,4 @@ export async function migrateLegacy(projectRoot: string): Promise<MigrationResul
     message: `.bugbrain workspace already exists. Legacy backup preserved at ${backupDir}`,
   };
 }
+

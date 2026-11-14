@@ -33,3 +33,4 @@
 - `bugbrain://project/files`
 - `bugbrain://project/decisions`
 - `bugbrain://session/latest`
+

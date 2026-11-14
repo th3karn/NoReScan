@@ -20,3 +20,4 @@ Installed at `skills/bugbrain-memory/SKILL.md` (and copied into agent skill loca
 - Instructs agents to query BugBrain before writing code.
 - Enforces the golden rule: **Never assume a cached summary replaces live source inspection before writing modifications.**
 - Instructs agents to call `record_decision` and `record_session` on completion.
+

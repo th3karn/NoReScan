@@ -378,3 +378,330 @@ export class SessionRepository {
     };
   }
 }
+
+export interface StoredProjectCommand {
+  id: string;
+  projectId: string;
+  name: string;
+  rawCommand: string;
+  category: string;
+  sourceFile: string;
+  workingDir: string;
+  description?: string;
+  safeToRun: boolean;
+  requiresNetwork: boolean;
+  ecosystemId: string;
+  recordedAt: string;
+}
+
+export interface StoredPackageDependency {
+  id: string;
+  projectId: string;
+  manifestId: string;
+  name: string;
+  declaredVersion: string;
+  resolvedVersion?: string;
+  dependencyType: string;
+  registry?: string;
+  isDirect: boolean;
+  isOptional: boolean;
+  platformCondition?: string;
+  recordedAt: string;
+}
+
+export interface StoredWorkspaceMember {
+  id: string;
+  projectId: string;
+  name: string;
+  relativePath: string;
+  ecosystemId: string;
+  manifestPath: string;
+  dependencies: string[];
+  recordedAt: string;
+}
+
+export class EcosystemRepository {
+  constructor(private db: BugBrainDatabase) { }
+
+  public replaceProjectCommands(projectId: string, commands: Array<Omit<StoredProjectCommand, 'id' | 'projectId' | 'recordedAt'>>): void {
+    const now = new Date().toISOString();
+    this.db.transaction(() => {
+      this.db.db.prepare('DELETE FROM project_commands WHERE project_id = ?;').run(projectId);
+      const ins = this.db.db.prepare(`
+        INSERT INTO project_commands (id, project_id, name, raw_command, category, source_file, working_dir, description, safe_to_run, requires_network, ecosystem_id, recorded_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      `);
+      for (const cmd of commands) {
+        ins.run(
+          crypto.randomUUID(),
+          projectId,
+          cmd.name,
+          cmd.rawCommand,
+          cmd.category,
+          cmd.sourceFile,
+          cmd.workingDir,
+          cmd.description ?? null,
+          cmd.safeToRun ? 1 : 0,
+          cmd.requiresNetwork ? 1 : 0,
+          cmd.ecosystemId,
+          now
+        );
+      }
+    });
+  }
+
+  public getProjectCommands(projectId: string, category?: string): StoredProjectCommand[] {
+    const query = category
+      ? 'SELECT * FROM project_commands WHERE project_id = ? AND category = ? ORDER BY name ASC;'
+      : 'SELECT * FROM project_commands WHERE project_id = ? ORDER BY category ASC, name ASC;';
+    const rows = (category ? this.db.db.prepare(query).all(projectId, category) : this.db.db.prepare(query).all(projectId)) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: r.id as string,
+      projectId: r.project_id as string,
+      name: r.name as string,
+      rawCommand: r.raw_command as string,
+      category: r.category as string,
+      sourceFile: r.source_file as string,
+      workingDir: r.working_dir as string,
+      description: (r.description as string) || undefined,
+      safeToRun: Boolean(r.safe_to_run),
+      requiresNetwork: Boolean(r.requires_network),
+      ecosystemId: r.ecosystem_id as string,
+      recordedAt: r.recorded_at as string,
+    }));
+  }
+
+  public replacePackageDependencies(projectId: string, manifestId: string, deps: Array<Omit<StoredPackageDependency, 'id' | 'projectId' | 'manifestId' | 'recordedAt'>>): void {
+    const now = new Date().toISOString();
+    this.db.transaction(() => {
+      this.db.db.prepare('DELETE FROM package_dependencies WHERE project_id = ? AND manifest_id = ?;').run(projectId, manifestId);
+      const ins = this.db.db.prepare(`
+        INSERT INTO package_dependencies (id, project_id, manifest_id, name, declared_version, resolved_version, dependency_type, registry, is_direct, is_optional, platform_condition, recorded_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      `);
+      for (const dep of deps) {
+        ins.run(
+          crypto.randomUUID(),
+          projectId,
+          manifestId,
+          dep.name,
+          dep.declaredVersion,
+          dep.resolvedVersion ?? null,
+          dep.dependencyType,
+          dep.registry ?? null,
+          dep.isDirect ? 1 : 0,
+          dep.isOptional ? 1 : 0,
+          dep.platformCondition ?? null,
+          now
+        );
+      }
+    });
+  }
+
+  public getPackageDependencies(projectId: string): StoredPackageDependency[] {
+    const stmt = this.db.db.prepare('SELECT * FROM package_dependencies WHERE project_id = ? ORDER BY name ASC;');
+    const rows = stmt.all(projectId) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: r.id as string,
+      projectId: r.project_id as string,
+      manifestId: r.manifest_id as string,
+      name: r.name as string,
+      declaredVersion: r.declared_version as string,
+      resolvedVersion: (r.resolved_version as string) || undefined,
+      dependencyType: r.dependency_type as string,
+      registry: (r.registry as string) || undefined,
+      isDirect: Boolean(r.is_direct),
+      isOptional: Boolean(r.is_optional),
+      platformCondition: (r.platform_condition as string) || undefined,
+      recordedAt: r.recorded_at as string,
+    }));
+  }
+
+  public replaceWorkspaceMembers(projectId: string, members: Array<Omit<StoredWorkspaceMember, 'id' | 'projectId' | 'recordedAt'>>): void {
+    const now = new Date().toISOString();
+    this.db.transaction(() => {
+      this.db.db.prepare('DELETE FROM workspace_members WHERE project_id = ?;').run(projectId);
+      const ins = this.db.db.prepare(`
+        INSERT INTO workspace_members (id, project_id, name, relative_path, ecosystem_id, manifest_path, dependencies, recorded_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+      `);
+      for (const m of members) {
+        ins.run(
+          crypto.randomUUID(),
+          projectId,
+          m.name,
+          m.relativePath,
+          m.ecosystemId,
+          m.manifestPath,
+          JSON.stringify(m.dependencies),
+          now
+        );
+      }
+    });
+  }
+
+  public getWorkspaceMembers(projectId: string): StoredWorkspaceMember[] {
+    const stmt = this.db.db.prepare('SELECT * FROM workspace_members WHERE project_id = ? ORDER BY name ASC;');
+    const rows = stmt.all(projectId) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: r.id as string,
+      projectId: r.project_id as string,
+      name: r.name as string,
+      relativePath: r.relative_path as string,
+      ecosystemId: r.ecosystem_id as string,
+      manifestPath: r.manifest_path as string,
+      dependencies: JSON.parse((r.dependencies as string) || '[]'),
+      recordedAt: r.recorded_at as string,
+    }));
+  }
+}
+
+export interface StoredSyncCursor {
+  id: string;
+  projectId: string;
+  deviceId: string;
+  lastSyncedAt: string;
+  syncCursor: string;
+  syncVersion: number;
+  status: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface StoredSyncQueueItem {
+  id: string;
+  projectId: string;
+  entityType: string;
+  entityId: string;
+  operation: 'INSERT' | 'UPDATE' | 'DELETE';
+  payload: Record<string, unknown>;
+  createdAt: string;
+  status: 'PENDING' | 'SYNCED' | 'FAILED' | 'CONFLICT';
+  attemptCount: number;
+  errorMessage?: string;
+}
+
+export class SyncRepository {
+  private db: BugBrainDatabase;
+
+  constructor(db: BugBrainDatabase) {
+    this.db = db;
+  }
+
+  public getCursor(projectId: string, deviceId: string): StoredSyncCursor | null {
+    const stmt = this.db.db.prepare('SELECT * FROM sync_cursors WHERE project_id = ? AND device_id = ?;');
+    const row = stmt.get(projectId, deviceId) as Record<string, unknown> | undefined;
+    if (!row) return null;
+    return {
+      id: row.id as string,
+      projectId: row.project_id as string,
+      deviceId: row.device_id as string,
+      lastSyncedAt: row.last_synced_at as string,
+      syncCursor: row.sync_cursor as string,
+      syncVersion: Number(row.sync_version || 1),
+      status: row.status as string,
+      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+    };
+  }
+
+  public updateCursor(
+    projectId: string,
+    deviceId: string,
+    syncCursor: string,
+    status = 'SYNCED',
+    metadata?: Record<string, unknown>
+  ): StoredSyncCursor {
+    const now = new Date().toISOString();
+    const existing = this.getCursor(projectId, deviceId);
+
+    if (existing) {
+      const stmt = this.db.db.prepare(`
+        UPDATE sync_cursors
+        SET sync_cursor = ?, last_synced_at = ?, sync_version = sync_version + 1, status = ?, metadata = ?
+        WHERE project_id = ? AND device_id = ?;
+      `);
+      stmt.run(syncCursor, now, status, metadata ? JSON.stringify(metadata) : null, projectId, deviceId);
+      return this.getCursor(projectId, deviceId)!;
+    } else {
+      const id = crypto.randomUUID();
+      const stmt = this.db.db.prepare(`
+        INSERT INTO sync_cursors (id, project_id, device_id, last_synced_at, sync_cursor, sync_version, status, metadata)
+        VALUES (?, ?, ?, ?, ?, 1, ?, ?);
+      `);
+      stmt.run(id, projectId, deviceId, now, syncCursor, status, metadata ? JSON.stringify(metadata) : null);
+      return {
+        id,
+        projectId,
+        deviceId,
+        lastSyncedAt: now,
+        syncCursor,
+        syncVersion: 1,
+        status,
+        metadata,
+      };
+    }
+  }
+
+  public enqueueChange(
+    projectId: string,
+    entityType: string,
+    entityId: string,
+    operation: 'INSERT' | 'UPDATE' | 'DELETE',
+    payload: Record<string, unknown>
+  ): StoredSyncQueueItem {
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const stmt = this.db.db.prepare(`
+      INSERT INTO sync_offline_queue (id, project_id, entity_type, entity_id, operation, payload, created_at, status, attempt_count)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING', 0);
+    `);
+    stmt.run(id, projectId, entityType, entityId, operation, JSON.stringify(payload), now);
+
+    return {
+      id,
+      projectId,
+      entityType,
+      entityId,
+      operation,
+      payload,
+      createdAt: now,
+      status: 'PENDING',
+      attemptCount: 0,
+    };
+  }
+
+  public getPendingQueue(projectId: string): StoredSyncQueueItem[] {
+    const stmt = this.db.db.prepare(
+      "SELECT * FROM sync_offline_queue WHERE project_id = ? AND status = 'PENDING' ORDER BY created_at ASC;"
+    );
+    const rows = stmt.all(projectId) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: r.id as string,
+      projectId: r.project_id as string,
+      entityType: r.entity_type as string,
+      entityId: r.entity_id as string,
+      operation: r.operation as any,
+      payload: JSON.parse((r.payload as string) || '{}'),
+      createdAt: r.created_at as string,
+      status: r.status as any,
+      attemptCount: Number(r.attempt_count || 0),
+      errorMessage: (r.error_message as string) || undefined,
+    }));
+  }
+
+  public markQueueItem(id: string, status: 'SYNCED' | 'FAILED' | 'CONFLICT', error?: string): void {
+    const stmt = this.db.db.prepare(`
+      UPDATE sync_offline_queue
+      SET status = ?, attempt_count = attempt_count + 1, error_message = ?
+      WHERE id = ?;
+    `);
+    stmt.run(status, error ?? null, id);
+  }
+
+  public purgeSyncedQueue(projectId: string): number {
+    const stmt = this.db.db.prepare("DELETE FROM sync_offline_queue WHERE project_id = ? AND status = 'SYNCED';");
+    const res = stmt.run(projectId);
+    return Number(res.changes);
+  }
+}
+
+

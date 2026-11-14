@@ -1,5 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import {
   BugBrainDatabase,
   DatabaseMigrator,
@@ -9,6 +11,10 @@ import {
   DependencyRepository,
   DecisionRepository,
   SessionRepository,
+  EcosystemRepository,
+  StoredProjectCommand,
+  StoredPackageDependency,
+  StoredWorkspaceMember,
 } from '@bugbrain/database';
 import { FileScanner } from '@bugbrain/scanner';
 import { diffFingerprints, computeFingerprint } from '@bugbrain/fingerprint';
@@ -19,6 +25,16 @@ import {
   ConservativeInvalidator,
 } from '@bugbrain/dependency-graph';
 import { TaskContextEngine } from '@bugbrain/context-engine';
+import {
+  UniversalLanguageDetector,
+  EcosystemRegistry,
+  EnvironmentDetector,
+  SafeCommandRunner,
+  LanguageStat,
+  MonorepoComponent,
+  RuntimeEnvironment,
+  CommandInspection,
+} from '@bugbrain/ecosystems';
 import {
   normalizePath,
   BugBrainConfig,
@@ -34,6 +50,11 @@ import {
 } from '@bugbrain/shared';
 import crypto from 'node:crypto';
 import { migrateLegacy } from './migration.js';
+import { Cartographer, CausalGraphData, BlastRadiusResult } from './cartographer.js';
+import { HybridSyncEngine, SyncResult, SyncPayload } from './sync.js';
+import { BugBrainRestServer, ServerOptions } from './server.js';
+
+const execAsync = promisify(exec);
 
 export interface ScanSummary {
   scanned: number;
@@ -81,14 +102,27 @@ export class BugBrainCore {
   public depRepo!: DependencyRepository;
   public decisionRepo!: DecisionRepository;
   public sessionRepo!: SessionRepository;
+  public ecosystemRepo!: EcosystemRepository;
   public graph!: DependencyGraph;
   public analyzer!: CodeAnalyzer;
   public contextEngine!: TaskContextEngine;
+  public languageDetector: UniversalLanguageDetector;
+  public ecosystemRegistry: EcosystemRegistry;
+  public environmentDetector: EnvironmentDetector;
+  public commandRunner: SafeCommandRunner;
+  public cartographer: Cartographer;
+  public syncEngine?: HybridSyncEngine;
+  private restServer?: BugBrainRestServer;
 
   constructor(projectRoot: string) {
     this.projectRoot = normalizePath(path.resolve(projectRoot));
     this.analyzer = new CodeAnalyzer();
     this.graph = new DependencyGraph();
+    this.languageDetector = new UniversalLanguageDetector();
+    this.ecosystemRegistry = new EcosystemRegistry();
+    this.environmentDetector = new EnvironmentDetector();
+    this.commandRunner = new SafeCommandRunner();
+    this.cartographer = new Cartographer(this.graph);
   }
 
   /**
@@ -175,6 +209,8 @@ export class BugBrainCore {
     this.depRepo = new DependencyRepository(this.db);
     this.decisionRepo = new DecisionRepository(this.db);
     this.sessionRepo = new SessionRepository(this.db);
+    this.ecosystemRepo = new EcosystemRepository(this.db);
+    this.syncEngine = new HybridSyncEngine(this.db, this.config.projectId);
 
     this.contextEngine = new TaskContextEngine({
       projectId: this.config.projectId,
@@ -191,8 +227,13 @@ export class BugBrainCore {
   }
 
   private reloadDependencyGraph(): void {
-    if (!this.depRepo || !this.config) return;
+    if (!this.depRepo || !this.config || !this.fileRepo) return;
     try {
+      const allFiles = this.fileRepo.getAllByProject(this.config.projectId);
+      for (const f of allFiles.values()) {
+        this.graph.addNode(f.relativePath);
+      }
+
       const edges = this.depRepo.getAllEdgesByProject(this.config.projectId);
       for (const edge of edges) {
         if (edge.targetPath) {
@@ -305,6 +346,8 @@ export class BugBrainCore {
         lastScannedAt: new Date().toISOString(),
       });
 
+      this.graph.addNode(fp.relativePath);
+
       // Save analysis
       this.analysisRepo.saveAnalysis({
         fileId: savedSnapshot.id,
@@ -339,6 +382,20 @@ export class BugBrainCore {
       }
 
       this.depRepo.replaceFileDependencies(this.config.projectId, savedSnapshot.id, resolvedEdges);
+    }
+
+    // Index polyglot ecosystems, package dependencies, commands, and workspaces
+    try {
+      const commands = await this.ecosystemRegistry.extractAllCommands(this.projectRoot);
+      this.ecosystemRepo.replaceProjectCommands(this.config.projectId, commands);
+
+      const deps = await this.ecosystemRegistry.extractAllDependencies(this.projectRoot);
+      this.ecosystemRepo.replacePackageDependencies(this.config.projectId, 'manifest-root', deps);
+
+      const workspaces = await this.ecosystemRegistry.detectAllWorkspaces(this.projectRoot);
+      this.ecosystemRepo.replaceWorkspaceMembers(this.config.projectId, workspaces);
+    } catch (err) {
+      defaultLogger.warn('Ecosystem indexing error:', err);
     }
 
     return {
@@ -778,6 +835,209 @@ export class BugBrainCore {
     return { healthy, checks };
   }
 
+  /**
+   * Universal Language Detection: Computes language distributions and monorepo components.
+   */
+  public async getLanguages(): Promise<{ stats: LanguageStat[]; components: MonorepoComponent[] }> {
+    this.ensureInitialized();
+    const files = this.fileRepo.getAllByProject(this.config.projectId);
+    const stats = await this.languageDetector.detectLanguages(this.projectRoot, files);
+    const components = await this.languageDetector.detectMonorepoComponents(this.projectRoot);
+    return { stats, components };
+  }
+
+  /**
+   * Returns active and supported ecosystem adapters.
+   */
+  public async getEcosystems(): Promise<Array<{ id: string; displayName: string; supportedLanguages: string[]; active: boolean }>> {
+    this.ensureInitialized();
+    const all = this.ecosystemRegistry.getAllAdapters();
+    const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
+    const activeIds = new Set(active.map((a) => a.id));
+    return all.map((a) => ({
+      id: a.id,
+      displayName: a.displayName,
+      supportedLanguages: a.supportedLanguages,
+      active: activeIds.has(a.id),
+    }));
+  }
+
+  /**
+   * Retrieves package dependencies discovered across active manifests.
+   */
+  public getPackageDependencies(): StoredPackageDependency[] {
+    this.ensureInitialized();
+    return this.ecosystemRepo.getPackageDependencies(this.config.projectId);
+  }
+
+  /**
+   * Retrieves project commands discovered across active manifests and scripts.
+   */
+  public getProjectCommands(category?: string): StoredProjectCommand[] {
+    this.ensureInitialized();
+    return this.ecosystemRepo.getProjectCommands(this.config.projectId, category);
+  }
+
+  /**
+   * Retrieves monorepo workspaces and members.
+   */
+  public getWorkspaces(): StoredWorkspaceMember[] {
+    this.ensureInitialized();
+    return this.ecosystemRepo.getWorkspaceMembers(this.config.projectId);
+  }
+
+  /**
+   * Probes system toolchain versions and checks project requirements.
+   */
+  public async getEnvironmentStatus(): Promise<RuntimeEnvironment[]> {
+    const active = await this.ecosystemRegistry.detectActiveEcosystems(this.projectRoot);
+    const activeIds = active.map((a) => a.id);
+    return this.environmentDetector.probeEnvironment(activeIds.length > 0 ? activeIds : undefined);
+  }
+
+  /**
+   * Inspects a command and checks safety warnings and side effects.
+   */
+  public inspectCommand(commandName: string): CommandInspection | null {
+    this.ensureInitialized();
+    const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
+    const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
+    if (!found) return null;
+    return this.commandRunner.inspectCommand(found as any);
+  }
+
+  /**
+   * Safely executes an authorized command with timeout and safety validation.
+   */
+  public async executeCommand(commandName: string): Promise<{ success: boolean; output: string }> {
+    this.ensureInitialized();
+    const cmds = this.ecosystemRepo.getProjectCommands(this.config.projectId);
+    const found = cmds.find((c) => c.name === commandName || c.rawCommand === commandName);
+    if (!found) {
+      return { success: false, output: `Command "${commandName}" is not discovered in this project.` };
+    }
+
+    const validation = this.commandRunner.validateExecution(found as any);
+    if (!validation.allowed) {
+      return { success: false, output: `Security block: ${validation.reason}` };
+    }
+
+    try {
+      const { stdout, stderr } = await execAsync(found.rawCommand, {
+        cwd: path.resolve(this.projectRoot, found.workingDir),
+        timeout: 30000,
+        maxBuffer: 10 * 1024 * 1024,
+      });
+      return { success: true, output: (stdout || stderr).trim() };
+    } catch (err: any) {
+      return { success: false, output: err.message };
+    }
+  }
+
+  /**
+   * Retrieves the full Causal Dependency Graph with in-degree ranking and cycle detection.
+   */
+  public getCausalGraph(hotThreshold = 1): CausalGraphData {
+    this.ensureInitialized();
+    return this.cartographer.getCausalGraph(hotThreshold);
+  }
+
+  /**
+   * Computes the blast cone of potential breakage from a git diff or diff patch.
+   */
+  public blastDiff(diffText: string, maxDepth = 10): BlastRadiusResult {
+    this.ensureInitialized();
+    return this.cartographer.blastDiff(diffText, maxDepth);
+  }
+
+  /**
+   * Returns current hybrid sync status, cursor, and offline queue depth.
+   */
+  public getSyncStatus() {
+    this.ensureInitialized();
+    return this.syncEngine?.getStatus() || { status: 'unconfigured' };
+  }
+
+  /**
+   * Retrieves architectural decision records (ADRs).
+   */
+  public getDecisions(): DecisionRecord[] {
+    this.ensureInitialized();
+    return this.decisionRepo.listByProject(this.config.projectId);
+  }
+
+  /**
+   * Generates a sync push payload for BugBrain Cloud or authorized peers.
+   */
+  public pushSyncPayload(): SyncPayload {
+    this.ensureInitialized();
+    if (!this.syncEngine) {
+      throw new Error('Sync engine not initialized.');
+    }
+    const fileMap = this.fileRepo.getAllByProject(this.config.projectId);
+    const files = Array.from(fileMap.values());
+
+    const fileRecords = files.map((f) => {
+      const an = this.analysisRepo.getLatestByFileId(f.id);
+      return {
+        relativePath: f.relativePath,
+        hash: f.contentHash,
+        language: f.language,
+        summary: an?.summary,
+      };
+    });
+
+    const edges = this.depRepo.getAllEdgesByProject(this.config.projectId).map((e) => {
+      const src = files.find((f) => f.id === e.sourceFileId);
+      return {
+        source: src?.relativePath || e.sourceFileId,
+        target: e.targetPath,
+        type: e.dependencyType,
+      };
+    });
+
+    const decisions = this.decisionRepo.listByProject(this.config.projectId).map((d) => ({
+      id: d.id,
+      title: d.title,
+      decision: d.decision,
+      rationale: d.rationale,
+      affectedFiles: d.affectedFiles,
+      recordedAt: d.createdAt,
+    }));
+
+    return this.syncEngine.generatePushPayload(fileRecords, edges, decisions);
+  }
+
+  /**
+   * Applies an incoming sync payload from peer or BugBrain Cloud with deterministic merge.
+   */
+  public pullSyncPayload(incoming: SyncPayload): SyncResult {
+    this.ensureInitialized();
+    if (!this.syncEngine) {
+      throw new Error('Sync engine not initialized.');
+    }
+    return this.syncEngine.applyRemotePayload(incoming);
+  }
+
+  /**
+   * Starts the BugBrain local REST API server and Cartographer UI dashboard.
+   */
+  public async startRestServer(options: ServerOptions = {}): Promise<{ port: number; host: string; url: string }> {
+    this.ensureInitialized();
+    this.restServer = new BugBrainRestServer(this);
+    return this.restServer.start(options);
+  }
+
+  /**
+   * Stops the BugBrain REST API server if running.
+   */
+  public async stopRestServer(): Promise<void> {
+    if (this.restServer) {
+      await this.restServer.stop();
+      this.restServer = undefined;
+    }
+  }
+
   public clean(staleOnly = false): void {
     this.ensureInitialized();
     if (staleOnly) {
@@ -788,6 +1048,9 @@ export class BugBrainCore {
   }
 
   public close(): void {
+    if (this.restServer) {
+      this.restServer.stop().catch(() => {});
+    }
     if (this.db) {
       this.db.close();
     }

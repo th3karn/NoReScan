@@ -56,7 +56,12 @@ describe('BugBrain MCP Server Protocol Tests', () => {
     expect(toolNames).toContain('refresh_analysis');
     expect(toolNames).toContain('record_decision');
     expect(toolNames).toContain('record_session');
-    expect(toolNames.length).toBe(14);
+    expect(toolNames).toContain('get_languages');
+    expect(toolNames).toContain('get_ecosystems');
+    expect(toolNames).toContain('get_causal_graph');
+    expect(toolNames).toContain('blast_diff');
+    expect(toolNames).toContain('get_sync_status');
+    expect(toolNames.length).toBe(24);
 
     // Test ListResources
     const resourcesHandler = (server as any)._requestHandlers.get(ListResourcesRequestSchema.shape.method.value);
@@ -69,6 +74,9 @@ describe('BugBrain MCP Server Protocol Tests', () => {
     expect(uris).toContain('bugbrain://project/dependencies');
     expect(uris).toContain('bugbrain://project/hot-files');
     expect(uris).toContain('bugbrain://project/schema');
+    expect(uris).toContain('bugbrain://project/languages');
+    expect(uris).toContain('bugbrain://project/causal-graph');
+    expect(uris).toContain('bugbrain://project/sync');
   });
 
   it('executes get_task_context tool call cleanly', async () => {

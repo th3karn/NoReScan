@@ -30,3 +30,4 @@
 | `import` | `bugbrain import <file>` | Import memory database from JSON backup |
 | `db` | `bugbrain db [status\|migrate\|backup]` | Database status, migrations, and backups |
 | `config` | `bugbrain config [list\|get\|set\|reset]` | Read or update workspace configuration |
+

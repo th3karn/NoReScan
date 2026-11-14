@@ -45,3 +45,4 @@ When initializing or running commands in a repository with `.repomind/`:
    - Copy `memory.db` to `.bugbrain/bugbrain.db`.
    - Record migration event in database.
    - Leave legacy `.repomind/` intact (never silently delete).
+

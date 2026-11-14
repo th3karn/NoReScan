@@ -157,4 +157,55 @@ describe('BugBrainCore Integration Lifecycle', () => {
     expect(doctorResult.healthy).toBe(true);
     expect(doctorResult.checks.every((c) => c.passed)).toBe(true);
   });
+
+  it('detects polyglot languages, ecosystems, commands, and environment', async () => {
+    // Add python and rust mock files to codebase
+    await fs.writeFile(
+      path.join(tempDir, 'requirements.txt'),
+      'fastapi==0.110.0\nuvicorn>=0.28.0\n'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'main.py'),
+      'from fastapi import FastAPI\napp = FastAPI()\n@app.get("/")\ndef root(): return {"status": "ok"}\n'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'Cargo.toml'),
+      '[package]\nname = "cli-helper"\nversion = "0.1.0"\nedition = "2021"\n[dependencies]\nserde = "1.0"\n'
+    );
+    await fs.mkdir(path.join(tempDir, 'src', 'bin'), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, 'src', 'bin', 'main.rs'),
+      'fn main() { println!("Hello BugBrain"); }'
+    );
+
+    await core.init('demo-app');
+    await core.scan();
+
+    // Check languages
+    const languages = await core.getLanguages();
+    const langNames = languages.stats.map((l) => l.language);
+    expect(langNames).toContain('typescript');
+    expect(langNames).toContain('python');
+    expect(langNames).toContain('rust');
+
+    // Check ecosystems
+    const ecosystems = await core.getEcosystems();
+    const activeEcosystems = ecosystems.filter((e) => e.active).map((e) => e.id);
+    expect(activeEcosystems).toContain('python');
+    expect(activeEcosystems).toContain('cargo');
+
+    // Check package dependencies
+    const deps = await core.getPackageDependencies();
+    expect(deps.some((d) => d.name === 'fastapi')).toBe(true);
+    expect(deps.some((d) => d.name === 'serde')).toBe(true);
+
+    // Check project commands
+    const commands = await core.getProjectCommands();
+    expect(commands.some((c) => c.rawCommand.includes('cargo build'))).toBe(true);
+
+    // Check environment status
+    const envStatus = await core.getEnvironmentStatus();
+    expect(envStatus.length).toBeGreaterThan(0);
+    expect(envStatus.some((r) => r.ecosystemId === 'javascript' && r.tool === 'node')).toBe(true);
+  });
 });

@@ -1,5 +1,5 @@
 import { BugBrainDatabase } from './connection.js';
-import { INITIAL_MIGRATION_V1 } from './schema.js';
+import { INITIAL_MIGRATION_V1, MIGRATION_V2_ECOSYSTEMS, MIGRATION_V3_HYBRID_SYNC } from './schema.js';
 import { DatabaseError, defaultLogger } from '@bugbrain/shared';
 
 export interface Migration {
@@ -13,6 +13,16 @@ export const MIGRATIONS: Migration[] = [
     version: 1,
     name: '001_initial_schema',
     sql: INITIAL_MIGRATION_V1,
+  },
+  {
+    version: 2,
+    name: '002_ecosystems_and_commands',
+    sql: MIGRATION_V2_ECOSYSTEMS,
+  },
+  {
+    version: 3,
+    name: '003_hybrid_sync_and_queue',
+    sql: MIGRATION_V3_HYBRID_SYNC,
   },
 ];
 

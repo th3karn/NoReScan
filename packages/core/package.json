@@ -15,6 +15,7 @@
     "@bugbrain/context-engine": "workspace:*",
     "@bugbrain/database": "workspace:*",
     "@bugbrain/dependency-graph": "workspace:*",
+    "@bugbrain/ecosystems": "workspace:*",
     "@bugbrain/fingerprint": "workspace:*",
     "@bugbrain/scanner": "workspace:*",
     "@bugbrain/shared": "workspace:*"

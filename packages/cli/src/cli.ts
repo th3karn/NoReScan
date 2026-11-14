@@ -843,5 +843,447 @@ export function createProgram(): Command {
       }
     });
 
+  // ==========================================
+  // Polyglot & Ecosystem Intelligence Commands
+  // ==========================================
+
+  // bugbrain languages
+  program
+    .command('languages')
+    .description('Detect programming languages, file distribution, and monorepo components')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const res = await core.getLanguages();
+        if (cmd.optsWithGlobals().json) {
+          output.success('languages', 'Languages detected', res);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nDetected Languages & Distributions')));
+          output.raw('----------------------------------------');
+          for (const stat of res.stats) {
+            output.raw(
+              `${pc.bold(stat.displayName.padEnd(16))} ${stat.percentage.toFixed(1).padStart(5)}%  ` +
+              `(${stat.fileCount} files, ${(stat.byteCount / 1024).toFixed(1)} KB)`
+            );
+          }
+          if (res.components.length > 0) {
+            output.raw(pc.bold(pc.cyan('\nMonorepo Components:')));
+            for (const comp of res.components) {
+              output.raw(`  - ${pc.bold(comp.name)} (${comp.primaryLanguage}, ${comp.ecosystemId}) in ${comp.relativePath}`);
+            }
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('languages', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain ecosystems
+  program
+    .command('ecosystems')
+    .description('List active and supported package managers and ecosystem adapters')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const eco = await core.getEcosystems();
+        if (cmd.optsWithGlobals().json) {
+          output.success('ecosystems', 'Ecosystem adapters', eco);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nEcosystem Adapters')));
+          output.raw('----------------------------------------');
+          for (const e of eco) {
+            const status = e.active ? pc.green('ACTIVE') : pc.gray('SUPPORTED');
+            output.raw(`[${status}] ${pc.bold(e.displayName.padEnd(20))} (${e.supportedLanguages.join(', ')})`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('ecosystems', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain packages [list|tree|explain <pkg>]
+  const packagesCmd = program.command('packages').description('Inspect package manager dependencies across ecosystems');
+
+  packagesCmd
+    .command('list', { isDefault: true })
+    .description('List all discovered package dependencies across active manifests')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const pkgs = core.getPackageDependencies();
+        if (cmd.optsWithGlobals().json) {
+          output.success('packages:list', 'Discovered package dependencies', pkgs);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nDiscovered Dependencies')));
+          output.raw('----------------------------------------');
+          for (const p of pkgs) {
+            const kind = p.isDirect ? pc.green('direct') : pc.gray('indirect');
+            output.raw(`${pc.bold(p.name)} @ ${p.declaredVersion} [${kind}, ${p.dependencyType}]`);
+          }
+          output.raw(`\nTotal dependencies: ${pkgs.length}\n`);
+        }
+      } catch (err: any) {
+        output.error('packages:list', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  packagesCmd
+    .command('explain <packageName>')
+    .description('Explain why a package is depended upon and its dependents')
+    .action(async (packageName, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const pkgs = core.getPackageDependencies();
+        const found = pkgs.filter((p) => p.name === packageName);
+        if (found.length === 0) {
+          output.raw(pc.yellow(`Package "${packageName}" not found in project dependencies.`));
+        } else {
+          output.success('packages:explain', `Package explanation for ${packageName}`, found);
+        }
+      } catch (err: any) {
+        output.error('packages:explain', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain commands [search <q>|explain <cmd>]
+  const commandsCmd = program.command('commands').description('Command intelligence: search and explain discovered scripts and commands');
+
+  commandsCmd
+    .command('list', { isDefault: true })
+    .description('List discovered project commands (build, test, dev, lint)')
+    .option('-c, --category <category>', 'Filter by category (build, test, lint, dev, run)')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const cmds = core.getProjectCommands(options.category);
+        if (cmd.optsWithGlobals().json) {
+          output.success('commands:list', 'Discovered project commands', cmds);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nDiscovered Project Commands')));
+          output.raw('----------------------------------------');
+          for (const c of cmds) {
+            const safe = c.safeToRun ? pc.green('SAFE') : pc.red('UNSAFE');
+            output.raw(`[${c.category.toUpperCase().padEnd(6)}] ${pc.bold(c.name)} -> ${c.rawCommand} [${safe}]`);
+          }
+          output.raw(`\nTotal commands: ${cmds.length}\n`);
+        }
+      } catch (err: any) {
+        output.error('commands:list', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  commandsCmd
+    .command('search <query>')
+    .description('Search project commands by intent or query')
+    .action(async (query, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const cmds = core.getProjectCommands();
+        const q = query.toLowerCase();
+        const filtered = cmds.filter((c) => c.name.toLowerCase().includes(q) || c.rawCommand.toLowerCase().includes(q));
+        output.success('commands:search', `Found ${filtered.length} command(s) matching "${query}"`, filtered);
+      } catch (err: any) {
+        output.error('commands:search', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  commandsCmd
+    .command('explain <commandName>')
+    .description('Inspect safety, network access, and parameters of a command')
+    .action(async (commandName, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const inspection = core.inspectCommand(commandName);
+        if (!inspection) {
+          output.raw(pc.yellow(`Command "${commandName}" not found.`));
+        } else {
+          output.success('commands:explain', `Command inspection: ${commandName}`, inspection);
+        }
+      } catch (err: any) {
+        output.error('commands:explain', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain env [doctor|check]
+  const envCmd = program.command('env').description('Environment intelligence: toolchain versions and requirements');
+
+  envCmd
+    .command('doctor', { isDefault: true })
+    .description('Probe system toolchains and installed runtimes')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const envStatus = await core.getEnvironmentStatus();
+        if (cmd.optsWithGlobals().json) {
+          output.success('env:doctor', 'Environment status', envStatus);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nSystem Toolchain Environment')));
+          output.raw('----------------------------------------');
+          for (const env of envStatus) {
+            const status = env.installed ? pc.green(`v${env.detectedVersion}`) : pc.red('NOT INSTALLED');
+            output.raw(`${pc.bold(env.displayName.padEnd(20))} ${status}`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('env:doctor', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain workspace [list|graph]
+  const wsCmd = program.command('workspace').description('Monorepo workspace packages and members');
+
+  wsCmd
+    .command('list', { isDefault: true })
+    .description('List monorepo packages and members')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const members = core.getWorkspaces();
+        if (cmd.optsWithGlobals().json) {
+          output.success('workspace:list', 'Workspace members', members);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nMonorepo Workspace Members')));
+          output.raw('----------------------------------------');
+          for (const m of members) {
+            output.raw(`${pc.bold(m.name)} in ${m.relativePath} [${m.ecosystemId}]`);
+          }
+          output.raw(`\nTotal members: ${members.length}\n`);
+        }
+      } catch (err: any) {
+        output.error('workspace:list', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain run <command>
+  program
+    .command('run <commandName>')
+    .description('Safely execute an authorized project command with preflight security check')
+    .action(async (commandName, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const res = await core.executeCommand(commandName);
+        if (res.success) {
+          output.success('run', `Command executed successfully: ${commandName}`, { output: res.output });
+          if (!cmd.optsWithGlobals().json) {
+            output.raw(res.output);
+          }
+        } else {
+          output.error('run', res.output);
+          process.exitCode = 1;
+        }
+      } catch (err: any) {
+        output.error('run', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // ==========================================
+  // Causal Graph, Hot Files & Diff Blast Commands
+  // ==========================================
+
+  // bugbrain graph [--format <json|dot|mermaid>]
+  program
+    .command('graph')
+    .description('Display or export the full causal dependency graph')
+    .option('-f, --format <format>', 'Output format: json, dot, or mermaid', 'json')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        if (options.format === 'mermaid') {
+          output.raw(core.cartographer.toMermaid());
+        } else if (options.format === 'dot') {
+          output.raw(core.cartographer.toDot());
+        } else {
+          output.success('graph', 'Causal graph data', core.getCausalGraph());
+        }
+      } catch (err: any) {
+        output.error('graph', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain hot-files [--limit <n>]
+  program
+    .command('hot-files')
+    .description('List the most load-bearing files in the project (highest in-degree)')
+    .option('-l, --limit <limit>', 'Maximum files to list', '10')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const limit = parseInt(options.limit, 10) || 10;
+        const hot = core.getHotFiles().slice(0, limit);
+        if (cmd.optsWithGlobals().json) {
+          output.success('hot-files', 'Hot load-bearing files', hot);
+        } else {
+          output.raw(pc.bold(pc.cyan('\nHot Files (Load-bearing with highest in-degree)')));
+          output.raw('----------------------------------------');
+          for (const h of hot) {
+            output.raw(`${pc.bold(h.relativePath.padEnd(45))} ${pc.magenta(h.inDegree)} dependents`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('hot-files', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // bugbrain blast <file-or-diff>
+  program
+    .command('blast <fileOrDiff>')
+    .description('Calculate blast radius cone of potential breakage from file path or git diff')
+    .option('-d, --depth <depth>', 'Maximum traversal depth', '10')
+    .action(async (fileOrDiff, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const maxDepth = parseInt(options.depth, 10) || 10;
+        let blastResult;
+
+        // Check if argument is a file path or a diff string
+        if (fileOrDiff.includes('\n') || fileOrDiff.includes('diff --git')) {
+          blastResult = core.blastDiff(fileOrDiff, maxDepth);
+        } else {
+          blastResult = core.cartographer.calculateBlastRadius([fileOrDiff], maxDepth);
+        }
+
+        if (cmd.optsWithGlobals().json) {
+          output.success('blast', 'Blast radius calculation', blastResult);
+        } else {
+          output.raw(pc.bold(pc.red('\nBlast Radius Cone (Potential Breakage)')));
+          output.raw('----------------------------------------');
+          output.raw(`Seed files: ${blastResult.seedFiles.join(', ')}`);
+          output.raw(`Total affected upstream files: ${pc.bold(pc.yellow(blastResult.totalAffected))}\n`);
+          for (const f of blastResult.blastCone) {
+            output.raw(`  ${pc.red('💥')} ${f}`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('blast', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // ==========================================
+  // Hybrid Memory & Synchronization Commands
+  // ==========================================
+  const syncCmd = program.command('sync').description('Hybrid memory synchronization (Architecture Section 11)');
+
+  syncCmd
+    .command('status', { isDefault: true })
+    .description('Display hybrid sync cursor, device ID, and offline queue status')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const status = core.getSyncStatus();
+        output.success('sync:status', 'Hybrid synchronization status', status);
+      } catch (err: any) {
+        output.error('sync:status', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  syncCmd
+    .command('push')
+    .description('Export sanitized sync payload for BugBrain Cloud or authorized peers')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const payload = core.pushSyncPayload();
+        output.success('sync:push', 'Push payload generated (source code excluded by policy)', payload);
+      } catch (err: any) {
+        output.error('sync:push', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // ==========================================
+  // REST API Server & Cartographer Dashboard UI
+  // ==========================================
+  program
+    .command('serve')
+    .description('Start the local BugBrain REST API server and Cartographer Dashboard UI')
+    .option('-p, --port <port>', 'Server port', '31415')
+    .option('-H, --host <host>', 'Server host', '127.0.0.1')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const port = parseInt(options.port, 10) || 31415;
+        const info = await core.startRestServer({ port, host: options.host });
+        output.raw(pc.bold(pc.green(`\nBugBrain REST API & Cartographer UI live at ${info.url}`)));
+        output.raw(`API health endpoint:   ${pc.cyan(`${info.url}/health`)}`);
+        output.raw(`Causal graph:          ${pc.cyan(`${info.url}/api/v1/graph`)}`);
+        output.raw(`Blast radius endpoint: ${pc.cyan(`${info.url}/api/v1/blast-radius`)}`);
+        output.raw(`Dashboard UI:          ${pc.cyan(`${info.url}/dashboard`)}\n`);
+        output.raw('Press Ctrl+C to stop.\n');
+
+        // Keep process open
+        await new Promise(() => {});
+      } catch (err: any) {
+        output.error('serve', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
   return program;
 }

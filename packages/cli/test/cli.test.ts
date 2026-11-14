@@ -141,4 +141,53 @@ describe('BugBrain CLI Commands', () => {
     expect(doctorOutput.success).toBe(true);
     expect(doctorOutput.data.healthy).toBe(true);
   });
+
+  it('runs polyglot, causal graph, blast, and sync CLI commands', async () => {
+    // 1. Init & Scan
+    let program = createProgram();
+    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'init']);
+    program = createProgram();
+    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'scan']);
+
+    const runJson = async (args: string[]) => {
+      const prog = createProgram();
+      const chunks: string[] = [];
+      const origWrite = process.stdout.write;
+      process.stdout.write = (chunk: any) => {
+        chunks.push(chunk.toString());
+        return true;
+      };
+      try {
+        await prog.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', ...args]);
+      } finally {
+        process.stdout.write = origWrite;
+      }
+      return JSON.parse(chunks.join(''));
+    };
+
+    // 2. languages
+    const langOut = await runJson(['languages']);
+    expect(langOut.success).toBe(true);
+    expect(langOut.data.stats.some((s: any) => s.language === 'typescript')).toBe(true);
+
+    // 3. ecosystems
+    const ecoOut = await runJson(['ecosystems']);
+    expect(ecoOut.success).toBe(true);
+    expect(ecoOut.data.some((e: any) => e.id === 'javascript')).toBe(true);
+
+    // 4. graph
+    const graphOut = await runJson(['graph']);
+    expect(graphOut.success).toBe(true);
+    expect(graphOut.data.stats.totalFiles).toBeGreaterThanOrEqual(1);
+
+    // 5. blast
+    const blastOut = await runJson(['blast', 'src/index.ts']);
+    expect(blastOut.success).toBe(true);
+    expect(blastOut.data.seedFiles).toContain('src/index.ts');
+
+    // 6. sync status
+    const syncOut = await runJson(['sync', 'status']);
+    expect(syncOut.success).toBe(true);
+    expect(syncOut.data.deviceId).toBeDefined();
+  });
 });
