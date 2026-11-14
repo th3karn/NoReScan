@@ -432,7 +432,7 @@ export class NoReScanCore {
       return { refreshed: 0, details: `File ${normalized} does not exist.` };
     }
 
-    const fp = await computeFingerprint(absPath, this.projectRoot);
+    const fp = await computeFingerprint(absPath, normalized);
     const analysis = await this.analyzer.analyzeFile(absPath, normalized, fp.language);
 
     const savedSnapshot = this.fileRepo.upsertFile({
@@ -456,6 +456,91 @@ export class NoReScanCore {
     });
 
     return { refreshed: 1, details: `Successfully refreshed analysis for ${normalized}` };
+  }
+
+  /**
+   * Fast real-time indexing of a newly created or modified file.
+   * Immediately updates fingerprints, AST, and module dependencies in memory.
+   */
+  public async rememberFile(relativePath: string): Promise<{
+    fileId: string;
+    path: string;
+    relativePath: string;
+    contentHash: string;
+    language?: string;
+    summary?: string;
+    symbolsCount: number;
+    cached: boolean;
+    astMetadata?: any;
+    exports: any[];
+    imports: any[];
+    routes: any[];
+  }> {
+    this.ensureInitialized();
+    const normalized = normalizePath(relativePath);
+    const absPath = path.isAbsolute(normalized) ? normalized : path.join(this.projectRoot, normalized);
+
+    const fp = await computeFingerprint(absPath, normalized);
+    const analysis = await this.analyzer.analyzeFile(absPath, normalized, fp.language);
+
+    const savedSnapshot = this.fileRepo.upsertFile({
+      projectId: this.config.projectId,
+      relativePath: normalized,
+      contentHash: fp.contentHash,
+      language: fp.language,
+      fileSize: fp.fileSize,
+      status: 'valid',
+      lastScannedAt: new Date().toISOString(),
+    });
+
+    this.analysisRepo.saveAnalysis({
+      fileId: savedSnapshot.id,
+      contentHash: fp.contentHash,
+      summary: analysis.summary,
+      astMetadata: analysis.astMetadata,
+      analyzerVersion: analysis.analyzerVersion,
+      schemaVersion: analysis.schemaVersion,
+      status: 'valid',
+    });
+
+    // Update dependency edges
+    const projectFiles = this.fileRepo.getAllByProject(this.config.projectId);
+    const allKnownPaths = new Set<string>(projectFiles.keys());
+    const resolvedEdges = [];
+    if (analysis.astMetadata?.imports) {
+      for (const imp of analysis.astMetadata.imports) {
+        const resolved = resolveImportSpecifier(imp.source, normalized, allKnownPaths);
+        if (resolved) {
+          const targetSnap = projectFiles.get(resolved);
+          resolvedEdges.push({
+            targetPath: resolved,
+            targetFileId: targetSnap?.id,
+            dependencyType: (imp.isTypeOnly ? 'type_reference' : 'import') as any,
+            confidence: 1.0,
+          });
+          this.graph.addEdge(normalized, resolved);
+        }
+      }
+      this.depRepo.replaceFileDependencies(this.config.projectId, savedSnapshot.id, resolvedEdges);
+    }
+
+    const exportsCount = analysis.astMetadata?.exports?.length || 0;
+    const symbolsListCount = analysis.astMetadata?.symbols?.length || 0;
+
+    return {
+      fileId: savedSnapshot.id,
+      path: normalized,
+      relativePath: normalized,
+      contentHash: fp.contentHash,
+      language: fp.language,
+      summary: analysis.summary,
+      symbolsCount: exportsCount + symbolsListCount,
+      cached: false,
+      astMetadata: analysis.astMetadata,
+      exports: analysis.astMetadata?.exports || [],
+      imports: analysis.astMetadata?.imports || [],
+      routes: analysis.astMetadata?.routes || [],
+    };
   }
 
   /**

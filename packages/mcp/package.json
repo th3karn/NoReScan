@@ -19,6 +19,7 @@
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.6.1",
         "@norescan/core": "workspace:*",
+        "@norescan/fixer": "workspace:*",
         "@norescan/shared": "workspace:*",
         "zod": "^3.24.2"
     },

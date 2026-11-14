@@ -7,6 +7,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { NoReScanCore } from '@norescan/core';
 import { assertPathContained, defaultLogger } from '@norescan/shared';
+import { AutoTestRunner } from '@norescan/fixer';
 import path from 'node:path';
 
 export function createMcpServer(core: NoReScanCore): Server {
@@ -230,6 +231,39 @@ export function createMcpServer(core: NoReScanCore): Server {
           name: 'get_sync_status',
           description: 'Retrieve hybrid memory synchronization status, device ID, cursor, and offline queue depth',
           inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'remember_file',
+          description: 'Immediately hashes, parses AST, and indexes a newly created or modified file so coding agents do not need to repeatedly analyze or read it',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Relative path of the created or edited file' },
+            },
+            required: ['path'],
+          },
+        },
+        {
+          name: 'inspect_file_memory',
+          description: 'Inspect stored AST structure, exports, symbols, and routes of a file directly from memory without reading physical files from disk',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Relative path of the file' },
+            },
+            required: ['path'],
+          },
+        },
+        {
+          name: 'diagnose_and_fix',
+          description: 'Run project tests or diagnostics, identify failure blast radius, and optionally apply automated error fixes',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              testCommand: { type: 'string', description: 'Optional custom test command to run (auto-detected if omitted)' },
+              autoFix: { type: 'boolean', description: 'Whether to automatically apply discovered fixes (default: false)' },
+            },
+          },
         },
       ],
     };
@@ -512,6 +546,34 @@ export function createMcpServer(core: NoReScanCore): Server {
           const syncStatus = core.getSyncStatus();
           return {
             content: [{ type: 'text', text: JSON.stringify(syncStatus, null, 2) }],
+          };
+        }
+
+        case 'remember_file': {
+          const filePath = String(args?.path || '');
+          if (!filePath) throw new Error('Argument "path" is required');
+          const remembered = await core.rememberFile(filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(remembered, null, 2) }],
+          };
+        }
+
+        case 'inspect_file_memory': {
+          const filePath = String(args?.path || '');
+          if (!filePath) throw new Error('Argument "path" is required');
+          const explained = core.explain(filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(explained, null, 2) }],
+          };
+        }
+
+        case 'diagnose_and_fix': {
+          const runner = new AutoTestRunner(core);
+          const testCmd = args?.testCommand ? String(args.testCommand) : undefined;
+          const autoFix = Boolean(args?.autoFix);
+          const result = await runner.runAndFix(testCmd, autoFix);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
         }
 

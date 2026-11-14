@@ -1287,5 +1287,87 @@ export function createProgram(): Command {
       }
     });
 
+  // ==========================================
+  // Real-Time Memory & Autonomous Fixer
+  // ==========================================
+  program
+    .command('remember <filePath>')
+    .description('Instantly index a newly created or modified file into memory without full rescans')
+    .action(async (filePath, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const remembered = await core.rememberFile(filePath);
+        output.success('remember', `Remembered ${filePath}: ${remembered.exports.length} exports, ${remembered.imports.length} imports, ${remembered.routes.length} routes`, remembered);
+      } catch (err: any) {
+        output.error('remember', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('fix [testCommand]')
+    .description('Run project tests, diagnose errors with blast radius localization, and apply automated fixes')
+    .option('--apply', 'Automatically apply proposed fixes to source code', true)
+    .option('--dry-run', 'Preview proposed fixes without modifying source code', false)
+    .action(async (testCommand, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const { AutoTestRunner } = await import('@norescan/fixer');
+        const runner = new AutoTestRunner(core);
+        const autoFix = options.apply && !options.dryRun;
+        output.raw(pc.cyan(`\nRunning test diagnostic: ${testCommand || 'auto-detected test suite'}...\n`));
+        const result = await runner.runAndFix(testCommand, autoFix);
+
+        if (result.passed) {
+          output.success('fix', 'All tests passing! No errors detected.', result);
+        } else {
+          output.raw(pc.yellow(`Found ${result.errors.length} error(s), generated ${result.proposals.length} fix proposal(s).`));
+          for (const p of result.proposals) {
+            output.raw(pc.bold(`  • ${p.filePath}: `) + pc.gray(p.reason));
+            output.raw(pc.red(`    - ${p.originalText}`));
+            output.raw(pc.green(`    + ${p.replacementText}`));
+          }
+          if (autoFix && result.fixesApplied > 0) {
+            output.raw(pc.green(`\nApplied ${result.fixesApplied} fix(es). Verification: ${result.verifiedPassed ? 'PASSED ✅' : 'Requires further review ⚠️'}`));
+          }
+          output.success('fix', `Test diagnostic complete: ${result.proposals.length} proposal(s)`, result);
+        }
+      } catch (err: any) {
+        output.error('fix', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('test [testCommand]')
+    .description('Run project tests with NoReScan failure localization and optional auto-healing')
+    .option('--fix', 'Automatically attempt to heal failing tests', false)
+    .action(async (testCommand, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const { AutoTestRunner } = await import('@norescan/fixer');
+        const runner = new AutoTestRunner(core);
+        const result = await runner.runAndFix(testCommand, Boolean(options.fix));
+        if (result.passed || result.verifiedPassed) {
+          output.success('test', 'Tests passed successfully.', result);
+        } else {
+          output.error('test', `Tests failed with exit code ${result.exitCode}. Found ${result.errors.length} diagnostic error(s).`, result);
+          process.exitCode = 1;
+        }
+      } catch (err: any) {
+        output.error('test', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
   return program;
 }

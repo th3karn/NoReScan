@@ -23,6 +23,30 @@ norescan maintains cryptographic SHA-256 fingerprints, AST analyses, module depe
    - Files marked `valid` have unmodified source fingerprints. You can safely trust their exports and architectural summaries without re-reading the entire file.
    - Files marked `stale` or `requiresFreshInspection: true` had their hashes or upstream dependencies changed. **You MUST read their current physical source code.**
 
+## When Creating or Modifying Files (Fast Memory)
+1. **Instant Memory Indexing:**
+   Immediately after creating or editing any source file, call the MCP tool `remember_file` or run:
+   ```bash
+   norescan remember <relative-file-path>
+   ```
+   This instantly updates SHA-256 fingerprints, AST symbols, and dependency edges in SQLite so you never need to repeatedly analyze the same file.
+
+2. **Inspect File Structure without Re-reading:**
+   Instead of using `read_file` repeatedly, query stored structure with `inspect_file_memory` or run:
+   ```bash
+   norescan explain <file-path>
+   ```
+
+## Automated Error Recovery & Bug Fixing
+If tests, builds, or typechecks fail:
+Run the autonomous fixer to diagnose the failure blast radius and heal errors:
+```bash
+norescan fix
+# Or run with test command:
+norescan test --fix
+```
+Or call the MCP tool `diagnose_and_fix(autoFix: true)`.
+
 ## Golden Rule of Verification
 > [!IMPORTANT]
 > **Never assume a cached summary replaces live source inspection before writing modifications.**

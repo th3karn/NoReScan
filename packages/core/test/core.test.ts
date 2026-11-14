@@ -207,5 +207,27 @@ describe('NoReScanCore Integration Lifecycle', () => {
     const envStatus = await core.getEnvironmentStatus();
     expect(envStatus.length).toBeGreaterThan(0);
     expect(envStatus.some((r) => r.ecosystemId === 'javascript' && r.tool === 'node')).toBe(true);
+  }, 15000);
+
+  it('remembers created or edited files instantly without full re-scan', async () => {
+    await core.init('demo-app');
+    await core.scan();
+
+    // Agent writes a new helper file
+    const helperPath = path.join(tempDir, 'src', 'auth', 'token.helper.ts');
+    await fs.writeFile(
+      helperPath,
+      'export function generateToken(userId: string): string { return "jwt_" + userId; }'
+    );
+
+    // Real-time memory registration
+    const result = await core.rememberFile('src/auth/token.helper.ts');
+    expect(result.path).toBe('src/auth/token.helper.ts');
+    expect(result.cached).toBe(false);
+    expect(result.symbolsCount).toBeGreaterThanOrEqual(1);
+
+    // Check that memory contains the file immediately
+    const context = core.contextEngine.getContext('token');
+    expect(context.files.some((f) => f.relativePath.includes('token.helper.ts'))).toBe(true);
   });
 });

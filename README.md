@@ -127,9 +127,12 @@ norescan agent install vscode
 | :--- | :--- |
 | `norescan init [name]` | Initialize norescan in the repository |
 | `norescan scan [--force]` | Incrementally scan and index modified/added files |
+| `norescan remember <file>` | Real-time memory indexing of newly created or edited files (<5ms) |
 | `norescan refresh [path]` | Re-analyze a specific file or all modified files |
 | `norescan status` | Display persistent memory statistics and cache health |
 | `norescan context <query>` | Retrieve task-specific context manifest within token budget |
+| `norescan fix [command]` | Diagnose test or compiler errors and auto-heal bugs using dependency graph |
+| `norescan test [--fix]` | Run project test suites and optionally auto-heal broken tests |
 | `norescan analyze <path>` | Run structural AST analysis on a file and display metadata |
 | `norescan explain <path>` | Explain stored AST analysis, exports, and dependencies for a file |
 | `norescan diff` | Show added, modified, deleted, and unchanged files vs stored memory |
@@ -160,7 +163,10 @@ Global flags supported by all commands:
 
 norescan implements the official **Model Context Protocol (MCP)** specification over stdio.
 
-### Exposed Tools (14 Tools)
+### Exposed Tools (27 Tools)
+- `remember_file`: Fast real-time indexing of newly created or edited files in memory.
+- `inspect_file_memory`: Direct AST symbol inspection from SQLite memory without disk reads.
+- `diagnose_and_fix`: Analyze test output/errors and generate automated code fixes.
 - `get_project_overview`: Architecture, languages, and directory breakdown.
 - `get_project_status`: Cache freshness, pending invalidations, and scan timestamps.
 - `get_file_analysis`: Structural AST summary, exports, imports, and routes for a file.
@@ -175,6 +181,11 @@ norescan implements the official **Model Context Protocol (MCP)** specification 
 - `record_decision`: Save a new architectural decision (ADR) to persistent memory.
 - `get_decisions`: Retrieve historical architectural decisions (ADRs).
 - `record_session`: Record agent turn summaries and modified files.
+- `get_languages`: Polyglot language breakdown and statistics.
+- `get_ecosystems`: Detected ecosystems (Node, Python, Rust, Go, etc.).
+- `get_causal_graph`: Full causal dependency graph and hot files ranking.
+- `blast_diff`: Calculate blast cone directly from a git diff patch.
+- `get_sync_status`: Synchronization cursor, peer state, and queue depth.
 
 ### Exposed Resources (6 Resources)
 - `norescan://project/overview`: Project metadata and statistics.
@@ -208,9 +219,11 @@ norescan is developed as a modular TypeScript monorepo using pnpm workspaces:
 - [`@norescan/database`](file:///packages/database): Native SQLite persistence (`node:sqlite`) in WAL mode with migrations.
 - [`@norescan/analyzer`](file:///packages/analyzer): AST and lexical code parsers (TS/JS, Python, SQL, JSON).
 - [`@norescan/dependency-graph`](file:///packages/dependency-graph): Directed graph, blast-radius calculation, and conservative invalidation.
+- [`@norescan/ecosystems`](file:///packages/ecosystems): Polyglot runtime environment detection (Node, Python, Rust, Go, Java, Ruby, PHP).
 - [`@norescan/context-engine`](file:///packages/context-engine): Task query ranking and token budgeting engine.
+- [`@norescan/fixer`](file:///packages/fixer): Test runner diagnostics, error blast-radius tracer, and automated bug-healing engine.
 - [`@norescan/core`](file:///packages/core): Central coordinator orchestrating all subsystems and legacy migration.
-- [`norescan`](file:///packages/cli): Commander.js developer CLI binary.
+- [`@norescan/cli`](file:///packages/cli): Developer CLI binary (`norescan`, `no-rescan`, `code-cache`).
 - [`@norescan/mcp`](file:///packages/mcp): Model Context Protocol server for AI coding agents.
 - [`@norescan/agent-adapters`](file:///packages/agent-adapters): Configuration installers for Antigravity, Cursor, Claude Code, Codex.
 

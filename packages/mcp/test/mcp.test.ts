@@ -61,7 +61,10 @@ describe('norescan MCP Server Protocol Tests', () => {
     expect(toolNames).toContain('get_causal_graph');
     expect(toolNames).toContain('blast_diff');
     expect(toolNames).toContain('get_sync_status');
-    expect(toolNames.length).toBe(24);
+    expect(toolNames).toContain('remember_file');
+    expect(toolNames).toContain('inspect_file_memory');
+    expect(toolNames).toContain('diagnose_and_fix');
+    expect(toolNames.length).toBe(27);
 
     // Test ListResources
     const resourcesHandler = (server as any)._requestHandlers.get(ListResourcesRequestSchema.shape.method.value);

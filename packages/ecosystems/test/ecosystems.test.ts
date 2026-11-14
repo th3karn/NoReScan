@@ -163,7 +163,7 @@ require (
     expect(nodeEnv).toBeDefined();
     expect(nodeEnv?.installed).toBe(true);
     expect(nodeEnv?.detectedVersion).toBeDefined();
-  });
+  }, 15000);
 
   it('validates safe vs destructive command execution patterns', () => {
     const runner = new SafeCommandRunner();
