@@ -1,5 +1,5 @@
 {
-    "name": "code-cache",
+    "name": "@code-cache/cli",
     "version": "0.1.0",
     "description": "Universal persistent codebase memory CLI for AI coding agents",
     "license": "Apache-2.0",
