@@ -8,7 +8,7 @@ describe('Universal Agent Adapters', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'repomind-adapter-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-adapter-test-'));
   });
 
   afterEach(async () => {
@@ -37,18 +37,18 @@ describe('Universal Agent Adapters', () => {
     expect(isValid).toBe(true);
 
     const mcpContent = await fs.readFile(
-      path.join(tempDir, '.gemini', 'antigravity', 'mcp', 'repomind.json'),
+      path.join(tempDir, '.gemini', 'antigravity', 'mcp', 'bugbrain.json'),
       'utf8'
     );
-    expect(mcpContent).toContain('repomind-mcp');
+    expect(mcpContent).toContain('bugbrain-mcp');
 
     const agentsMd = await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8');
-    expect(agentsMd).toContain('RepoMind Persistent Memory Protocol');
+    expect(agentsMd).toContain('BugBrain Persistent Memory Protocol');
 
     // 2. Re-install is idempotent
     await adapter.install(tempDir);
     const agentsMdSecond = await fs.readFile(path.join(tempDir, 'AGENTS.md'), 'utf8');
-    const occurrences = (agentsMdSecond.match(/RepoMind Persistent Memory Protocol/g) || []).length;
+    const occurrences = (agentsMdSecond.match(/BugBrain Persistent Memory Protocol/g) || []).length;
     expect(occurrences).toBe(1);
 
     // 3. Uninstall
@@ -63,7 +63,7 @@ describe('Universal Agent Adapters', () => {
 
     expect(await adapter.validate(tempDir)).toBe(true);
 
-    const ruleFile = path.join(tempDir, '.cursor', 'rules', 'repomind.mdc');
+    const ruleFile = path.join(tempDir, '.cursor', 'rules', 'bugbrain.mdc');
     const stat = await fs.stat(ruleFile);
     expect(stat.isFile()).toBe(true);
 

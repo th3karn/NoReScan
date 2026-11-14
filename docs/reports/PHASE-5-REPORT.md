@@ -1,4 +1,4 @@
-# RepoMind — Phase 5 Completion Report (Dependency Graph & Conservative Invalidation)
+# BugBrain — Phase 5 Completion Report (Dependency Graph & Conservative Invalidation)
 
 **Phase:** Phase 5 — Dependency Graph & Conservative Invalidation  
 **Status:** Completed & Verified  
@@ -37,7 +37,7 @@
 
 ## 3. Tests Executed & Results
 
-- **`@repomind/dependency-graph`:** 7 tests passed in 843ms:
+- **`@bugbrain/dependency-graph`:** 7 tests passed in 843ms:
   - Direct dependency and dependent indexing.
   - Transitive blast-radius calculation.
   - Cycle detection without recursion lock.
@@ -53,3 +53,4 @@
 
 - **Next Phase:** **Phase 6 — Memory Coordinator & Context Retrieval Engine**.
 - **Prerequisites Satisfied:** Scanner, fingerprints, SQLite DB, AST analyzer, and dependency graph are integrated and verified.
+

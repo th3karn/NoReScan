@@ -1,4 +1,4 @@
-# RepoMind Default Ignore Rules
+# BugBrain Default Ignore Rules
 node_modules/
 .git/
 .turbo/
@@ -8,7 +8,7 @@ out/
 coverage/
 .cache/
 .pnpm-store/
-.repomind/
+.BugBrain/
 
 # Secrets & Keys
 .env

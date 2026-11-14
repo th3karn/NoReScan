@@ -1,36 +1,32 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { RepoMindCore } from '../src/index.js';
+import { BugBrainCore } from '../src/index.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('RepoMindCore Integration Lifecycle', () => {
+describe('BugBrainCore Integration Lifecycle', () => {
   let tempDir: string;
-  let core: RepoMindCore;
+  let core: BugBrainCore;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'repomind-core-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-core-test-'));
 
-    // Create a real sample codebase
+    // Create a mock mini-codebase
     await fs.mkdir(path.join(tempDir, 'src', 'auth'), { recursive: true });
-
     await fs.writeFile(
       path.join(tempDir, 'src', 'auth', 'auth.service.ts'),
       'export class AuthService { login() { return true; } }'
     );
     await fs.writeFile(
       path.join(tempDir, 'src', 'auth', 'auth.controller.ts'),
-      `import { AuthService } from './auth.service.js';
-export class AuthController {
-  private s = new AuthService();
-}`
+      "import { AuthService } from './auth.service.js';\nexport class AuthController { constructor(private s: AuthService) {} }"
     );
     await fs.writeFile(
       path.join(tempDir, 'package.json'),
       '{"name": "demo-app", "version": "1.0.0"}'
     );
 
-    core = new RepoMindCore(tempDir);
+    core = new BugBrainCore(tempDir);
   });
 
   afterEach(async () => {
@@ -38,15 +34,15 @@ export class AuthController {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('initializes workspace, creates .repomind files, and registers project', async () => {
+  it('initializes workspace, creates .bugbrain files, and registers project', async () => {
     const config = await core.init('demo-app');
 
     expect(config.projectName).toBe('demo-app');
     expect(config.projectId).toBeDefined();
 
-    const configExists = await fs.stat(path.join(tempDir, '.repomind', 'config.json'));
+    const configExists = await fs.stat(path.join(tempDir, '.bugbrain', 'config.json'));
     expect(configExists.isFile()).toBe(true);
-    const dbExists = await fs.stat(path.join(tempDir, '.repomind', 'memory.db'));
+    const dbExists = await fs.stat(path.join(tempDir, '.bugbrain', 'bugbrain.db'));
     expect(dbExists.isFile()).toBe(true);
   });
 
@@ -91,6 +87,57 @@ export class AuthController {
     expect(status3.staleAnalyses).toBe(1); // auth.controller.ts is stale
   });
 
+  it('computes diff, hot files, and blast radius accurately', async () => {
+    await core.init('demo-app');
+    await core.scan();
+
+    const hotFiles = core.getHotFiles();
+    expect(hotFiles.length).toBeGreaterThan(0);
+    // auth.service.ts is imported by auth.controller.ts, so inDegree is at least 1
+    const serviceHot = hotFiles.find((h) => h.relativePath === 'src/auth/auth.service.ts');
+    expect(serviceHot?.inDegree).toBe(1);
+
+    const blastRadius = core.getBlastRadius(['src/auth/auth.service.ts']);
+    expect(blastRadius).toContain('src/auth/auth.controller.ts');
+
+    const diff = await core.getDiff();
+    expect(diff.unchanged).toBe(3);
+    expect(diff.modified.length).toBe(0);
+  });
+
+  it('searches project memory and records decisions', async () => {
+    await core.init('demo-app');
+    await core.scan();
+
+    const adr = core.recordDecision({
+      title: 'Use JWT Tokens',
+      decision: 'Implement stateless JWT authentication for API',
+      rationale: 'Avoid database lookups on every request',
+      affectedFiles: ['src/auth/auth.service.ts'],
+    });
+    expect(adr.id).toBeDefined();
+
+    const searchResults = core.search('JWT');
+    expect(searchResults.decisions.length).toBe(1);
+    expect(searchResults.decisions[0].title).toBe('Use JWT Tokens');
+
+    const symbolSearch = core.search('AuthService');
+    expect(symbolSearch.symbols.length).toBeGreaterThan(0);
+  });
+
+  it('exports and backs up database cleanly', async () => {
+    await core.init('demo-app');
+    await core.scan();
+
+    const memoryDump = (await core.exportMemory()) as any;
+    expect(memoryDump.files.length).toBe(3);
+    expect(memoryDump.version).toBe(1);
+
+    const backupFile = await core.backupDatabase();
+    const backupStat = await fs.stat(backupFile);
+    expect(backupStat.isFile()).toBe(true);
+  });
+
   it('retrieves task context directly from stored memory', async () => {
     await core.init('demo-app');
     await core.scan();
@@ -99,7 +146,7 @@ export class AuthController {
     expect(manifest.files.map((f) => f.relativePath)).toContain('src/auth/auth.service.ts');
 
     const markdown = core.contextEngine.getContextMarkdown('Refactor auth service login logic');
-    expect(markdown).toContain('RepoMind Context Manifest');
+    expect(markdown).toContain('BugBrain Context Manifest');
     expect(markdown).toContain('src/auth/auth.service.ts');
   });
 

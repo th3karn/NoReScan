@@ -1,4 +1,4 @@
-import { RepoMindDatabase } from './connection.js';
+import { BugBrainDatabase } from './connection.js';
 import {
   Project,
   FileSnapshot,
@@ -9,11 +9,11 @@ import {
   AgentSession,
   TaskRecord,
   AstMetadata,
-} from '@repomind/shared';
+} from '@bugbrain/shared';
 import crypto from 'node:crypto';
 
 export class ProjectRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public upsert(project: Omit<Project, 'createdAt' | 'updatedAt'>): Project {
     const now = new Date().toISOString();
@@ -66,7 +66,7 @@ export class ProjectRepository {
 }
 
 export class FileRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public upsertFile(file: Omit<FileSnapshot, 'id'> & { id?: string }): FileSnapshot {
     const now = new Date().toISOString();
@@ -115,6 +115,22 @@ export class FileRepository {
     return { ...file, id: fileId, lastScannedAt: file.lastScannedAt || now };
   }
 
+  public getById(id: string): FileSnapshot | null {
+    const stmt = this.db.db.prepare('SELECT * FROM files WHERE id = ?;');
+    const r = stmt.get(id) as Record<string, unknown> | undefined;
+    if (!r) return null;
+    return {
+      id: r.id as string,
+      projectId: r.project_id as string,
+      relativePath: r.relative_path as string,
+      contentHash: r.content_hash as string,
+      language: r.language as string,
+      fileSize: Number(r.file_size),
+      status: r.status as FileAnalysisStatus,
+      lastScannedAt: r.last_scanned_at as string,
+    };
+  }
+
   public getAllByProject(projectId: string): Map<string, FileSnapshot> {
     const stmt = this.db.db.prepare('SELECT * FROM files WHERE project_id = ?;');
     const rows = stmt.all(projectId) as Array<Record<string, unknown>>;
@@ -150,7 +166,7 @@ export class FileRepository {
 }
 
 export class AnalysisRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public saveAnalysis(analysis: Omit<FileAnalysis, 'id' | 'createdAt'>): FileAnalysis {
     const id = crypto.randomUUID();
@@ -204,7 +220,7 @@ export class AnalysisRepository {
 }
 
 export class DependencyRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public replaceFileDependencies(
     projectId: string,
@@ -235,6 +251,12 @@ export class DependencyRepository {
     });
   }
 
+  public getAllEdgesByProject(projectId: string): DependencyEdge[] {
+    const stmt = this.db.db.prepare('SELECT * FROM dependencies WHERE project_id = ?;');
+    const rows = stmt.all(projectId) as Array<Record<string, unknown>>;
+    return rows.map((r) => this.mapRow(r));
+  }
+
   public getUpstreamDependencies(fileId: string): DependencyEdge[] {
     const stmt = this.db.db.prepare('SELECT * FROM dependencies WHERE source_file_id = ?;');
     const rows = stmt.all(fileId) as Array<Record<string, unknown>>;
@@ -262,7 +284,7 @@ export class DependencyRepository {
 }
 
 export class DecisionRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public recordDecision(decision: Omit<DecisionRecord, 'id' | 'createdAt'>): DecisionRecord {
     const id = crypto.randomUUID();
@@ -303,7 +325,7 @@ export class DecisionRepository {
 }
 
 export class SessionRepository {
-  constructor(private db: RepoMindDatabase) {}
+  constructor(private db: BugBrainDatabase) { }
 
   public startSession(projectId: string, agentName: string, metadata?: Record<string, unknown>): AgentSession {
     const id = crypto.randomUUID();
@@ -324,6 +346,20 @@ export class SessionRepository {
       UPDATE sessions SET ended_at = ?, summary = ? WHERE id = ?;
     `);
     stmt.run(now, summary, sessionId);
+  }
+
+  public listByProject(projectId: string, limit = 20): AgentSession[] {
+    const stmt = this.db.db.prepare('SELECT * FROM sessions WHERE project_id = ? ORDER BY started_at DESC LIMIT ?;');
+    const rows = stmt.all(projectId, limit) as Array<Record<string, unknown>>;
+    return rows.map((row) => ({
+      id: row.id as string,
+      projectId: row.project_id as string,
+      agentName: row.agent_name as string,
+      startedAt: row.started_at as string,
+      endedAt: (row.ended_at as string) || undefined,
+      summary: (row.summary as string) || undefined,
+      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
+    }));
   }
 
   public getLatest(projectId: string): AgentSession | null {

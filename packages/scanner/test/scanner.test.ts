@@ -8,7 +8,7 @@ describe('FileScanner', () => {
   let tempDir: string;
 
   beforeAll(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'repomind-scan-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'BugBrain-scan-test-'));
 
     // Create test structure
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
@@ -42,3 +42,4 @@ describe('FileScanner', () => {
     expect(result.stats.totalFiles).toBe(3);
   });
 });
+

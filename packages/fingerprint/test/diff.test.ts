@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { diffFingerprints } from '../src/diff.js';
 import { FileFingerprint } from '../src/fingerprint.js';
-import { FileSnapshot } from '@repomind/shared';
+import { FileSnapshot } from '@bugbrain/shared';
 
 describe('diffFingerprints', () => {
   it('correctly categorizes unchanged, modified, added, deleted, and renamed files', () => {
@@ -114,3 +114,4 @@ describe('diffFingerprints', () => {
     expect(diff.renamed[0].to.relativePath).toBe('src/new-name.ts');
   });
 });
+

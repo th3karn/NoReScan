@@ -18,10 +18,10 @@ export class VSCodeAdapter implements AgentAdapter {
       const existing = await fs.readFile(mcpFile, 'utf8');
       mcpConfig = JSON.parse(existing);
       if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
-    } catch {}
+    } catch { }
 
-    mcpConfig.mcpServers.repomind = {
-      command: 'repomind-mcp',
+    mcpConfig.mcpServers.bugbrain = {
+      command: 'bugbrain-mcp',
       args: [],
     };
 
@@ -34,18 +34,18 @@ export class VSCodeAdapter implements AgentAdapter {
     // 2. .github/copilot-instructions.md
     const githubDir = path.join(projectRoot, '.github');
     const copilotFile = path.join(githubDir, 'copilot-instructions.md');
-    const banner = '<!-- REPOMIND:COPILOT:START -->';
+    const banner = '<!-- BUGBRAIN:COPILOT:START -->';
     let existing = '';
     try {
       existing = await fs.readFile(copilotFile, 'utf8');
-    } catch {}
+    } catch { }
 
     if (!existing.includes(banner)) {
       const instructions = `
 ${banner}
-# RepoMind Context Protocol
-Query RepoMind (\`repomind context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
-<!-- REPOMIND:COPILOT:END -->
+# BugBrain Context Protocol
+Query BugBrain (\`bugbrain context "<task>"\`) before modifying code to inspect cached structural summaries, routes, and dependency relationships.
+<!-- BUGBRAIN:COPILOT:END -->
 `;
       const updated = existing ? `${existing.trim()}\n\n${instructions.trim()}\n` : instructions.trim() + '\n';
       if (!dryRun) {
@@ -64,12 +64,12 @@ Query RepoMind (\`repomind context "<task>"\`) before modifying code to inspect 
     try {
       const content = await fs.readFile(mcpFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.repomind) {
-        delete parsed.mcpServers.repomind;
+      if (parsed.mcpServers?.bugbrain) {
+        delete parsed.mcpServers.bugbrain;
         if (!dryRun) await fs.writeFile(mcpFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(mcpFile);
       }
-    } catch {}
+    } catch { }
 
     return removed;
   }
@@ -78,7 +78,7 @@ Query RepoMind (\`repomind context "<task>"\`) before modifying code to inspect 
     try {
       const mcpFile = path.join(projectRoot, '.vscode', 'mcp.json');
       const content = await fs.readFile(mcpFile, 'utf8');
-      return content.includes('repomind');
+      return content.includes('bugbrain-mcp');
     } catch {
       return false;
     }

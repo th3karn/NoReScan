@@ -1,4 +1,4 @@
-import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@repomind/shared';
+import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@bugbrain/shared';
 
 export function parsePython(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const lines = sourceText.split(/\r?\n/);
@@ -89,3 +89,4 @@ export function parsePython(sourceText: string, fileName: string): { metadata: A
     summary,
   };
 }
+

@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/shared",
+  "name": "@bugbrain/shared",
   "version": "0.1.0",
-  "description": "Shared domain types, errors, utilities, and configuration schemas for RepoMind",
+  "description": "Shared domain types, errors, utilities, and configuration schemas for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

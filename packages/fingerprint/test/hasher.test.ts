@@ -23,3 +23,4 @@ describe('hasher & fingerprinting', () => {
     expect(detectLanguage('unknown.xyz')).toBe('unknown');
   });
 });
+

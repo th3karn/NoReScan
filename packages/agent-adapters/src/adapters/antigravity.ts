@@ -2,29 +2,29 @@ import { AgentAdapter } from '../adapter.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const ANTIGRAVITY_RULE_BANNER = '<!-- REPOMIND:ANTIGRAVITY:START -->';
+const ANTIGRAVITY_RULE_BANNER = '<!-- BUGBRAIN:ANTIGRAVITY:START -->';
 const ANTIGRAVITY_RULE_CONTENT = `
 ${ANTIGRAVITY_RULE_BANNER}
-## RepoMind Persistent Memory Protocol
-Before substantial coding tasks, use RepoMind MCP tools (\`get_task_context\`) or run \`repomind context "<task>"\` to retrieve verified file analyses and dependencies without repeating full codebase scans. Always inspect live source files before editing. After completing work, record architectural decisions using \`record_decision\`.
-<!-- REPOMIND:ANTIGRAVITY:END -->
+## BugBrain Persistent Memory Protocol
+Before substantial coding tasks, use BugBrain MCP tools (\`get_task_context\`) or run \`bugbrain context "<task>"\` to retrieve verified file analyses and dependencies without repeating full codebase scans. Always inspect live source files before editing. After completing work, record architectural decisions using \`record_decision\`.
+<!-- BUGBRAIN:ANTIGRAVITY:END -->
 `;
 
 export class AntigravityAdapter implements AgentAdapter {
   public readonly name = 'antigravity';
   public readonly displayName = 'Google Antigravity';
-  public readonly description = 'Registers RepoMind MCP server in .gemini/antigravity/mcp/ and sets up workspace rules in AGENTS.md';
+  public readonly description = 'Registers BugBrain MCP server in .gemini/antigravity/mcp/ and sets up workspace rules in AGENTS.md';
 
   public async install(projectRoot: string, dryRun = false): Promise<string[]> {
     const created: string[] = [];
 
     // 1. MCP Configuration
     const mcpDir = path.join(projectRoot, '.gemini', 'antigravity', 'mcp');
-    const mcpFile = path.join(mcpDir, 'repomind.json');
+    const mcpFile = path.join(mcpDir, 'bugbrain.json');
     const mcpConfig = {
       mcpServers: {
-        repomind: {
-          command: 'repomind-mcp',
+        bugbrain: {
+          command: 'bugbrain-mcp',
           args: [],
           env: {},
         },
@@ -61,33 +61,33 @@ export class AntigravityAdapter implements AgentAdapter {
 
   public async uninstall(projectRoot: string, dryRun = false): Promise<string[]> {
     const removed: string[] = [];
-    const mcpFile = path.join(projectRoot, '.gemini', 'antigravity', 'mcp', 'repomind.json');
+    const mcpFile = path.join(projectRoot, '.gemini', 'antigravity', 'mcp', 'bugbrain.json');
     try {
       if (!dryRun) await fs.unlink(mcpFile);
       removed.push(mcpFile);
-    } catch {}
+    } catch { }
 
     const agentsMdPath = path.join(projectRoot, 'AGENTS.md');
     try {
       const content = await fs.readFile(agentsMdPath, 'utf8');
       if (content.includes(ANTIGRAVITY_RULE_BANNER)) {
         const cleaned = content.replace(
-          /<!-- REPOMIND:ANTIGRAVITY:START -->[\s\S]*?<!-- REPOMIND:ANTIGRAVITY:END -->/g,
+          /<!-- BUGBRAIN:ANTIGRAVITY:START -->[\s\S]*?<!-- BUGBRAIN:ANTIGRAVITY:END -->/g,
           ''
         ).trim() + '\n';
         if (!dryRun) await fs.writeFile(agentsMdPath, cleaned, 'utf8');
         removed.push(agentsMdPath);
       }
-    } catch {}
+    } catch { }
 
     return removed;
   }
 
   public async validate(projectRoot: string): Promise<boolean> {
     try {
-      const mcpFile = path.join(projectRoot, '.gemini', 'antigravity', 'mcp', 'repomind.json');
-      const stat = await fs.stat(mcpFile);
-      return stat.isFile();
+      const mcpFile = path.join(projectRoot, '.gemini', 'antigravity', 'mcp', 'bugbrain.json');
+      const content = await fs.readFile(mcpFile, 'utf8');
+      return content.includes('bugbrain-mcp');
     } catch {
       return false;
     }

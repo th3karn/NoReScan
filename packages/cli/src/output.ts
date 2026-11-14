@@ -1,8 +1,8 @@
-import { CliResponse } from '@repomind/shared';
+import { CliResponse } from '@bugbrain/shared';
 import pc from 'picocolors';
 
 export class CliOutput {
-  constructor(private isJson = false, private isQuiet = false) {}
+  constructor(private isJson = false, private isQuiet = false) { }
 
   public printJson<T>(response: CliResponse<T>): void {
     process.stdout.write(JSON.stringify(response, null, 2) + '\n');
@@ -49,3 +49,4 @@ export class CliOutput {
     }
   }
 }
+

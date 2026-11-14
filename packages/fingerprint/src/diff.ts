@@ -1,4 +1,4 @@
-import { FileSnapshot } from '@repomind/shared';
+import { FileSnapshot } from '@bugbrain/shared';
 import { FileFingerprint } from './fingerprint.js';
 
 export interface DiffResult {
@@ -89,3 +89,4 @@ export function diffFingerprints(
     renamed,
   };
 }
+

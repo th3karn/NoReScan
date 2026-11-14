@@ -1,7 +1,7 @@
 import ignore, { Ignore } from 'ignore';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { isSensitivePath, normalizePath } from '@repomind/shared';
+import { isSensitivePath, normalizePath } from '@bugbrain/shared';
 
 export const HARDCODED_IGNORES = [
   '.git',
@@ -14,6 +14,10 @@ export const HARDCODED_IGNORES = [
   'build/**',
   '.turbo',
   '.turbo/**',
+  '.bugbrain',
+  '.bugbrain/**',
+  '.BugBrain',
+  '.BugBrain/**',
   '.repomind',
   '.repomind/**',
   '.cache',
@@ -70,3 +74,4 @@ export class IgnoreEngine {
     return this.ig.ignores(testPath);
   }
 }
+

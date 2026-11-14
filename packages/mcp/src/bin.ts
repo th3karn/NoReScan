@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { RepoMindCore } from '@repomind/core';
+import { BugBrainCore } from '@bugbrain/core';
 import { createMcpServer } from './server.js';
 
 async function main() {
-  const projectRoot = process.env.REPOMIND_PROJECT || process.cwd();
-  const core = new RepoMindCore(projectRoot);
+  const projectRoot = process.env.BUGBRAIN_PROJECT || process.env.BugBrain_PROJECT || process.env.REPOMIND_PROJECT || process.cwd();
+  const core = new BugBrainCore(projectRoot);
   const config = await core.loadConfig();
 
   if (!config) {
@@ -17,10 +17,11 @@ async function main() {
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
-  process.stderr.write(`RepoMind MCP server running on stdio for project: ${core.config.projectName}\n`);
+  process.stderr.write(`BugBrain MCP server running on stdio for project: ${core.config.projectName}\n`);
 }
 
 main().catch((err) => {
   process.stderr.write(`Fatal MCP error: ${err.message}\n`);
   process.exit(1);
 });
+

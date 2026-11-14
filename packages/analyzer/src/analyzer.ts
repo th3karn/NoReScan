@@ -3,7 +3,7 @@ import { parseTypeScript } from './parsers/typescript.js';
 import { parsePython } from './parsers/python.js';
 import { parseSql } from './parsers/sql.js';
 import { parseGeneric } from './parsers/generic.js';
-import { AstMetadata } from '@repomind/shared';
+import { AstMetadata } from '@bugbrain/shared';
 
 export const CURRENT_ANALYZER_VERSION = '1.0.0';
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -48,3 +48,4 @@ export class CodeAnalyzer {
     };
   }
 }
+

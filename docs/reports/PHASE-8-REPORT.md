@@ -1,4 +1,4 @@
-# RepoMind — Phase 8 Completion Report (Universal MCP Server)
+# BugBrain — Phase 8 Completion Report (Universal MCP Server)
 
 **Phase:** Phase 8 — Universal Model Context Protocol (MCP) Server  
 **Status:** Completed & Verified  
@@ -9,7 +9,7 @@
 
 ## 1. What Was Implemented
 
-1. **`@repomind/mcp` Server Implementation (`src/server.ts`):**
+1. **`@bugbrain/mcp` Server Implementation (`src/server.ts`):**
    - Built on official `@modelcontextprotocol/sdk` supporting both local `StdioServerTransport` and future streamable HTTP.
    - **Exposed 10 Core Tools:**
      - `get_project_overview`
@@ -23,9 +23,9 @@
      - `record_session`
      - `mark_analysis_stale`
    - **Exposed 3 Standard MCP Resources:**
-     - `repomind://project/overview`
-     - `repomind://project/status`
-     - `repomind://project/decisions`
+     - `BugBrain://project/overview`
+     - `BugBrain://project/status`
+     - `BugBrain://project/decisions`
    - **Security Sandboxing:** Strict path containment enforcement (`assertPathContained`) on all file parameters preventing path traversal.
 2. **MCP Executable Binary (`src/bin.ts`):**
    - Automatically initializes workspace if uninitialized and binds stdio transport for instant agent plug-and-play.
@@ -45,10 +45,10 @@
 
 ## 3. Tests Executed & Results
 
-- **`@repomind/mcp`:** 3 protocol integration tests passed in 195ms:
+- **`@bugbrain/mcp`:** 3 protocol integration tests passed in 195ms:
   - Discovery of all tools and resources via MCP protocol schema.
   - End-to-end execution of `get_task_context` tool.
-  - `record_decision` tool call and subsequent resource reading via `repomind://project/decisions`.
+  - `record_decision` tool call and subsequent resource reading via `BugBrain://project/decisions`.
 - **Cumulative Repository Tests:** 47 tests passed across 10 packages, 0 failures.
 
 ---
@@ -57,3 +57,4 @@
 
 - **Next Phase:** **Phase 9 — Portable Agent Skill & Universal Adapters**.
 - **Prerequisites Satisfied:** Complete MCP server and CLI are verified.
+

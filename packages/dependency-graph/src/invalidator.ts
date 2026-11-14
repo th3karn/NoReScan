@@ -1,4 +1,4 @@
-import { ExportDefinition } from '@repomind/shared';
+import { ExportDefinition } from '@bugbrain/shared';
 import { DependencyGraph } from './graph.js';
 
 export interface InvalidationDecision {
@@ -33,7 +33,7 @@ export function haveExportsChanged(
 }
 
 export class ConservativeInvalidator {
-  constructor(private graph: DependencyGraph) {}
+  constructor(private graph: DependencyGraph) { }
 
   /**
    * Evaluates the impact of a modified file on its dependent consumers.
@@ -65,3 +65,4 @@ export class ConservativeInvalidator {
     };
   }
 }
+

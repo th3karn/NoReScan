@@ -1,33 +1,35 @@
-# RepoMind
+# BugBrain
 
-> **Remember Your Code. Not Your Agent's Repeated Work.**
+> **Your AI's brain for your codebase.**  
+> *Stop making your AI rediscover everything.*
 
-[![CI](https://github.com/LostGit/repomind/actions/workflows/ci.yml/badge.svg)](https://github.com/LostGit/repomind/actions)
+[![CI](https://github.com/th3karn/BugBrain/actions/workflows/ci.yml/badge.svg)](https://github.com/th3karn/BugBrain/actions)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org/)
 
-**RepoMind** is a universal, persistent, local-first codebase-memory infrastructure for AI coding agents. It maintains a verified index of your codebase (fingerprints, AST structures, module dependencies, and technical decisions) so agents never have to re-discover or re-read unchanged files repeatedly.
+**BugBrain** is a universal, persistent, local-first codebase-memory infrastructure for AI coding agents. It maintains a verified index of your codebase (SHA-256 fingerprints, AST structures, module dependencies, blast-radius graphs, and technical decisions) so agents never have to re-discover or re-read unchanged files repeatedly.
 
 ---
 
-## The Problem RepoMind Solves
+## The Problem BugBrain Solves
 
-When AI coding assistants (Google Antigravity, Cursor, Claude Code, OpenAI Codex, GitHub Copilot) start a task, they routinely:
+When AI coding assistants (Google Antigravity, Cursor, Windsurf, Claude Code, OpenAI Codex, GitHub Copilot) start a task, they routinely:
 - **Re-read dozens of unchanged files** to reconstruct context.
-- **Re-discover project architecture**, routes, and schemas from scratch.
+- **Re-discover project architecture**, routes, and database schemas from scratch.
 - **Waste tokens and latency** on redundant codebase exploration.
 - **Lose architectural decisions** across conversation sessions.
 
-**RepoMind** acts as an intelligent memory layer between your repository and AI agents:
+**BugBrain** acts as an intelligent memory layer between your repository and AI agents:
 1. **Cryptographic Fingerprints (SHA-256):** Unchanged files reuse verified structural analyses with zero re-reads.
-2. **Conservative Invalidation:** When a file changes, RepoMind evaluates whether its public exported interface changed. If only internal implementation changed, dependent caches remain valid.
+2. **Conservative Invalidation:** When a file changes, BugBrain evaluates whether its public exported interface changed. If only internal implementation changed, dependent caches remain valid.
 3. **Task-Based Context Engine:** Retrieves only relevant files, dependencies, and decisions within a token budget.
 4. **Universal Agent Bridge:** Official Model Context Protocol (MCP) server + portable Agent Skill + adapters for Antigravity, Cursor, Claude Code, and Codex.
-5. **100% Local-First:** Powered by native SQLite in WAL mode. Zero mandatory external APIs or cloud accounts.
+5. **100% Local-First:** Powered by native SQLite in WAL mode (`.bugbrain/bugbrain.db`). Zero mandatory external APIs or cloud accounts.
+6. **Safe Legacy Migration:** Automatic, non-destructive migration from legacy `.repomind/` to `.bugbrain/` with automatic backups.
 
 ---
 
-## Architecture Overview
+## System Architecture
 
 ```
                       +-----------------------------+
@@ -37,26 +39,27 @@ When AI coding assistants (Google Antigravity, Cursor, Claude Code, OpenAI Codex
                       +--------------+--------------+
                       |                             |
                       v                             v
-             [ RepoMind CLI ]              [ RepoMind MCP Server ]
-             (repomind binary)             (stdio transport)
+              [ BugBrain CLI ]              [ BugBrain MCP Server ]
+             (bugbrain binary)              (stdio transport)
                       |                             |
                       +--------------+--------------+
                                      |
                                      v
                       +-----------------------------+
-                      |        RepoMind Core        |
+                      |        BugBrain Core        |
                       +-----------------------------+
                       | * Scanner & Ignore Engine   |
                       | * SHA-256 Hasher & Diff     |
                       | * Multi-Language AST Parser |
                       | * Dependency Blast Radius   |
                       | * Task Context & Budgeter   |
+                      | * Legacy Migration Engine   |
                       +--------------+--------------+
                                      |
                                      v
                       +-----------------------------+
                       |     Local SQLite Store      |
-                      |   (.repomind/memory.db)     |
+                      |   (.bugbrain/bugbrain.db)   |
                       +-----------------------------+
 ```
 
@@ -67,7 +70,9 @@ When AI coding assistants (Google Antigravity, Cursor, Claude Code, OpenAI Codex
 ### 1. Installation
 
 ```bash
-npm install -g repomind
+npm install -g bugbrain
+# or with pnpm
+pnpm add -g bugbrain
 ```
 
 ### 2. Initialize and Index Your Repository
@@ -75,14 +80,14 @@ npm install -g repomind
 ```bash
 cd my-project
 
-# Initialize RepoMind workspace
-repomind init
+# Initialize BugBrain workspace
+bugbrain init
 
 # Perform initial scan and indexing
-repomind scan
+bugbrain scan
 
 # View memory health and status
-repomind status
+bugbrain status
 ```
 
 ### 3. Retrieve Context for a Task
@@ -90,70 +95,94 @@ repomind status
 Before asking an AI agent to implement a feature:
 
 ```bash
-repomind context "Update user authentication and JWT session validation" --budget 8000
+bugbrain context "Update user authentication and JWT session validation" --budget 8000
 ```
 
 ### 4. Connect Your Coding Agent
 
-RepoMind comes with adapters for major AI coding assistants:
+BugBrain comes with adapters for major AI coding assistants:
 
 ```bash
 # List supported agent integrations
-repomind agent list
+bugbrain agent list
 
 # Install adapter for Google Antigravity
-repomind agent install antigravity
+bugbrain agent install antigravity
 
-# Install adapter for Cursor
-repomind agent install cursor
+# Install adapter for Cursor / Windsurf
+bugbrain agent install cursor
 
 # Install adapter for Claude Code
-repomind agent install claude-code
+bugbrain agent install claude-code
+
+# Install adapter for VS Code / GitHub Copilot
+bugbrain agent install vscode
 ```
 
 ---
 
-## CLI Command Reference
+## CLI Command Reference (22 Commands)
 
 | Command | Description |
 | :--- | :--- |
-| `repomind init [name]` | Initialize RepoMind in the repository |
-| `repomind scan [--force]` | Incrementally scan and index modified/added files |
-| `repomind status` | Display persistent memory statistics and cache health |
-| `repomind context <query>` | Retrieve task-specific context manifest within token budget |
-| `repomind explain <path>` | Explain stored AST analysis, exports, and dependencies for a file |
-| `repomind decisions [list\|add]` | View or record Architectural Decision Records (ADRs) |
-| `repomind doctor` | Verify SQLite database integrity and filesystem permissions |
-| `repomind clean [--stale\|--all]`| Purge stale analyses or reset memory database |
-| `repomind agent <list\|install>` | Manage integrations for Antigravity, Cursor, Claude Code, Codex |
+| `bugbrain init [name]` | Initialize BugBrain in the repository |
+| `bugbrain scan [--force]` | Incrementally scan and index modified/added files |
+| `bugbrain refresh [path]` | Re-analyze a specific file or all modified files |
+| `bugbrain status` | Display persistent memory statistics and cache health |
+| `bugbrain context <query>` | Retrieve task-specific context manifest within token budget |
+| `bugbrain analyze <path>` | Run structural AST analysis on a file and display metadata |
+| `bugbrain explain <path>` | Explain stored AST analysis, exports, and dependencies for a file |
+| `bugbrain diff` | Show added, modified, deleted, and unchanged files vs stored memory |
+| `bugbrain deps <path>` | Inspect file dependencies, blast radius, and circular dependencies |
+| `bugbrain search <query>` | Search project memory across file paths, symbols, routes, and ADRs |
+| `bugbrain decisions [list\|add]` | View or record Architectural Decision Records (ADRs) |
+| `bugbrain history` | View agent session activity history and tasks |
+| `bugbrain watch` | Watch workspace for file changes and auto-index in real-time |
+| `bugbrain mcp` | Run the BugBrain Model Context Protocol server on stdio |
+| `bugbrain agent [list\|install\|uninstall\|validate]` | Manage integrations for Antigravity, Cursor, Claude Code, Codex |
+| `bugbrain skill [list\|install\|validate]` | Manage BugBrain Agent Skills |
+| `bugbrain doctor` | Verify SQLite database integrity and filesystem permissions |
+| `bugbrain clean [--stale\|--all]`| Purge stale analyses or reset memory database |
+| `bugbrain export [-o file]` | Export project memory records into portable JSON |
+| `bugbrain import <file>` | Import project memory records from a JSON file into SQLite |
+| `bugbrain db [status\|backup]` | Direct SQLite database inspection and atomic backup |
+| `bugbrain config [list\|get\|set]` | Inspect or modify BugBrain configuration |
 
 Global flags supported by all commands:
 - `--json`: Pure parseable JSON output to stdout.
 - `--quiet`: Suppress non-essential output.
-- `--project <path>`: Specify project root.
+- `--verbose`: Enable verbose debugging output.
+- `-C, --project <path>`: Specify project root directory.
 
 ---
 
 ## MCP Server Specification
 
-RepoMind implements the official **Model Context Protocol (MCP)** specification over stdio.
+BugBrain implements the official **Model Context Protocol (MCP)** specification over stdio.
 
-### Exposed Tools
+### Exposed Tools (14 Tools)
 - `get_project_overview`: Architecture, languages, and directory breakdown.
 - `get_project_status`: Cache freshness, pending invalidations, and scan timestamps.
 - `get_file_analysis`: Structural AST summary, exports, imports, and routes for a file.
 - `get_file_fingerprint`: Verify file snapshot against live disk content.
 - `get_task_context`: Context manifest ranked for a natural-language task.
-- `get_dependencies`: Upstream dependencies and downstream blast radius.
+- `get_dependencies`: Upstream dependencies and downstream module relationships.
+- `get_blast_radius`: Calculate transitive blast radius cone for changed files.
+- `get_hot_files`: Identify load-bearing files with highest in-degree (most callers).
+- `search_project_memory`: Natural search across files, symbols, routes, and decisions.
+- `get_changed_files`: Live diff (added, modified, deleted) against database.
+- `refresh_analysis`: Incremental scan or re-analyze a specific file.
+- `record_decision`: Save a new architectural decision (ADR) to persistent memory.
 - `get_decisions`: Retrieve historical architectural decisions (ADRs).
-- `record_decision`: Save a new architectural decision to persistent memory.
 - `record_session`: Record agent turn summaries and modified files.
-- `mark_analysis_stale`: Invalidate cached analysis for a file.
 
-### Exposed Resources
-- `repomind://project/overview`
-- `repomind://project/status`
-- `repomind://project/decisions`
+### Exposed Resources (6 Resources)
+- `bugbrain://project/overview`: Project metadata and statistics.
+- `bugbrain://project/status`: Cache freshness and file status counts.
+- `bugbrain://project/decisions`: Architectural Decision Records (ADRs).
+- `bugbrain://project/dependencies`: Complete directed import dependency graph.
+- `bugbrain://project/hot-files`: Most load-bearing files with highest dependents.
+- `bugbrain://project/schema`: Database schema definition and tables.
 
 ---
 
@@ -161,8 +190,8 @@ RepoMind implements the official **Model Context Protocol (MCP)** specification 
 
 | Agent | Integration Mechanism | Configuration Files |
 | :--- | :--- | :--- |
-| **Google Antigravity** | `stdio` MCP + Agent Skill | `.gemini/antigravity/mcp/repomind.json`, `AGENTS.md` |
-| **Cursor** | `stdio` MCP + Project Rules | `.cursor/mcp.json`, `.cursor/rules/repomind.mdc` |
+| **Google Antigravity** | `stdio` MCP + Agent Skill | `.gemini/antigravity/mcp/bugbrain.json`, `AGENTS.md` |
+| **Cursor / Windsurf** | `stdio` MCP + Project Rules | `.cursor/mcp.json`, `.cursor/rules/bugbrain.mdc` |
 | **Claude Code** | `stdio` MCP | `.claude/config.json`, `CLAUDE.md` |
 | **OpenAI Codex** | Direct CLI workflow | `AGENTS.md` |
 | **VS Code / Copilot** | `stdio` MCP | `.vscode/mcp.json`, `.github/copilot-instructions.md` |
@@ -171,25 +200,25 @@ RepoMind implements the official **Model Context Protocol (MCP)** specification 
 
 ## Monorepo Packages
 
-RepoMind is developed as a modular TypeScript monorepo using pnpm workspaces:
+BugBrain is developed as a modular TypeScript monorepo using pnpm workspaces:
 
-- [`@repomind/shared`](file:///packages/shared): Domain models, typed error hierarchy, path security, and config schemas.
-- [`@repomind/fingerprint`](file:///packages/fingerprint): Deterministic SHA-256 content hasher and diff engine.
-- [`@repomind/scanner`](file:///packages/scanner): Recursive directory scanner with `.gitignore` and secret exclusions.
-- [`@repomind/database`](file:///packages/database): Native SQLite persistence (`node:sqlite`) in WAL mode with migrations.
-- [`@repomind/analyzer`](file:///packages/analyzer): AST and lexical code parsers (TS/JS, Python, SQL, Go, Rust).
-- [`@repomind/dependency-graph`](file:///packages/dependency-graph): Directed graph, blast-radius calculation, and conservative invalidation.
-- [`@repomind/context-engine`](file:///packages/context-engine): Task query ranking and token budgeting engine.
-- [`@repomind/core`](file:///packages/core): Central coordinator orchestrating all subsystems.
-- [`repomind`](file:///packages/cli): Commander.js developer CLI binary.
-- [`@repomind/mcp`](file:///packages/mcp): Model Context Protocol server for AI coding agents.
-- [`@repomind/agent-adapters`](file:///packages/agent-adapters): Configuration installers for Antigravity, Cursor, Claude Code, Codex.
+- [`@bugbrain/shared`](file:///packages/shared): Domain models, typed error hierarchy, path security, and config schemas.
+- [`@bugbrain/fingerprint`](file:///packages/fingerprint): Deterministic SHA-256 content hasher and diff engine.
+- [`@bugbrain/scanner`](file:///packages/scanner): Recursive directory scanner with `.gitignore` and secret exclusions.
+- [`@bugbrain/database`](file:///packages/database): Native SQLite persistence (`node:sqlite`) in WAL mode with migrations.
+- [`@bugbrain/analyzer`](file:///packages/analyzer): AST and lexical code parsers (TS/JS, Python, SQL, JSON).
+- [`@bugbrain/dependency-graph`](file:///packages/dependency-graph): Directed graph, blast-radius calculation, and conservative invalidation.
+- [`@bugbrain/context-engine`](file:///packages/context-engine): Task query ranking and token budgeting engine.
+- [`@bugbrain/core`](file:///packages/core): Central coordinator orchestrating all subsystems and legacy migration.
+- [`bugbrain`](file:///packages/cli): Commander.js developer CLI binary.
+- [`@bugbrain/mcp`](file:///packages/mcp): Model Context Protocol server for AI coding agents.
+- [`@bugbrain/agent-adapters`](file:///packages/agent-adapters): Configuration installers for Antigravity, Cursor, Claude Code, Codex.
 
 ---
 
 ## Security & Privacy Guarantees
 
-1. **Local-First & Offline:** 100% of memory resides in `.repomind/memory.db`. Zero network calls are required.
+1. **Local-First & Offline:** 100% of memory resides in `.bugbrain/bugbrain.db`. Zero network calls are required.
 2. **Path Traversal Protection:** All file operations are verified using boundary checks to prevent directory escaping.
 3. **Hardcoded Secret Exclusions:** Credentials (`.env*`, `*.pem`, `*.key`, `id_rsa*`) are blocked at the scanner level before reading or hashing.
 4. **Parameterized SQL:** 100% of database queries use prepared statements.

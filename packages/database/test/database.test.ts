@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
-  RepoMindDatabase,
+  BugBrainDatabase,
   DatabaseMigrator,
   ProjectRepository,
   FileRepository,
@@ -13,12 +13,12 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 
-describe('RepoMindDatabase & Repositories', () => {
-  let db: RepoMindDatabase;
+describe('BugBrainDatabase & Repositories', () => {
+  let db: BugBrainDatabase;
   let migrator: DatabaseMigrator;
 
   beforeEach(() => {
-    db = new RepoMindDatabase({ filename: ':memory:' });
+    db = new BugBrainDatabase({ filename: ':memory:' });
     migrator = new DatabaseMigrator(db);
     migrator.migrate();
   });
@@ -196,11 +196,11 @@ describe('RepoMindDatabase & Repositories', () => {
   });
 
   it('persists data across database restarts on physical disk', async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'repomind-db-test-'));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'BugBrain-db-test-'));
     const dbFile = path.join(tempDir, 'memory.db');
 
     // Step 1: Open, migrate, insert
-    const db1 = new RepoMindDatabase({ filename: dbFile });
+    const db1 = new BugBrainDatabase({ filename: dbFile });
     new DatabaseMigrator(db1).migrate();
     new ProjectRepository(db1).upsert({
       id: 'disk-proj-1',
@@ -212,7 +212,7 @@ describe('RepoMindDatabase & Repositories', () => {
     db1.close();
 
     // Step 2: Reopen same database file and verify data survived restart
-    const db2 = new RepoMindDatabase({ filename: dbFile });
+    const db2 = new BugBrainDatabase({ filename: dbFile });
     const fetched = new ProjectRepository(db2).getById('disk-proj-1');
     expect(fetched).not.toBeNull();
     expect(fetched?.name).toBe('my-repo');
@@ -221,3 +221,4 @@ describe('RepoMindDatabase & Repositories', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 });
+

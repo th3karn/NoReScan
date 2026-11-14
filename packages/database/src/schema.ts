@@ -1,5 +1,5 @@
 export const INITIAL_MIGRATION_V1 = `
--- Migration 001: Initial RepoMind Schema
+-- Migration 001: Initial BugBrain Schema
 
 CREATE TABLE IF NOT EXISTS schema_migrations (
   version INTEGER PRIMARY KEY,
@@ -134,3 +134,4 @@ CREATE TABLE IF NOT EXISTS memory_events (
 );
 CREATE INDEX IF NOT EXISTS idx_memory_events_time ON memory_events(project_id, occurred_at);
 `;
+

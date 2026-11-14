@@ -47,3 +47,4 @@ describe('DependencyGraph', () => {
     expect(resolveImportSpecifier('express', 'src/auth/controller.ts', known)).toBeNull();
   });
 });
+

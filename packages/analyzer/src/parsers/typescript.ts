@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@repomind/shared';
+import { AstMetadata, ExportDefinition, ImportDefinition, RouteDefinition, SymbolDefinition } from '@bugbrain/shared';
 
 export function parseTypeScript(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const isJsx = fileName.endsWith('.tsx') || fileName.endsWith('.jsx');
@@ -163,3 +163,4 @@ function generateSummary(
   }
   return parts.length > 0 ? parts.join(' | ') : `Source file ${fileName}`;
 }
+

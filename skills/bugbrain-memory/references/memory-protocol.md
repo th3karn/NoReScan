@@ -15,3 +15,4 @@
 - Modification of file `F` triggers re-hashing and AST re-parsing.
 - If `F`'s exported interface (exported symbols, function signatures, types) changed, all immediate dependents in the directed graph are flagged `stale`.
 - If only private internal implementation changed, dependents remain `valid`.
+

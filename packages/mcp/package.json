@@ -1,11 +1,14 @@
 {
-  "name": "@repomind/mcp",
+  "name": "@bugbrain/mcp",
   "version": "0.1.0",
-  "description": "Universal Model Context Protocol (MCP) server for RepoMind",
+  "description": "Universal Model Context Protocol (MCP) server for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "bin": {
-    "repomind-mcp": "./dist/bin.js"
+    "bugbrain-mcp": "./dist/bin.js"
   },
   "scripts": {
     "build": "tsc",
@@ -15,8 +18,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
-    "@repomind/core": "workspace:*",
-    "@repomind/shared": "workspace:*",
+    "@bugbrain/core": "workspace:*",
+    "@bugbrain/shared": "workspace:*",
     "zod": "^3.24.2"
   },
   "devDependencies": {

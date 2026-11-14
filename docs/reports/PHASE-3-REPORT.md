@@ -1,4 +1,4 @@
-# RepoMind — Phase 3 Completion Report (Persistence Engine)
+# BugBrain — Phase 3 Completion Report (Persistence Engine)
 
 **Phase:** Phase 3 — Persistence Engine (SQLite & Migrations)  
 **Status:** Completed & Verified  
@@ -43,7 +43,7 @@
 ## 3. Design Decisions & Architectural Highlights
 
 - **ADR-0001B Transition:** Migrated from `better-sqlite3` to Node.js 22+ native `node:sqlite`. This eliminated the requirement for Windows C++ Build Tools and `node-gyp` while delivering identical synchronous performance and WAL mode guarantees.
-- **Physical Disk Persistence Verified:** Unit tests prove data written to `.repomind/memory.db` survives application shutdown and re-initialization.
+- **Physical Disk Persistence Verified:** Unit tests prove data written to `.BugBrain/memory.db` survives application shutdown and re-initialization.
 
 ---
 
@@ -65,3 +65,4 @@
 
 - **Next Phase:** **Phase 4 — Code Analysis & AST Parsing**.
 - **Prerequisites Satisfied:** Scanner, fingerprinting, and database persistence layers are fully functional and tested.
+

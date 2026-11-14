@@ -1,4 +1,4 @@
-# RepoMind — Phase 9 Completion Report (Skills & Universal Adapters)
+# BugBrain — Phase 9 Completion Report (Skills & Universal Adapters)
 
 **Phase:** Phase 9 — Portable Agent Skill & Universal Agent Adapters  
 **Status:** Completed & Verified  
@@ -9,7 +9,7 @@
 
 ## 1. What Was Implemented
 
-1. **Portable Agent Skill (`skills/repomind-memory/`):**
+1. **Portable Agent Skill (`skills/BugBrain-memory/`):**
    - Standard `SKILL.md` with full Agent Skills specification frontmatter.
    - Core protocol guides:
      - `references/memory-protocol.md`: 5 memory layers and cache invalidation mechanics.
@@ -18,27 +18,27 @@
    - Automation scripts:
      - `scripts/check-status.ts`: Fast JSON status retriever.
      - `scripts/refresh-context.ts`: Standalone context manifest generator.
-2. **`@repomind/agent-adapters` Package:**
+2. **`@bugbrain/agent-adapters` Package:**
    - Dedicated configuration generators and validators for:
-     - **Google Antigravity:** Registers MCP in `.gemini/antigravity/mcp/repomind.json` and updates `AGENTS.md`.
-     - **Cursor / Windsurf:** Registers MCP in `.cursor/mcp.json` and generates `.cursor/rules/repomind.mdc`.
+     - **Google Antigravity:** Registers MCP in `.gemini/antigravity/mcp/BugBrain.json` and updates `AGENTS.md`.
+     - **Cursor / Windsurf:** Registers MCP in `.cursor/mcp.json` and generates `.cursor/rules/BugBrain.mdc`.
      - **Claude Code:** Registers MCP in `.claude/config.json` and generates `CLAUDE.md`.
      - **OpenAI Codex:** Generates CLI workflow rules in `AGENTS.md`.
      - **VS Code / Copilot:** Configures `.vscode/mcp.json` and `.github/copilot-instructions.md`.
    - Idempotent updates with rollback and clean uninstallation support.
 3. **CLI Integration:**
-   - Exposed `repomind agent list`, `repomind agent install <agent>`, and `repomind agent uninstall <agent>`.
+   - Exposed `BugBrain agent list`, `BugBrain agent install <agent>`, and `BugBrain agent uninstall <agent>`.
 
 ---
 
 ## 2. Files and Packages Created
 
-- `skills/repomind-memory/SKILL.md`
-- `skills/repomind-memory/references/memory-protocol.md`
-- `skills/repomind-memory/references/cache-validation.md`
-- `skills/repomind-memory/references/agent-workflow.md`
-- `skills/repomind-memory/scripts/check-status.ts`
-- `skills/repomind-memory/scripts/refresh-context.ts`
+- `skills/BugBrain-memory/SKILL.md`
+- `skills/BugBrain-memory/references/memory-protocol.md`
+- `skills/BugBrain-memory/references/cache-validation.md`
+- `skills/BugBrain-memory/references/agent-workflow.md`
+- `skills/BugBrain-memory/scripts/check-status.ts`
+- `skills/BugBrain-memory/scripts/refresh-context.ts`
 - `packages/agent-adapters/package.json`
 - `packages/agent-adapters/tsconfig.json`
 - `packages/agent-adapters/src/adapter.ts`
@@ -49,17 +49,17 @@
 - `packages/agent-adapters/src/adapters/vscode.ts`
 - `packages/agent-adapters/src/index.ts`
 - `packages/agent-adapters/test/adapters.test.ts`
-- `packages/cli/src/cli.ts` (Integrated `repomind agent` subcommands)
+- `packages/cli/src/cli.ts` (Integrated `BugBrain agent` subcommands)
 
 ---
 
 ## 3. Tests Executed & Results
 
-- **`@repomind/agent-adapters`:** 3 test suites passed:
+- **`@bugbrain/agent-adapters`:** 3 test suites passed:
   - Registry inspection.
   - Antigravity adapter installation, idempotency, and uninstallation.
   - Cursor adapter installation and uninstallation.
-- **CLI Verification:** `repomind agent list` executed cleanly.
+- **CLI Verification:** `BugBrain agent list` executed cleanly.
 - **Cumulative Repository Tests:** 50 tests passed across all 11 packages, 0 failures.
 
 ---
@@ -68,3 +68,4 @@
 
 - **Next Phase:** **Phase 10 / 11 — Open-Source Readiness, Documentation, and Final Quality Verification**.
 - **Prerequisites Satisfied:** Complete local-first memory infrastructure, MCP server, Agent Skill, universal adapters, and CLI are fully operational and tested.
+

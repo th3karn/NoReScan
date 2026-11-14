@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/database",
+  "name": "@bugbrain/database",
   "version": "0.1.0",
-  "description": "SQLite local persistence and migration engine for RepoMind using native node:sqlite",
+  "description": "SQLite local persistence and migration engine for BugBrain using native node:sqlite",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/shared": "workspace:*"
+    "@bugbrain/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

@@ -1,12 +1,15 @@
 {
-  "name": "repomind",
+  "name": "bugbrain",
   "version": "0.1.0",
   "description": "Universal persistent codebase memory CLI for AI coding agents",
   "bin": {
-    "repomind": "./dist/bin.js"
+    "bugbrain": "./dist/bin.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
@@ -14,9 +17,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/agent-adapters": "workspace:*",
-    "@repomind/core": "workspace:*",
-    "@repomind/shared": "workspace:*",
+    "@bugbrain/agent-adapters": "workspace:*",
+    "@bugbrain/core": "workspace:*",
+    "@bugbrain/mcp": "workspace:*",
+    "@bugbrain/shared": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.6.1",
     "commander": "^13.1.0",
     "picocolors": "^1.1.1"
   },

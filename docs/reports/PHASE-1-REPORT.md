@@ -1,4 +1,4 @@
-# RepoMind — Phase 1 Completion Report (Foundation)
+# BugBrain — Phase 1 Completion Report (Foundation)
 
 **Phase:** Phase 1 — Foundation  
 **Status:** Completed & Verified  
@@ -13,13 +13,13 @@
    - Established pnpm workspaces (`pnpm-workspace.yaml`).
    - Integrated Turborepo (`turbo.json`) for pipeline orchestration.
    - Configured root TypeScript settings (`tsconfig.base.json`).
-   - Established `.gitignore`, `.repomindignore`, `.npmrc`, and GitHub Actions CI workflow (`.github/workflows/ci.yml`).
-2. **`@repomind/shared` Package:**
+   - Established `.gitignore`, `.BugBrainignore`, `.npmrc`, and GitHub Actions CI workflow (`.github/workflows/ci.yml`).
+2. **`@bugbrain/shared` Package:**
    - **Domain Types (`src/types.ts`):** Complete TypeScript definitions for `Project`, `FileSnapshot`, `FileAnalysis`, `SymbolDefinition`, `ImportDefinition`, `ExportDefinition`, `RouteDefinition`, `ModelDefinition`, `AstMetadata`, `DependencyEdge`, `AgentSession`, `TaskRecord`, `DecisionRecord`, and `TaskContextManifest`.
-   - **Typed Errors (`src/errors.ts`):** Full error hierarchy (`RepoMindError`, `SecurityViolationError`, `DatabaseError`, `ScannerError`, `AnalysisError`, `ContextError`, `ConfigurationError`, `ValidationError`).
+   - **Typed Errors (`src/errors.ts`):** Full error hierarchy (`BugBrainError`, `SecurityViolationError`, `DatabaseError`, `ScannerError`, `AnalysisError`, `ContextError`, `ConfigurationError`, `ValidationError`).
    - **Path & Boundary Security (`src/path.ts`):** Path normalization with standard forward slashes, root boundary containment assertion (`assertPathContained`), and sensitive secret file detection (`isSensitivePath`).
    - **Structured Logger (`src/logger.ts`):** Multi-level logger supporting DEBUG, INFO, WARN, ERROR, operation IDs, project IDs, and JSON/human formats.
-   - **Configuration Engine (`src/config.ts`):** Zod-validated schema for `.repomind/config.json` with secure defaults.
+   - **Configuration Engine (`src/config.ts`):** Zod-validated schema for `.BugBrain/config.json` with secure defaults.
 
 ---
 
@@ -30,7 +30,7 @@
 - `turbo.json`
 - `tsconfig.base.json`
 - `.gitignore`
-- `.repomindignore`
+- `.BugBrainignore`
 - `.npmrc`
 - `.github/workflows/ci.yml`
 - `packages/shared/package.json`
@@ -49,7 +49,7 @@
 
 ## 3. Design Decisions
 
-- **ADR-0005 & ADR-0002 Enforcement:** Sensitive path detection hardcoded in `@repomind/shared` to prevent secret leakage (`.env*`, `*.pem`, `*.key`, `id_rsa*`) across all consuming packages.
+- **ADR-0005 & ADR-0002 Enforcement:** Sensitive path detection hardcoded in `@bugbrain/shared` to prevent secret leakage (`.env*`, `*.pem`, `*.key`, `id_rsa*`) across all consuming packages.
 - **Strict POSIX Normalization:** All internal and database paths are normalized to forward slashes (`/`) regardless of Windows host OS.
 
 ---
@@ -75,4 +75,5 @@
 ## 6. Next Phase Prerequisites
 
 - **Next Phase:** **Phase 2 — Scanner and Fingerprint Engine**.
-- **Prerequisites Satisfied:** `@repomind/shared` built and passing all unit tests.
+- **Prerequisites Satisfied:** `@bugbrain/shared` built and passing all unit tests.
+

@@ -1,9 +1,9 @@
-export class RepoMindError extends Error {
+export class BugBrainError extends Error {
   public readonly code: string;
   public readonly recoverable: boolean;
   public readonly details?: unknown;
 
-  constructor(message: string, code = 'REPOMIND_ERROR', recoverable = false, details?: unknown) {
+  constructor(message: string, code = 'BugBrain_ERROR', recoverable = false, details?: unknown) {
     super(message);
     this.name = this.constructor.name;
     this.code = code;
@@ -23,43 +23,43 @@ export class RepoMindError extends Error {
   }
 }
 
-export class SecurityViolationError extends RepoMindError {
+export class SecurityViolationError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'SECURITY_VIOLATION', false, details);
   }
 }
 
-export class DatabaseError extends RepoMindError {
+export class DatabaseError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'DATABASE_ERROR', false, details);
   }
 }
 
-export class ScannerError extends RepoMindError {
+export class ScannerError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'SCANNER_ERROR', true, details);
   }
 }
 
-export class AnalysisError extends RepoMindError {
+export class AnalysisError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'ANALYSIS_ERROR', true, details);
   }
 }
 
-export class ContextError extends RepoMindError {
+export class ContextError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'CONTEXT_ERROR', true, details);
   }
 }
 
-export class ConfigurationError extends RepoMindError {
+export class ConfigurationError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'CONFIGURATION_ERROR', false, details);
   }
 }
 
-export class ValidationError extends RepoMindError {
+export class ValidationError extends BugBrainError {
   constructor(message: string, details?: unknown) {
     super(message, 'VALIDATION_ERROR', false, details);
   }

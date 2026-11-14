@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { IgnoreEngine } from './ignore.js';
-import { computeFingerprint, FileFingerprint } from '@repomind/fingerprint';
-import { assertPathContained, normalizePath, defaultLogger, RepoMindConfig } from '@repomind/shared';
+import { computeFingerprint, FileFingerprint } from '@bugbrain/fingerprint';
+import { assertPathContained, normalizePath, defaultLogger, BugBrainConfig } from '@bugbrain/shared';
 
 export interface ScanOptions {
   projectRoot: string;
-  config?: Partial<RepoMindConfig>;
+  config?: Partial<BugBrainConfig>;
   onProgress?: (scannedCount: number, currentPath: string) => void;
 }
 
@@ -40,10 +40,11 @@ export class FileScanner {
   }
 
   /**
-   * Initializes ignore rules from .gitignore and .repomindignore.
+   * Initializes ignore rules from .gitignore and .bugbrainignore (or legacy .repomindignore).
    */
   public async init(): Promise<void> {
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.gitignore'));
+    await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.bugbrainignore'));
     await this.ignoreEngine.loadIgnoreFile(path.join(this.projectRoot, '.repomindignore'));
   }
 
@@ -156,3 +157,4 @@ export class FileScanner {
     }
   }
 }
+

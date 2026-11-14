@@ -5,15 +5,14 @@ import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { RepoMindCore } from '@repomind/core';
-import { assertPathContained, defaultLogger } from '@repomind/shared';
-import { z } from 'zod';
+import { BugBrainCore } from '@bugbrain/core';
+import { assertPathContained, defaultLogger } from '@bugbrain/shared';
 import path from 'node:path';
 
-export function createMcpServer(core: RepoMindCore): Server {
+export function createMcpServer(core: BugBrainCore): Server {
   const server = new Server(
     {
-      name: 'repomind-mcp-server',
+      name: 'bugbrain',
       version: '0.1.0',
     },
     {
@@ -24,7 +23,7 @@ export function createMcpServer(core: RepoMindCore): Server {
     }
   );
 
-  // 1. List Available Tools
+  // 1. List Available Tools (14 tools)
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
       tools: [
@@ -85,9 +84,52 @@ export function createMcpServer(core: RepoMindCore): Server {
           },
         },
         {
-          name: 'get_decisions',
-          description: 'Retrieve historical architectural decision records (ADRs) and technical rationale',
+          name: 'get_blast_radius',
+          description: 'Calculate the transitive upstream cone of files affected by changes to specified files or a git diff',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              files: { type: 'array', items: { type: 'string' }, description: 'Array of modified relative paths' },
+            },
+            required: ['files'],
+          },
+        },
+        {
+          name: 'get_hot_files',
+          description: 'Identify the most load-bearing files in the codebase (highest in-degree dependent count)',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              limit: { type: 'number', description: 'Maximum number of hot files to return (default 10)' },
+            },
+          },
+        },
+        {
+          name: 'search_project_memory',
+          description: 'Search project memory across file paths, symbols, routes, and architectural decisions',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Search term or symbol name' },
+              limit: { type: 'number', description: 'Maximum results per category' },
+            },
+            required: ['query'],
+          },
+        },
+        {
+          name: 'get_changed_files',
+          description: 'Detect modified, added, deleted, and renamed files compared to the persistent index without altering memory',
           inputSchema: { type: 'object', properties: {} },
+        },
+        {
+          name: 'refresh_analysis',
+          description: 'Trigger incremental scan or re-analyze a specific file to refresh memory',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Optional relative path to refresh (refreshes all modified if omitted)' },
+            },
+          },
         },
         {
           name: 'record_decision',
@@ -104,6 +146,11 @@ export function createMcpServer(core: RepoMindCore): Server {
           },
         },
         {
+          name: 'get_decisions',
+          description: 'Retrieve historical architectural decision records (ADRs) and technical rationale',
+          inputSchema: { type: 'object', properties: {} },
+        },
+        {
           name: 'record_session',
           description: 'Record an agent session summary and files modified during the turn',
           inputSchema: {
@@ -111,20 +158,9 @@ export function createMcpServer(core: RepoMindCore): Server {
             properties: {
               agentName: { type: 'string', description: 'Agent identifier (e.g. antigravity, cursor)' },
               summary: { type: 'string', description: 'Summary of accomplishments' },
-              modifiedFiles: { type: 'array', items: { type: 'string' } },
+              metadata: { type: 'object', description: 'Optional session metadata' },
             },
             required: ['agentName', 'summary'],
-          },
-        },
-        {
-          name: 'mark_analysis_stale',
-          description: 'Explicitly invalidate a cached file analysis, forcing re-analysis on the next turn',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              path: { type: 'string', description: 'Relative path of the file' },
-            },
-            required: ['path'],
           },
         },
       ],
@@ -149,7 +185,10 @@ export function createMcpServer(core: RepoMindCore): Server {
                     root: status.rootPath,
                     totalFiles: status.totalFiles,
                     validAnalyses: status.validAnalyses,
+                    staleAnalyses: status.staleAnalyses,
                     decisionsCount: status.decisionsCount,
+                    sessionsCount: status.sessionsCount,
+                    lastScannedAt: status.lastScannedAt,
                   },
                   null,
                   2
@@ -173,7 +212,7 @@ export function createMcpServer(core: RepoMindCore): Server {
           if (!details) {
             return {
               isError: true,
-              content: [{ type: 'text', text: `File "${filePath}" is not indexed in RepoMind.` }],
+              content: [{ type: 'text', text: `File "${filePath}" is not indexed in BugBrain.` }],
             };
           }
           return {
@@ -207,36 +246,100 @@ export function createMcpServer(core: RepoMindCore): Server {
             return {
               content: [{ type: 'text', text: JSON.stringify(manifest, null, 2) }],
             };
-          } else {
-            const markdown = core.contextEngine.getContextMarkdown(query, budget);
-            return {
-              content: [{ type: 'text', text: markdown }],
-            };
           }
+
+          const markdown = core.contextEngine.getContextMarkdown(query, budget);
+          return {
+            content: [{ type: 'text', text: markdown }],
+          };
         }
 
         case 'get_dependencies': {
           const filePath = String(args?.path || '');
           assertPathContained(filePath, core.projectRoot);
-          const details = core.explain(filePath);
-          if (!details) {
+          const deps = core.getDependencies(filePath);
+          if (!deps) {
             return {
               isError: true,
-              content: [{ type: 'text', text: `File "${filePath}" is not indexed.` }],
+              content: [{ type: 'text', text: `No dependency information for "${filePath}".` }],
             };
           }
+          return {
+            content: [{ type: 'text', text: JSON.stringify(deps, null, 2) }],
+          };
+        }
+
+        case 'get_blast_radius': {
+          const files = Array.isArray(args?.files) ? (args.files as string[]) : [];
+          const cone = core.getBlastRadius(files);
           return {
             content: [
               {
                 type: 'text',
                 text: JSON.stringify(
                   {
-                    upstream: details.dependencies,
-                    downstream: details.dependents,
+                    seedFiles: files,
+                    blastRadiusCount: cone.length,
+                    affectedFiles: cone,
                   },
                   null,
                   2
                 ),
+              },
+            ],
+          };
+        }
+
+        case 'get_hot_files': {
+          const limit = typeof args?.limit === 'number' ? args.limit : 10;
+          const hotFiles = core.getHotFiles(limit);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(hotFiles, null, 2) }],
+          };
+        }
+
+        case 'search_project_memory': {
+          const query = String(args?.query || '');
+          const limit = typeof args?.limit === 'number' ? args.limit : 20;
+          const results = core.search(query, limit);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+          };
+        }
+
+        case 'get_changed_files': {
+          const diff = await core.getDiff();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(diff, null, 2) }],
+          };
+        }
+
+        case 'refresh_analysis': {
+          const targetPath = args?.path ? String(args.path) : undefined;
+          const result = await core.refreshFile(targetPath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
+
+        case 'record_decision': {
+          const title = String(args?.title || '');
+          const decision = String(args?.decision || '');
+          const rationale = String(args?.rationale || '');
+          const affectedFiles = Array.isArray(args?.affectedFiles) ? (args.affectedFiles as string[]) : [];
+
+          const adr = core.recordDecision({
+            title,
+            decision,
+            rationale,
+            affectedFiles,
+          });
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Decision recorded successfully with ID: ${adr.id}\nTitle: ${adr.title}`,
               },
             ],
           };
@@ -249,53 +352,24 @@ export function createMcpServer(core: RepoMindCore): Server {
           };
         }
 
-        case 'record_decision': {
-          const title = String(args?.title || '');
-          const decision = String(args?.decision || '');
-          const rationale = String(args?.rationale || '');
-          const affectedFiles = Array.isArray(args?.affectedFiles) ? (args?.affectedFiles as string[]) : [];
-
-          const record = core.decisionRepo.recordDecision({
-            projectId: core.config.projectId,
-            title,
-            decision,
-            rationale,
-            affectedFiles,
-          });
-
-          return {
-            content: [{ type: 'text', text: JSON.stringify({ success: true, decision: record }, null, 2) }],
-          };
-        }
-
         case 'record_session': {
-          const agentName = String(args?.agentName || 'unknown');
+          const agentName = String(args?.agentName || 'unknown-agent');
           const summary = String(args?.summary || '');
-          const session = core.sessionRepo.startSession(core.config.projectId, agentName, {
-            modifiedFiles: args?.modifiedFiles,
+          const metadata = typeof args?.metadata === 'object' && args.metadata ? (args.metadata as Record<string, unknown>) : undefined;
+
+          const session = core.recordSession({
+            agentName,
+            summary,
+            metadata,
           });
-          core.sessionRepo.endSession(session.id, summary);
 
           return {
-            content: [{ type: 'text', text: JSON.stringify({ success: true, sessionId: session.id }, null, 2) }],
-          };
-        }
-
-        case 'mark_analysis_stale': {
-          const filePath = String(args?.path || '');
-          assertPathContained(filePath, core.projectRoot);
-          const files = core.fileRepo.getAllByProject(core.config.projectId);
-          const snap = files.get(filePath.replace(/\\/g, '/'));
-          if (snap) {
-            core.fileRepo.updateStatus(snap.id, 'stale');
-            core.analysisRepo.markStaleByFileId(snap.id);
-            return {
-              content: [{ type: 'text', text: JSON.stringify({ success: true, path: filePath, status: 'stale' }) }],
-            };
-          }
-          return {
-            isError: true,
-            content: [{ type: 'text', text: `File "${filePath}" was not found.` }],
+            content: [
+              {
+                type: 'text',
+                text: `Session recorded with ID: ${session.id} for agent: ${session.agentName}`,
+              },
+            ],
           };
         }
 
@@ -313,27 +387,45 @@ export function createMcpServer(core: RepoMindCore): Server {
     }
   });
 
-  // 3. Resources Handlers
+  // 3. Resources Handlers (6 resources)
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
     return {
       resources: [
         {
-          uri: 'repomind://project/overview',
+          uri: 'bugbrain://project/overview',
           name: 'Project Overview',
           mimeType: 'application/json',
           description: 'Summary of registered project metadata and structure',
         },
         {
-          uri: 'repomind://project/status',
+          uri: 'bugbrain://project/status',
           name: 'Project Status',
           mimeType: 'application/json',
           description: 'Real-time cache freshness and file indexing stats',
         },
         {
-          uri: 'repomind://project/decisions',
+          uri: 'bugbrain://project/decisions',
           name: 'Architectural Decisions',
           mimeType: 'application/json',
           description: 'All recorded architectural decisions (ADRs)',
+        },
+        {
+          uri: 'bugbrain://project/dependencies',
+          name: 'Project Dependency Graph',
+          mimeType: 'application/json',
+          description: 'Complete directed import dependency graph',
+        },
+        {
+          uri: 'bugbrain://project/hot-files',
+          name: 'Hot Load-Bearing Files',
+          mimeType: 'application/json',
+          description: 'Files with highest in-degree (most dependents)',
+        },
+        {
+          uri: 'bugbrain://project/schema',
+          name: 'Memory Schema Definition',
+          mimeType: 'text/plain',
+          description: 'Active SQLite database schema and indexes',
         },
       ],
     };
@@ -343,22 +435,49 @@ export function createMcpServer(core: RepoMindCore): Server {
     const { uri } = request.params;
 
     switch (uri) {
-      case 'repomind://project/overview': {
+      case 'bugbrain://project/overview': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'repomind://project/status': {
+      case 'bugbrain://project/status': {
         const status = core.getStatus();
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(status, null, 2) }],
         };
       }
-      case 'repomind://project/decisions': {
+      case 'bugbrain://project/decisions': {
         const decisions = core.decisionRepo.listByProject(core.config.projectId);
         return {
           contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(decisions, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/dependencies': {
+        const nodes = core.graph.getNodes();
+        const graphData: Record<string, string[]> = {};
+        for (const n of nodes) {
+          graphData[n] = core.graph.getDependencies(n);
+        }
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(graphData, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/hot-files': {
+        const hotFiles = core.getHotFiles(20);
+        return {
+          contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(hotFiles, null, 2) }],
+        };
+      }
+      case 'bugbrain://project/schema': {
+        return {
+          contents: [
+            {
+              uri,
+              mimeType: 'text/plain',
+              text: 'BugBrain SQLite Memory Schema:\nTables: schema_migrations, projects, files, file_versions, analyses, dependencies, sessions, tasks, task_files, decisions, memory_events.',
+            },
+          ],
         };
       }
       default:

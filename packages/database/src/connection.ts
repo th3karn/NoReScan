@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { DatabaseError } from '@repomind/shared';
+import { DatabaseError } from '@bugbrain/shared';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -8,7 +8,7 @@ export interface DatabaseConnectionOptions {
   readOnly?: boolean;
 }
 
-export class RepoMindDatabase {
+export class BugBrainDatabase {
   public readonly db: DatabaseSync;
   public readonly filename: string;
 
@@ -60,3 +60,4 @@ export class RepoMindDatabase {
     }
   }
 }
+

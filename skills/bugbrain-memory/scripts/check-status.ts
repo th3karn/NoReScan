@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { RepoMindCore } from '@repomind/core';
+import { BugBrainCore } from '@bugbrain/core';
 
 async function main() {
-  const core = new RepoMindCore(process.cwd());
+  const core = new BugBrainCore(process.cwd());
   const config = await core.loadConfig();
   if (!config) {
-    console.error('RepoMind is not initialized in this workspace. Run "repomind init".');
+    console.error('BugBrain is not initialized in this workspace. Run "bugbrain init".');
     process.exit(1);
   }
   const status = core.getStatus();
@@ -17,3 +17,4 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+

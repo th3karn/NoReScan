@@ -1,4 +1,4 @@
-import { AstMetadata, SymbolDefinition, ExportDefinition } from '@repomind/shared';
+import { AstMetadata, SymbolDefinition, ExportDefinition } from '@bugbrain/shared';
 
 export function parseGeneric(sourceText: string, fileName: string, language: string): { metadata: AstMetadata; summary: string } {
   const symbols: SymbolDefinition[] = [];
@@ -85,3 +85,4 @@ export function parseGeneric(sourceText: string, fileName: string, language: str
     summary,
   };
 }
+

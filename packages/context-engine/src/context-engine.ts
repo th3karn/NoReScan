@@ -4,9 +4,9 @@ import {
   DependencyRepository,
   DecisionRepository,
   ProjectRepository,
-} from '@repomind/database';
-import { DependencyGraph } from '@repomind/dependency-graph';
-import { TaskContextManifest } from '@repomind/shared';
+} from '@bugbrain/database';
+import { DependencyGraph } from '@bugbrain/dependency-graph';
+import { TaskContextManifest } from '@bugbrain/shared';
 import { extractQueryTokens } from './tokenizer.js';
 import { scoreFileRelevance, scoreDecisionRelevance } from './scorer.js';
 import { formatManifestToMarkdown, estimateTokenCount } from './budgeter.js';
@@ -23,7 +23,7 @@ export interface ContextEngineOptions {
 }
 
 export class TaskContextEngine {
-  constructor(private options: ContextEngineOptions) {}
+  constructor(private options: ContextEngineOptions) { }
 
   public getContext(query: string, tokenBudget = 8000): TaskContextManifest {
     const tokens = extractQueryTokens(query);
@@ -100,7 +100,7 @@ export class TaskContextEngine {
       decisions: scoredDecisions.slice(0, 5),
       warnings,
       instructions:
-        'Always read physical source files before writing modifications. RepoMind provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
+        'Always read physical source files before writing modifications. BugBrain provides verified structure to avoid redundant full-repo scans, but never substitute cached summaries for direct source inspection.',
     };
   }
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const RepoMindConfigSchema = z.object({
+export const BugBrainConfigSchema = z.object({
   version: z.number().int().default(1),
   projectId: z.string().uuid(),
   projectName: z.string().min(1),
@@ -14,9 +14,9 @@ export const RepoMindConfigSchema = z.object({
   }).default({ enabled: false }),
 });
 
-export type RepoMindConfig = z.infer<typeof RepoMindConfigSchema>;
+export type BugBrainConfig = z.infer<typeof BugBrainConfigSchema>;
 
-export const DEFAULT_CONFIG: Omit<RepoMindConfig, 'projectId' | 'projectName'> = {
+export const DEFAULT_CONFIG: Omit<BugBrainConfig, 'projectId' | 'projectName'> = {
   version: 1,
   maxFileSizeKb: 2048,
   ignorePatterns: [],
@@ -27,7 +27,7 @@ export const DEFAULT_CONFIG: Omit<RepoMindConfig, 'projectId' | 'projectName'> =
   },
 };
 
-export function parseConfig(raw: unknown): RepoMindConfig {
-  return RepoMindConfigSchema.parse(raw);
+export function parseConfig(raw: unknown): BugBrainConfig {
+  return BugBrainConfigSchema.parse(raw);
 }
 

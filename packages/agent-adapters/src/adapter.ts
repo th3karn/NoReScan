@@ -6,3 +6,4 @@ export interface AgentAdapter {
   uninstall(projectRoot: string, dryRun?: boolean): Promise<string[]>;
   validate(projectRoot: string): Promise<boolean>;
 }
+

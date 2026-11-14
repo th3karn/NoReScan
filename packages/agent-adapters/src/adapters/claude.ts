@@ -18,10 +18,10 @@ export class ClaudeCodeAdapter implements AgentAdapter {
       const existing = await fs.readFile(configFile, 'utf8');
       config = JSON.parse(existing);
       if (!config.mcpServers) config.mcpServers = {};
-    } catch {}
+    } catch { }
 
-    config.mcpServers.repomind = {
-      command: 'repomind-mcp',
+    config.mcpServers.bugbrain = {
+      command: 'bugbrain-mcp',
       args: [],
     };
 
@@ -33,20 +33,20 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
     // 2. CLAUDE.md
     const claudeMd = path.join(projectRoot, 'CLAUDE.md');
-    const banner = '<!-- REPOMIND:CLAUDE:START -->';
+    const banner = '<!-- BUGBRAIN:CLAUDE:START -->';
     let existing = '';
     try {
       existing = await fs.readFile(claudeMd, 'utf8');
-    } catch {}
+    } catch { }
 
     if (!existing.includes(banner)) {
       const instructions = `
 ${banner}
-# RepoMind Persistent Memory
+# BugBrain Persistent Memory
 - Before starting substantial tasks, call \`get_task_context\` to retrieve relevant files and avoid re-analyzing unchanged files.
 - Inspect live source files before writing edits.
 - Record architectural decisions using \`record_decision\`.
-<!-- REPOMIND:CLAUDE:END -->
+<!-- BUGBRAIN:CLAUDE:END -->
 `;
       const updated = existing ? `${existing.trim()}\n\n${instructions.trim()}\n` : instructions.trim() + '\n';
       if (!dryRun) await fs.writeFile(claudeMd, updated, 'utf8');
@@ -62,12 +62,25 @@ ${banner}
     try {
       const content = await fs.readFile(configFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.repomind) {
-        delete parsed.mcpServers.repomind;
+      if (parsed.mcpServers?.bugbrain) {
+        delete parsed.mcpServers.bugbrain;
         if (!dryRun) await fs.writeFile(configFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(configFile);
       }
-    } catch {}
+    } catch { }
+
+    const claudeMd = path.join(projectRoot, 'CLAUDE.md');
+    try {
+      const content = await fs.readFile(claudeMd, 'utf8');
+      if (content.includes('<!-- BUGBRAIN:CLAUDE:START -->')) {
+        const cleaned = content.replace(
+          /<!-- BUGBRAIN:CLAUDE:START -->[\s\S]*?<!-- BUGBRAIN:CLAUDE:END -->/g,
+          ''
+        ).trim() + '\n';
+        if (!dryRun) await fs.writeFile(claudeMd, cleaned, 'utf8');
+        removed.push(claudeMd);
+      }
+    } catch { }
 
     return removed;
   }
@@ -76,7 +89,7 @@ ${banner}
     try {
       const configFile = path.join(projectRoot, '.claude', 'config.json');
       const content = await fs.readFile(configFile, 'utf8');
-      return content.includes('repomind');
+      return content.includes('bugbrain-mcp');
     } catch {
       return false;
     }

@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/fingerprint",
+  "name": "@bugbrain/fingerprint",
   "version": "0.1.0",
-  "description": "Cryptographic SHA-256 fingerprinting and change detection for RepoMind",
+  "description": "Cryptographic SHA-256 fingerprinting and change detection for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/shared": "workspace:*"
+    "@bugbrain/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

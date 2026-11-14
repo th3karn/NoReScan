@@ -1,8 +1,8 @@
-# RepoMind — Command-Line Interface (CLI) Specification
+# BugBrain — Command-Line Interface (CLI) Specification
 
-**Executable:** `repomind`  
+**Executable:** `BugBrain`  
 **Framework:** Commander.js  
-**Package:** `repomind-cli` (or `@repomind/cli`)  
+**Package:** `BugBrain-cli` (or `@bugbrain/cli`)  
 
 ---
 
@@ -20,13 +20,13 @@ Every command supports standard global flags:
 
 ## 2. Command Reference
 
-### `repomind init`
-Initializes RepoMind in the current repository.
+### `BugBrain init`
+Initializes BugBrain in the current repository.
 - Scans for existing Git or project configuration.
-- Creates `.repomind/` directory with `config.json` and initializes `memory.db` with migrations.
-- Creates `.repomindignore` if absent.
+- Creates `.BugBrain/` directory with `config.json` and initializes `memory.db` with migrations.
+- Creates `.BugBrainignore` if absent.
 
-### `repomind scan`
+### `BugBrain scan`
 Discovers and fingerprints all files in the project.
 - Flags:
   - `--force`: Force re-indexing of all files regardless of cached hash.
@@ -35,17 +35,17 @@ Discovers and fingerprints all files in the project.
   - Total files scanned, unchanged files, modified files, new files, deleted files.
   - Duration in milliseconds.
 
-### `repomind status`
+### `BugBrain status`
 Displays the current memory and indexing health of the repository.
 - Output summary:
   - Total indexed files, cache hit ratio, valid vs stale analyses.
   - Last scan timestamp and Git HEAD commit.
   - Number of tracked sessions and recorded architectural decisions.
 
-### `repomind refresh`
+### `BugBrain refresh`
 Re-runs analysis specifically on stale or modified files and updates their dependency graphs.
 
-### `repomind context "<task-description>"`
+### `BugBrain context "<task-description>"`
 Retrieves task-relevant codebase context, dependency subgraphs, and historical decisions.
 - Arguments:
   - `<task-description>`: Natural language query (e.g. `"Refactor authentication token rotation"`).
@@ -54,39 +54,39 @@ Retrieves task-relevant codebase context, dependency subgraphs, and historical d
   - `--format <markdown|json>`: Output format (default: markdown).
   - `--include-decisions`: Include matching architectural decisions (default: true).
 
-### `repomind diff`
+### `BugBrain diff`
 Shows files modified, added, or deleted since the last scan, including affected dependency blast radius.
 
-### `repomind explain <path>`
+### `BugBrain explain <path>`
 Outputs stored structural analysis, extracted exports, imports, and downstream dependencies for a given file.
 
-### `repomind decisions`
+### `BugBrain decisions`
 Lists or manages architectural decisions.
-- `repomind decisions`: List all recorded ADRs.
-- `repomind decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
+- `BugBrain decisions`: List all recorded ADRs.
+- `BugBrain decisions add --title "<title>" --decision "<decision>" --rationale "<rationale>"`: Record a new ADR.
 
-### `repomind history`
+### `BugBrain history`
 Shows previous agent sessions, modified files, and completion statuses.
 
-### `repomind mcp`
-Launches the RepoMind Model Context Protocol (MCP) server.
+### `BugBrain mcp`
+Launches the BugBrain Model Context Protocol (MCP) server.
 - Default transport: `stdio` (for integration with Antigravity, Cursor, Claude Code).
 - Flags:
   - `--port <number>`: Optional HTTP transport mode.
 
-### `repomind agent`
+### `BugBrain agent`
 Installs agent integrations and skills.
-- `repomind agent list`: Shows supported agents and detection status.
-- `repomind agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
+- `BugBrain agent list`: Shows supported agents and detection status.
+- `BugBrain agent install <agent>`: Installs rules, MCP config, and skill for target agent (`antigravity`, `cursor`, `claude-code`, `codex`, `vscode`, `--all`).
 
-### `repomind doctor`
+### `BugBrain doctor`
 Runs comprehensive system diagnostics:
 - Verifies SQLite database integrity (`PRAGMA integrity_check`).
 - Verifies filesystem read/write access.
 - Validates analyzer versions and schema migration versions.
 
-### `repomind clean`
-Removes stale cache records, clears session history, or resets the `.repomind` database.
+### `BugBrain clean`
+Removes stale cache records, clears session history, or resets the `.BugBrain` database.
 - Flags:
   - `--all`: Complete purge and re-initialization.
   - `--stale`: Purge only obsolete analyses.

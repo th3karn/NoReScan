@@ -31,3 +31,4 @@ export async function hashFile(filePath: string, normalizeLineEndings = true): P
   }
   return hashBuffer(buffer);
 }
+

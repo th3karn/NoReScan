@@ -11,3 +11,4 @@ A cached analysis is valid ONLY when:
 2. `analyzer_version` matches the currently installed analyzer version.
 3. `schema_version` matches the active database schema version.
 4. No upstream public interface dependency was modified.
+

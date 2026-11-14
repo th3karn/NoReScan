@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/core",
+  "name": "@bugbrain/core",
   "version": "0.1.0",
-  "description": "Central coordinator and workflow engine for RepoMind",
+  "description": "Central coordinator and workflow engine for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -11,13 +11,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/analyzer": "workspace:*",
-    "@repomind/context-engine": "workspace:*",
-    "@repomind/database": "workspace:*",
-    "@repomind/dependency-graph": "workspace:*",
-    "@repomind/fingerprint": "workspace:*",
-    "@repomind/scanner": "workspace:*",
-    "@repomind/shared": "workspace:*"
+    "@bugbrain/analyzer": "workspace:*",
+    "@bugbrain/context-engine": "workspace:*",
+    "@bugbrain/database": "workspace:*",
+    "@bugbrain/dependency-graph": "workspace:*",
+    "@bugbrain/fingerprint": "workspace:*",
+    "@bugbrain/scanner": "workspace:*",
+    "@bugbrain/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

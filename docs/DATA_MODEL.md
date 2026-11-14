@@ -1,4 +1,4 @@
-# RepoMind — Domain Data Model & Entity Specifications
+# BugBrain — Domain Data Model & Entity Specifications
 
 **Organization:** LostGit Solutions  
 **Status:** Living Domain Specification  
@@ -14,7 +14,7 @@ export interface Project {
   id: string; // UUID v4
   rootPath: string; // Absolute path normalized with forward slashes
   name: string; // Directory name or package name
-  configHash: string; // SHA-256 of .repomind/config.json
+  configHash: string; // SHA-256 of .BugBrain/config.json
   syncEnabled: boolean;
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601

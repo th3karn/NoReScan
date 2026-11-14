@@ -1,6 +1,6 @@
-import { RepoMindDatabase } from './connection.js';
+import { BugBrainDatabase } from './connection.js';
 import { INITIAL_MIGRATION_V1 } from './schema.js';
-import { DatabaseError, defaultLogger } from '@repomind/shared';
+import { DatabaseError, defaultLogger } from '@bugbrain/shared';
 
 export interface Migration {
   version: number;
@@ -17,9 +17,9 @@ export const MIGRATIONS: Migration[] = [
 ];
 
 export class DatabaseMigrator {
-  private db: RepoMindDatabase;
+  private db: BugBrainDatabase;
 
-  constructor(db: RepoMindDatabase) {
+  constructor(db: BugBrainDatabase) {
     this.db = db;
   }
 
@@ -54,3 +54,4 @@ export class DatabaseMigrator {
     }
   }
 }
+

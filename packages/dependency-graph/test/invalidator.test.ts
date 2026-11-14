@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { DependencyGraph, ConservativeInvalidator, haveExportsChanged } from '../src/index.js';
-import { ExportDefinition } from '@repomind/shared';
+import { ExportDefinition } from '@bugbrain/shared';
 
 describe('Conservative Invalidator (ADR-0003)', () => {
   it('detects export changes accurately', () => {
@@ -51,3 +51,4 @@ describe('Conservative Invalidator (ADR-0003)', () => {
     expect(decision.blastRadius).toEqual(['src/auth.controller.ts']);
   });
 });
+

@@ -27,3 +27,4 @@ export function getAdapter(name: string): AgentAdapter | undefined {
 export function getAllAdapters(): AgentAdapter[] {
   return Object.values(ADAPTER_REGISTRY);
 }
+

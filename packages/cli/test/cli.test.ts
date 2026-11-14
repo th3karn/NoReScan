@@ -4,11 +4,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('RepoMind CLI Commands', () => {
+describe('BugBrain CLI Commands', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'repomind-cli-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bugbrain-cli-test-'));
 
     await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
     await fs.writeFile(
@@ -32,7 +32,7 @@ describe('RepoMind CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'repomind', '--project', tempDir, '--json', 'init', 'my-test-proj']);
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'init', 'my-test-proj']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -43,10 +43,10 @@ describe('RepoMind CLI Commands', () => {
     expect(output.data.projectName).toBe('my-test-proj');
   });
 
-  it('runs scan and status end-to-end', async () => {
+  it('runs scan, status, diff, search, and doctor end-to-end', async () => {
     // 1. Init
     let program = createProgram();
-    await program.parseAsync(['node', 'repomind', '--project', tempDir, '--quiet', 'init']);
+    await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--quiet', 'init']);
 
     // 2. Scan
     program = createProgram();
@@ -58,7 +58,7 @@ describe('RepoMind CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'repomind', '--project', tempDir, '--json', 'scan']);
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'scan']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -77,7 +77,7 @@ describe('RepoMind CLI Commands', () => {
     };
 
     try {
-      await program.parseAsync(['node', 'repomind', '--project', tempDir, '--json', 'status']);
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'status']);
     } finally {
       process.stdout.write = origWrite;
     }
@@ -86,5 +86,59 @@ describe('RepoMind CLI Commands', () => {
     expect(statusOutput.success).toBe(true);
     expect(statusOutput.data.totalFiles).toBe(2);
     expect(statusOutput.data.validAnalyses).toBe(2);
+
+    // 4. Diff
+    program = createProgram();
+    const diffChunks: string[] = [];
+    process.stdout.write = (chunk: any) => {
+      diffChunks.push(chunk.toString());
+      return true;
+    };
+
+    try {
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'diff']);
+    } finally {
+      process.stdout.write = origWrite;
+    }
+
+    const diffOutput = JSON.parse(diffChunks.join(''));
+    expect(diffOutput.success).toBe(true);
+    expect(diffOutput.data.unchanged).toBe(2);
+
+    // 5. Search
+    program = createProgram();
+    const searchChunks: string[] = [];
+    process.stdout.write = (chunk: any) => {
+      searchChunks.push(chunk.toString());
+      return true;
+    };
+
+    try {
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'search', 'main']);
+    } finally {
+      process.stdout.write = origWrite;
+    }
+
+    const searchOutput = JSON.parse(searchChunks.join(''));
+    expect(searchOutput.success).toBe(true);
+    expect(searchOutput.data.symbols.some((s: any) => s.name === 'main')).toBe(true);
+
+    // 6. Doctor
+    program = createProgram();
+    const doctorChunks: string[] = [];
+    process.stdout.write = (chunk: any) => {
+      doctorChunks.push(chunk.toString());
+      return true;
+    };
+
+    try {
+      await program.parseAsync(['node', 'bugbrain', '--project', tempDir, '--json', 'doctor']);
+    } finally {
+      process.stdout.write = origWrite;
+    }
+
+    const doctorOutput = JSON.parse(doctorChunks.join(''));
+    expect(doctorOutput.success).toBe(true);
+    expect(doctorOutput.data.healthy).toBe(true);
   });
 });

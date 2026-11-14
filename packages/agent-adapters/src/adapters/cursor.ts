@@ -5,7 +5,7 @@ import path from 'node:path';
 export class CursorAdapter implements AgentAdapter {
   public readonly name = 'cursor';
   public readonly displayName = 'Cursor / Windsurf';
-  public readonly description = 'Configures Cursor project MCP server in .cursor/mcp.json and rules in .cursor/rules/repomind.mdc';
+  public readonly description = 'Configures Cursor project MCP server in .cursor/mcp.json and rules in .cursor/rules/bugbrain.mdc';
 
   public async install(projectRoot: string, dryRun = false): Promise<string[]> {
     const created: string[] = [];
@@ -18,10 +18,10 @@ export class CursorAdapter implements AgentAdapter {
       const existing = await fs.readFile(mcpFile, 'utf8');
       mcpConfig = JSON.parse(existing);
       if (!mcpConfig.mcpServers) mcpConfig.mcpServers = {};
-    } catch {}
+    } catch { }
 
-    mcpConfig.mcpServers.repomind = {
-      command: 'repomind-mcp',
+    mcpConfig.mcpServers.bugbrain = {
+      command: 'bugbrain-mcp',
       args: [],
     };
 
@@ -31,15 +31,15 @@ export class CursorAdapter implements AgentAdapter {
     }
     created.push(mcpFile);
 
-    // 2. .cursor/rules/repomind.mdc
+    // 2. .cursor/rules/bugbrain.mdc
     const rulesDir = path.join(cursorDir, 'rules');
-    const ruleFile = path.join(rulesDir, 'repomind.mdc');
+    const ruleFile = path.join(rulesDir, 'bugbrain.mdc');
     const ruleContent = `---
-description: RepoMind Persistent Codebase Memory Rules
+description: BugBrain Persistent Codebase Memory Rules
 globs: *
 ---
 Before major refactoring or implementing features:
-- Query RepoMind via MCP tools (get_task_context) to retrieve relevant files and dependencies.
+- Query BugBrain via MCP tools (get_task_context) to retrieve relevant files and dependencies.
 - Avoid re-analyzing unchanged files when verified cached knowledge is available.
 - Read physical source code before writing edits.
 - Record architectural decisions using record_decision.
@@ -60,18 +60,18 @@ Before major refactoring or implementing features:
     try {
       const content = await fs.readFile(mcpFile, 'utf8');
       const parsed = JSON.parse(content);
-      if (parsed.mcpServers?.repomind) {
-        delete parsed.mcpServers.repomind;
+      if (parsed.mcpServers?.bugbrain) {
+        delete parsed.mcpServers.bugbrain;
         if (!dryRun) await fs.writeFile(mcpFile, JSON.stringify(parsed, null, 2), 'utf8');
         removed.push(mcpFile);
       }
-    } catch {}
+    } catch { }
 
-    const ruleFile = path.join(projectRoot, '.cursor', 'rules', 'repomind.mdc');
+    const ruleFile = path.join(projectRoot, '.cursor', 'rules', 'bugbrain.mdc');
     try {
       if (!dryRun) await fs.unlink(ruleFile);
       removed.push(ruleFile);
-    } catch {}
+    } catch { }
 
     return removed;
   }
@@ -80,7 +80,7 @@ Before major refactoring or implementing features:
     try {
       const mcpFile = path.join(projectRoot, '.cursor', 'mcp.json');
       const content = await fs.readFile(mcpFile, 'utf8');
-      return content.includes('repomind');
+      return content.includes('bugbrain-mcp');
     } catch {
       return false;
     }

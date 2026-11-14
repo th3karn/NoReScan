@@ -36,3 +36,4 @@ export function extractQueryTokens(query: string): string[] {
 
   return Array.from(tokens);
 }
+

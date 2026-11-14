@@ -1,4 +1,4 @@
-# RepoMind Community Code of Conduct
+# BugBrain Community Code of Conduct
 
 ## Our Pledge
 
@@ -16,3 +16,4 @@ Examples of behavior that contributes to creating a positive environment include
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at maintainers@lostgit.com. All complaints will be reviewed and investigated promptly and fairly.
+

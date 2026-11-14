@@ -1,7 +1,7 @@
-# RepoMind — Database Specification & Schema Architecture
+# BugBrain — Database Specification & Schema Architecture
 
 **Database Engine:** SQLite (via `better-sqlite3`)  
-**Storage Location:** `.repomind/memory.db`  
+**Storage Location:** `.BugBrain/memory.db`  
 **Journal Mode:** Write-Ahead Logging (WAL)  
 **Synchronous Mode:** NORMAL (optimal balance of ACID safety and performance)  
 

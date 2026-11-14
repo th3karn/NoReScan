@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { hashFile } from './hasher.js';
-import { normalizePath } from '@repomind/shared';
+import { normalizePath } from '@bugbrain/shared';
 
 export interface FileFingerprint {
   relativePath: string;
@@ -66,3 +66,4 @@ export async function computeFingerprint(
     language: detectLanguage(relativePath),
   };
 }
+

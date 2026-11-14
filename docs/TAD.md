@@ -1,6 +1,6 @@
-# RepoMind — Technical Architecture Document (TAD)
+# BugBrain — Technical Architecture Document (TAD)
 
-**System:** RepoMind Infrastructure  
+**System:** BugBrain Infrastructure  
 **Author:** LostGit Solutions Architecture Team  
 **Version:** 1.0.0-draft  
 **Target Runtime:** Node.js 22+ (LTS / Current)  
@@ -9,25 +9,25 @@
 
 ## 1. System Overview & Architecture Diagram
 
-RepoMind sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
+BugBrain sits as an intelligent caching and context layer between the developer's physical codebase and AI coding agents.
 
 ```
                     +------------------------------------------+
                     |             DEVELOPER WORKSPACE          |
-                    | (Project Files, Git Repo, .repomind/)    |
+                    | (Project Files, Git Repo, .BugBrain/)    |
                     +--------------------+---------------------+
                                          |
                        +-----------------+-----------------+
                        |                                   |
                        v                                   v
-             [ RepoMind CLI ]                      [ RepoMind MCP Server ]
+             [ BugBrain CLI ]                      [ BugBrain MCP Server ]
              (Commander.js)                        (Official MCP SDK stdio)
                        |                                   |
                        +-----------------+-----------------+
                                          |
                                          v
                       +--------------------------------------+
-                      |            RepoMind Core             |
+                      |            BugBrain Core             |
                       +--------------------------------------+
                       | * Project Registry & Config          |
                       | * File Scanner (Ignorer, Filter)     |
@@ -47,7 +47,7 @@ RepoMind sits as an intelligent caching and context layer between the developer'
             * sessions, decisions                * adapters & config injectors
                        |
                        v (Opt-in Encrypted)
-            [ RepoMind Cloud Sync ]
+            [ BugBrain Cloud Sync ]
             (PostgreSQL / Fastify API)
 ```
 
@@ -55,10 +55,10 @@ RepoMind sits as an intelligent caching and context layer between the developer'
 
 ## 2. Monorepo Package Topology
 
-RepoMind is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
+BugBrain is architected as an industrial-grade TypeScript monorepo using `pnpm` workspaces and `turbo`.
 
 ```
-repomind/
+BugBrain/
 ├── packages/
 │   ├── core/               # Central coordinator, project registry, pipeline orchestrator
 │   ├── database/           # SQLite migrations, connection manager, DAO repositories
@@ -68,12 +68,12 @@ repomind/
 │   ├── dependency-graph/   # Graph data structure, topological sorting, blast-radius calculation
 │   ├── memory/             # 5-layer memory coordinator (File, Architecture, Session, Decision, Dep)
 │   ├── context-engine/     # Task-based ranking, keyword/path/graph scoring, token budgeting
-│   ├── cli/                # Commander.js CLI binary executable (`repomind`)
+│   ├── cli/                # Commander.js CLI binary executable (`BugBrain`)
 │   ├── mcp-server/         # Standard MCP server implementation (stdio & HTTP)
 │   └── agent-adapters/     # Configuration generators & adapters for Antigravity, Cursor, Claude
 │
 ├── skills/
-│   └── repomind-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
+│   └── BugBrain-memory/    # Standard portable Agent Skill (SKILL.md, references, scripts)
 │
 ├── docs/                   # PRD, TAD, ARCHITECTURE, DATABASE, SECURITY, etc.
 ├── tests/                  # Integration and E2E test suites

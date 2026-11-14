@@ -43,6 +43,6 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# RepoMind Database
-.repomind/memory.db*
+# BugBrain Database
+.BugBrain/memory.db*
 

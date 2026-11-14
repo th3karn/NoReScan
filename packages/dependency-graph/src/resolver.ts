@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { normalizePath } from '@repomind/shared';
+import { normalizePath } from '@bugbrain/shared';
 
 const RESOLUTION_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json', '/index.ts', '/index.js'];
 

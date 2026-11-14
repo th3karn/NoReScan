@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea or new capability for RepoMind
+about: Suggest an idea or new capability for BugBrain
 title: '[FEAT] '
 labels: enhancement
 assignees: ''
@@ -17,3 +17,4 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Target Coding Agent / Workflow**
 [e.g. Google Antigravity, Cursor, Claude Code, Terminal CLI]
+

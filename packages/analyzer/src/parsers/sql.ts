@@ -1,4 +1,4 @@
-import { AstMetadata, ModelDefinition, SymbolDefinition } from '@repomind/shared';
+import { AstMetadata, ModelDefinition, SymbolDefinition } from '@bugbrain/shared';
 
 export function parseSql(sourceText: string, fileName: string): { metadata: AstMetadata; summary: string } {
   const models: ModelDefinition[] = [];
@@ -47,3 +47,4 @@ export function parseSql(sourceText: string, fileName: string): { metadata: AstM
     summary,
   };
 }
+

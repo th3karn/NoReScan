@@ -1,4 +1,4 @@
-# RepoMind — API & Contract Specification
+# BugBrain — API & Contract Specification
 
 **Organization:** LostGit Solutions  
 **Version:** 1.0.0-draft  
@@ -26,7 +26,7 @@ export interface CliResponse<T = unknown> {
 }
 ```
 
-### Example: `repomind status --json`
+### Example: `BugBrain status --json`
 ```json
 {
   "success": true,
@@ -79,7 +79,7 @@ All MCP tools validate arguments using Zod.
 
 ## 3. Optional Cloud Sync API Endpoints (Phase 10)
 
-Base URL: `https://api.repomind.dev/v1` (Optional hosted / self-hosted Fastify instance).
+Base URL: `https://api.BugBrain.dev/v1` (Optional hosted / self-hosted Fastify instance).
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |

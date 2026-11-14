@@ -1,6 +1,6 @@
-# Contributing to RepoMind
+# Contributing to BugBrain
 
-Thank you for your interest in contributing to RepoMind! We welcome contributions from developers, researchers, and open-source enthusiasts.
+Thank you for your interest in contributing to BugBrain! We welcome contributions from developers, researchers, and open-source enthusiasts.
 
 ## Development Setup
 
@@ -11,8 +11,8 @@ Thank you for your interest in contributing to RepoMind! We welcome contribution
 
 2. **Clone & Install:**
    ```bash
-   git clone https://github.com/LostGit/repomind.git
-   cd repomind
+   git clone https://github.com/LostGit/BugBrain.git
+   cd BugBrain
    pnpm install
    ```
 
@@ -40,3 +40,4 @@ Thank you for your interest in contributing to RepoMind! We welcome contribution
 3. Ensure all tests and type checks pass (`pnpm build && pnpm test`).
 4. Commit your changes using conventional commit messages (`feat: ...`, `fix: ...`, `docs: ...`).
 5. Open a pull request against the `main` branch.
+

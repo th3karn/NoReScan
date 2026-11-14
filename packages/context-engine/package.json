@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/context-engine",
+  "name": "@bugbrain/context-engine",
   "version": "0.1.0",
-  "description": "Task context retrieval, ranking, token budgeting, and manifest generation for RepoMind",
+  "description": "Task context retrieval, ranking, token budgeting, and manifest generation for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -11,9 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/database": "workspace:*",
-    "@repomind/dependency-graph": "workspace:*",
-    "@repomind/shared": "workspace:*"
+    "@bugbrain/database": "workspace:*",
+    "@bugbrain/dependency-graph": "workspace:*",
+    "@bugbrain/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

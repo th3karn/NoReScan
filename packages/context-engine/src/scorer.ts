@@ -1,4 +1,4 @@
-import { FileSnapshot, FileAnalysis, DecisionRecord } from '@repomind/shared';
+import { FileSnapshot, FileAnalysis, DecisionRecord } from '@bugbrain/shared';
 
 export interface ScoredFile {
   file: FileSnapshot;

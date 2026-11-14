@@ -1,7 +1,7 @@
 {
-  "name": "@repomind/scanner",
+  "name": "@bugbrain/scanner",
   "version": "0.1.0",
-  "description": "Recursive file discovery with ignore rules and security sandboxing for RepoMind",
+  "description": "Recursive file discovery with ignore rules and security sandboxing for BugBrain",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@repomind/fingerprint": "workspace:*",
-    "@repomind/shared": "workspace:*",
+    "@bugbrain/fingerprint": "workspace:*",
+    "@bugbrain/shared": "workspace:*",
     "ignore": "^7.0.3"
   },
   "devDependencies": {

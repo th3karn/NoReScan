@@ -1,4 +1,4 @@
-import { DependencyType } from '@repomind/shared';
+import { DependencyType } from '@bugbrain/shared';
 
 export interface GraphEdge {
   source: string; // File path or ID that has the dependency
@@ -134,4 +134,21 @@ export class DependencyGraph {
   public getAllNodes(): string[] {
     return Array.from(this.dependencies.keys());
   }
+
+  public getNodes(): string[] {
+    return this.getAllNodes();
+  }
+
+  public getDependencies(nodeId: string): string[] {
+    return this.getDirectDependencies(nodeId);
+  }
+
+  public getDependents(nodeId: string): string[] {
+    return this.getDirectDependents(nodeId);
+  }
+
+  public getBlastRadius(seedNodes: string[], maxDepth = 10): string[] {
+    return Array.from(this.calculateBlastRadius(seedNodes, maxDepth));
+  }
 }
+
