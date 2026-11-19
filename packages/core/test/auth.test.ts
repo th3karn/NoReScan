@@ -93,3 +93,4 @@ describe('AuthManager & Cloud Identity (Phase 2)', () => {
     expect(status.entitlements.plan).toBe('community');
   });
 });
+

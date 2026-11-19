@@ -54,6 +54,10 @@ import { Cartographer, CausalGraphData, BlastRadiusResult } from './cartographer
 import { HybridSyncEngine, SyncResult, SyncPayload } from './sync.js';
 import { NoReScanRestServer, ServerOptions } from './server.js';
 import { AuthManager } from './auth.js';
+import { BillingEngine } from './billing.js';
+import { TeamWorkspaceManager } from './teams.js';
+import { AuditLogger } from './enterprise.js';
+import { ExtensionRegistry } from './marketplace.js';
 
 const execAsync = promisify(exec);
 
@@ -114,6 +118,10 @@ export class NoReScanCore {
   public cartographer: Cartographer;
   public syncEngine?: HybridSyncEngine;
   public auth: AuthManager;
+  public billing: BillingEngine;
+  public teams: TeamWorkspaceManager;
+  public audit: AuditLogger;
+  public marketplace: ExtensionRegistry;
   private restServer?: NoReScanRestServer;
 
   constructor(projectRoot: string) {
@@ -126,6 +134,10 @@ export class NoReScanCore {
     this.commandRunner = new SafeCommandRunner();
     this.cartographer = new Cartographer(this.graph);
     this.auth = new AuthManager();
+    this.billing = new BillingEngine();
+    this.teams = new TeamWorkspaceManager();
+    this.audit = new AuditLogger();
+    this.marketplace = new ExtensionRegistry();
   }
 
   /**

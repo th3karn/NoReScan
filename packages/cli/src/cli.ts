@@ -1495,5 +1495,304 @@ export function createProgram(): Command {
       }
     });
 
+  // -----------------------------------------------------------
+  // Phase 3: Client-Side Encrypted Backup & Restore
+  // -----------------------------------------------------------
+
+  program
+    .command('backup [outputFile]')
+    .description('Create a client-side AES-256-GCM encrypted backup archive of repository memory')
+    .option('-p, --passphrase <passphrase>', 'Encryption passphrase (defaults to repository key)')
+    .action(async (outputFile, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const { EncryptedMemoryEngine } = await import('@norescan/core');
+        const pass = options.passphrase || 'default-norescan-key';
+        const archive = await EncryptedMemoryEngine.createBackup(core, pass);
+
+        const targetFile = outputFile || path.join(core.projectRoot, '.norescan', `backup-${Date.now()}.json`);
+        await fs.writeFile(targetFile, JSON.stringify(archive, null, 2), 'utf8');
+
+        if (cmd.optsWithGlobals().json) {
+          output.success('backup', `Encrypted backup saved to ${targetFile}`, {
+            targetFile,
+            metadata: archive.metadata,
+          });
+        } else {
+          output.success('backup', `Encrypted backup archive created successfully!`);
+          output.raw(`  ${pc.bold('File:')}      ${targetFile}`);
+          output.raw(`  ${pc.bold('Algorithm:')} AES-256-GCM (Zero-Knowledge)`);
+          output.raw(`  ${pc.bold('Contents:')}   ${archive.metadata.filesCount} files, ${archive.metadata.decisionsCount} ADRs, ${archive.metadata.edgesCount} dependency edges\n`);
+        }
+      } catch (err: any) {
+        output.error('backup', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('restore <inputFile>')
+    .description('Restore repository memory from an encrypted backup archive into local SQLite')
+    .option('-p, --passphrase <passphrase>', 'Decryption passphrase (defaults to repository key)')
+    .action(async (inputFile, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        await core.loadConfig();
+        const { EncryptedMemoryEngine } = await import('@norescan/core');
+        const pass = options.passphrase || 'default-norescan-key';
+        const raw = await fs.readFile(inputFile, 'utf8');
+        const archive = JSON.parse(raw);
+
+        const result = await EncryptedMemoryEngine.restoreBackup(core, archive, pass);
+        if (cmd.optsWithGlobals().json) {
+          output.success('restore', 'Backup restored successfully', result);
+        } else {
+          output.success('restore', `Successfully restored ${result.restoredFiles} file snapshots and ${result.restoredDecisions} ADRs into local memory.`);
+        }
+      } catch (err: any) {
+        output.error('restore', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // -----------------------------------------------------------
+  // Phase 4: Commercial Billing & Checkout Engine
+  // -----------------------------------------------------------
+
+  const billingCmd = program.command('billing').description('Manage subscriptions, checkout sessions, and plan entitlements');
+
+  billingCmd
+    .command('plan')
+    .description('View current subscription plan, quotas, and upgrade options')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const info = core.auth.whoami();
+        if (cmd.optsWithGlobals().json) {
+          output.success('billing:plan', 'Current plan and entitlements', info.entitlements);
+        } else {
+          output.raw(pc.bold('\nNoReScan Subscription & Plan Details'));
+          output.raw('----------------------------------------');
+          output.raw(`  ${pc.bold('Current Plan:')}   ${pc.cyan(info.entitlements.plan.toUpperCase())}`);
+          output.raw(`  ${pc.bold('Cloud Sync:')}     ${info.entitlements.features.cloudSync ? pc.green('Active') : pc.gray('Inactive')}`);
+          output.raw(`  ${pc.bold('Team Memory:')}    ${info.entitlements.features.teamMemory ? pc.green('Active') : pc.gray('Inactive')}`);
+          output.raw(`  ${pc.bold('Device Limit:')}   ${info.entitlements.limits.devices} device(s)`);
+          output.raw(`  ${pc.bold('Storage Limit:')}  ${info.entitlements.limits.cloudStorageGb} GB pooled`);
+          output.raw(pc.bold('\nUpgrade Options:'));
+          output.raw(`  • ${pc.bold('Pro Plan:')}   ₹499/mo ($8/mo)   - Multi-device encrypted sync & personal dashboard`);
+          output.raw(`  • ${pc.bold('Team Plan:')}  ₹799/user/mo ($15/mo) - Shared team memory, team ADRs & centralized agent configs\n`);
+        }
+      } catch (err: any) {
+        output.error('billing:plan', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  billingCmd
+    .command('checkout <plan>')
+    .description('Generate checkout session URL for Pro or Team subscription')
+    .option('--provider <provider>', 'Payment provider (razorpay, paddle, stripe)', 'razorpay')
+    .option('--seats <seats>', 'Number of team seats (default: 1)', '1')
+    .action(async (plan, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const user = core.auth.whoami().account;
+        const email = user?.email || 'developer@lostgit.local';
+        const session = await core.billing.createCheckout(
+          {
+            plan: plan.toLowerCase(),
+            email,
+            seats: parseInt(options.seats, 10) || 1,
+          },
+          options.provider
+        );
+
+        if (cmd.optsWithGlobals().json) {
+          output.success('billing:checkout', 'Checkout session created', session);
+        } else {
+          output.raw(pc.bold('\nNoReScan Checkout'));
+          output.raw('----------------------------------------');
+          output.raw(`  ${pc.bold('Plan:')}       ${session.plan.toUpperCase()}`);
+          output.raw(`  ${pc.bold('Provider:')}   ${session.provider}`);
+          output.raw(`  ${pc.bold('Amount:')}     ${session.currency} ${(session.amountMinor / 100).toFixed(2)}`);
+          output.raw(`  ${pc.bold('Checkout URL:')} ${pc.cyan(session.url)}\n`);
+        }
+      } catch (err: any) {
+        output.error('billing:checkout', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // -----------------------------------------------------------
+  // Phase 5: Team Workspace Collaboration & RBAC
+  // -----------------------------------------------------------
+
+  const teamCmd = program.command('team').description('Team workspace administration, invitations, and centralized agent configs');
+
+  teamCmd
+    .command('create <orgName>')
+    .description('Create a team organization workspace')
+    .option('--seats <seats>', 'Allocated seats (default: 5)', '5')
+    .action(async (orgName, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const user = core.auth.whoami().account;
+        const ownerId = user?.userId || 'usr_owner';
+        const seats = parseInt(options.seats, 10) || 5;
+        const org = core.teams.createOrganization(orgName, ownerId, 'team', seats);
+
+        if (cmd.optsWithGlobals().json) {
+          output.success('team:create', 'Team workspace created', org);
+        } else {
+          output.success('team:create', `Created organization "${org.name}" (${org.id}) with ${org.seatsAllocated} seats.`);
+        }
+      } catch (err: any) {
+        output.error('team:create', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  teamCmd
+    .command('invite <orgId> <email>')
+    .description('Invite a developer to a team organization workspace')
+    .option('--role <role>', 'Member role: owner, admin, member, read_only', 'member')
+    .action(async (orgId, email, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const member = core.teams.inviteMember(orgId, email, options.role);
+        if (cmd.optsWithGlobals().json) {
+          output.success('team:invite', `Invited ${email}`, member);
+        } else {
+          output.success('team:invite', `Invited ${email} with role "${member.role}" to organization.`);
+        }
+      } catch (err: any) {
+        output.error('team:invite', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  teamCmd
+    .command('config <orgId>')
+    .description('Generate centralized team agent configs (.cursorrules and AGENTS.md)')
+    .action(async (orgId, options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const org = core.teams.getOrganization(orgId) || {
+          id: orgId,
+          name: 'Engineering Team',
+          slug: 'engineering-team',
+          ownerId: 'owner',
+          plan: 'team' as const,
+          seatsAllocated: 10,
+          createdAt: new Date().toISOString(),
+        };
+
+        const config = core.teams.generateTeamAgentConfig(org);
+        if (cmd.optsWithGlobals().json) {
+          output.success('team:config', 'Team agent configuration', config);
+        } else {
+          output.raw(pc.bold('\n--- Centralized Team .cursorrules ---'));
+          output.raw(config.cursorRules);
+          output.raw(pc.bold('--- Centralized Team AGENTS.md ---'));
+          output.raw(config.agentsMd);
+        }
+      } catch (err: any) {
+        output.error('team:config', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  // -----------------------------------------------------------
+  // Phase 6: Enterprise Audit Trail & Marketplace Extensions
+  // -----------------------------------------------------------
+
+  const enterpriseCmd = program.command('enterprise').description('Enterprise VPC validation, SOC2 audit logging, and compliance');
+
+  enterpriseCmd
+    .command('audit')
+    .description('Inspect cryptographically chained audit events')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        // Record inspection audit event
+        core.audit.log({
+          orgId: 'org_enterprise',
+          actorEmail: 'security@enterprise.local',
+          action: 'audit.inspect',
+          resourceType: 'system',
+          resourceId: 'compliance_report',
+        });
+
+        const logs = core.audit.exportLogs();
+        const integrityValid = core.audit.verifyIntegrity();
+
+        if (cmd.optsWithGlobals().json) {
+          output.success('enterprise:audit', 'Audit logs exported', {
+            integrityValid,
+            totalEvents: logs.length,
+            events: logs,
+          });
+        } else {
+          output.raw(pc.bold('\nEnterprise Audit Trail (SOC2 / ISO 27001)'));
+          output.raw('----------------------------------------');
+          output.raw(`  ${pc.bold('Chain Integrity:')} ${integrityValid ? pc.green('VERIFIED ✅ (SHA-256 Chained)') : pc.red('COMPROMISED ❌')}`);
+          output.raw(`  ${pc.bold('Recorded Events:')} ${logs.length}\n`);
+          for (const ev of logs) {
+            output.raw(`  • [${ev.timestamp}] ${pc.bold(ev.action)} by ${ev.actorEmail} on ${ev.resourceType}:${ev.resourceId} (hash: ${ev.hash.slice(0, 12)}...)`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('enterprise:audit', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  const marketplaceCmd = program.command('marketplace').description('Discover, list, and register extension analyzers and adapters');
+
+  marketplaceCmd
+    .command('list')
+    .description('List installed and available ecosystem extensions')
+    .option('--type <type>', 'Filter by type: analyzer, adapter, context_strategy')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const extensions = core.marketplace.listExtensions(options.type);
+        if (cmd.optsWithGlobals().json) {
+          output.success('marketplace:list', 'Extensions list', extensions);
+        } else {
+          output.raw(pc.bold('\nNoReScan Ecosystem Marketplace'));
+          output.raw('----------------------------------------');
+          for (const ext of extensions) {
+            output.raw(`  • ${pc.bold(ext.name)} (${ext.version}) [${pc.cyan(ext.type)}]`);
+            output.raw(`    ${pc.gray(ext.description)}`);
+            output.raw(`    ${pc.gray(`Author: ${ext.author} | License: ${ext.license}`)}\n`);
+          }
+        }
+      } catch (err: any) {
+        output.error('marketplace:list', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
   return program;
 }

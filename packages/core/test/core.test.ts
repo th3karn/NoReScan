@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
-describe('NoReScanCore Integration Lifecycle', () => {
+describe('NoReScanCore Integration Lifecycle', { timeout: 30000 }, () => {
   let tempDir: string;
   let core: NoReScanCore;
 

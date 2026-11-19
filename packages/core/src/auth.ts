@@ -435,3 +435,4 @@ export class AuthManager {
     return this.cloudClient.listDevices(account.token, this.deviceId, this.deviceName);
   }
 }
+

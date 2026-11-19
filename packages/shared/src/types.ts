@@ -205,3 +205,115 @@ export interface DeviceRegistration {
   lastSeenAt: string;
   revokedAt?: string;
 }
+
+// -------------------------------------------------------------
+// Phase 3: Encrypted Sync & Backup Types
+// -------------------------------------------------------------
+
+export interface EncryptedPayload {
+  version: 1;
+  algorithm: 'aes-256-gcm';
+  iv: string; // hex
+  authTag: string; // hex
+  ciphertext: string; // base64
+  salt: string; // hex
+  createdAt: string;
+}
+
+export interface BackupArchive {
+  projectId: string;
+  projectName: string;
+  createdAt: string;
+  encryptedData: EncryptedPayload;
+  metadata: {
+    filesCount: number;
+    decisionsCount: number;
+    edgesCount: number;
+  };
+}
+
+// -------------------------------------------------------------
+// Phase 4: Billing & Provider Abstraction Types
+// -------------------------------------------------------------
+
+export type BillingProviderName = 'razorpay' | 'paddle' | 'stripe';
+
+export type SubscriptionStatus =
+  | 'pending'
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'paused'
+  | 'canceled'
+  | 'expired';
+
+export interface CheckoutSession {
+  id: string;
+  url: string;
+  provider: BillingProviderName;
+  plan: PlanTier;
+  amountMinor: number;
+  currency: 'INR' | 'USD';
+  expiresAt: string;
+}
+
+export interface VerifiedWebhookEvent {
+  id: string;
+  provider: BillingProviderName;
+  eventType: string;
+  subscriptionId?: string;
+  status?: SubscriptionStatus;
+  customerId?: string;
+  payload: Record<string, unknown>;
+}
+
+// -------------------------------------------------------------
+// Phase 5: Team & Agency Workspace Collaboration Types
+// -------------------------------------------------------------
+
+export type OrgRole = 'owner' | 'admin' | 'member' | 'read_only';
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  ownerId: string;
+  plan: PlanTier;
+  seatsAllocated: number;
+  createdAt: string;
+}
+
+export interface OrganizationMember {
+  orgId: string;
+  userId: string;
+  email: string;
+  role: OrgRole;
+  status: 'active' | 'invited' | 'suspended';
+  joinedAt: string;
+}
+
+// -------------------------------------------------------------
+// Phase 6: Enterprise Audit & Marketplace Extension Types
+// -------------------------------------------------------------
+
+export interface AuditEvent {
+  id: string;
+  orgId: string;
+  actorEmail: string;
+  action: string;
+  resourceType: string;
+  resourceId: string;
+  metadata?: Record<string, unknown>;
+  timestamp: string;
+  hash: string;
+}
+
+export interface ExtensionManifest {
+  name: string;
+  version: string;
+  description: string;
+  type: 'analyzer' | 'adapter' | 'context_strategy';
+  author: string;
+  license: string;
+  entrypoint?: string;
+}

@@ -241,4 +241,66 @@ describe('norescan CLI Commands', () => {
     expect(whoamiAfter.data.loggedIn).toBe(false);
     expect(whoamiAfter.data.entitlements.plan).toBe('community');
   });
+
+  it('runs Phases 3 to 6 CLI commands (backup, billing, team, enterprise, marketplace)', async () => {
+    // 1. Initialize repo
+    let prog = createProgram();
+    await prog.parseAsync(['node', 'norescan', '--project', tempDir, '--quiet', 'init']);
+    prog = createProgram();
+    await prog.parseAsync(['node', 'norescan', '--project', tempDir, '--quiet', 'scan']);
+
+    const runJson = async (args: string[]) => {
+      const p = createProgram();
+      const chunks: string[] = [];
+      const origWrite = process.stdout.write;
+      process.stdout.write = (chunk: any) => {
+        chunks.push(chunk.toString());
+        return true;
+      };
+      try {
+        await p.parseAsync(['node', 'norescan', '--project', tempDir, '--json', ...args]);
+      } finally {
+        process.stdout.write = origWrite;
+      }
+      return JSON.parse(chunks.join(''));
+    };
+
+    // Phase 3: Backup and Restore
+    const backupFile = path.join(tempDir, 'backup-test.json');
+    const backupOut = await runJson(['backup', backupFile, '--passphrase', 'test-pass']);
+    expect(backupOut.success).toBe(true);
+    expect(backupOut.data.metadata.filesCount).toBeGreaterThan(0);
+
+    const restoreOut = await runJson(['restore', backupFile, '--passphrase', 'test-pass']);
+    expect(restoreOut.success).toBe(true);
+    expect(restoreOut.data.restoredFiles).toBeGreaterThan(0);
+
+    // Phase 4: Billing
+    const planOut = await runJson(['billing', 'plan']);
+    expect(planOut.success).toBe(true);
+    expect(planOut.data.plan).toBe('community');
+
+    const checkoutOut = await runJson(['billing', 'checkout', 'pro', '--provider', 'razorpay']);
+    expect(checkoutOut.success).toBe(true);
+    expect(checkoutOut.data.amountMinor).toBe(49900);
+
+    // Phase 5: Team
+    const teamOut = await runJson(['team', 'create', 'Agency Corp', '--seats', '5']);
+    expect(teamOut.success).toBe(true);
+    expect(teamOut.data.name).toBe('Agency Corp');
+
+    const configOut = await runJson(['team', 'config', teamOut.data.id]);
+    expect(configOut.success).toBe(true);
+    expect(configOut.data.cursorRules).toContain(teamOut.data.id);
+    expect(configOut.data.cursorRules).toContain('norescan remember');
+
+    // Phase 6: Enterprise & Marketplace
+    const auditOut = await runJson(['enterprise', 'audit']);
+    expect(auditOut.success).toBe(true);
+    expect(auditOut.data.integrityValid).toBe(true);
+
+    const mktOut = await runJson(['marketplace', 'list']);
+    expect(mktOut.success).toBe(true);
+    expect(mktOut.data.length).toBeGreaterThanOrEqual(4);
+  });
 });
