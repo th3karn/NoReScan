@@ -64,7 +64,8 @@ describe('norescan MCP Server Protocol Tests', () => {
     expect(toolNames).toContain('remember_file');
     expect(toolNames).toContain('inspect_file_memory');
     expect(toolNames).toContain('diagnose_and_fix');
-    expect(toolNames.length).toBe(27);
+    expect(toolNames).toContain('get_cloud_status');
+    expect(toolNames.length).toBe(28);
 
     // Test ListResources
     const resourcesHandler = (server as any)._requestHandlers.get(ListResourcesRequestSchema.shape.method.value);
@@ -157,5 +158,16 @@ describe('norescan MCP Server Protocol Tests', () => {
     const parsedDecisions = JSON.parse(readResult.contents[0].text);
     expect(parsedDecisions).toHaveLength(1);
     expect(parsedDecisions[0].title).toBe('Use Argon2 for password hashing');
+
+    // Test get_cloud_status
+    const cloudStatusResult = await callHandler({
+      method: 'tools/call',
+      params: {
+        name: 'get_cloud_status',
+        arguments: {},
+      },
+    });
+    const cloudStatus = JSON.parse(cloudStatusResult.content[0].text);
+    expect(cloudStatus.entitlements.plan).toBe('community');
   });
 });

@@ -151,3 +151,57 @@ export interface CliResponse<T = unknown> {
     recoverable: boolean;
   };
 }
+
+// -------------------------------------------------------------
+// Cloud Identity, Entitlements & Device Types (Phase 2)
+// -------------------------------------------------------------
+
+export type PlanTier = 'community' | 'pro' | 'team' | 'enterprise';
+
+export interface PlanEntitlements {
+  plan: PlanTier;
+  features: {
+    cloudSync: boolean;
+    cloudBackup: boolean;
+    teamMemory: boolean;
+    teamAnalytics: boolean;
+    auditLogs: boolean;
+    sso: boolean;
+    selfHosted: boolean;
+  };
+  limits: {
+    devices: number;
+    cloudStorageGb: number;
+    syncedProjects: number;
+    seats?: number;
+  };
+  expiresAt?: string;
+  signature?: string;
+}
+
+export interface UserAccount {
+  userId: string;
+  email: string;
+  name?: string;
+  token: string;
+  refreshToken?: string;
+  deviceId: string;
+  deviceName: string;
+  plan: PlanTier;
+  entitlements?: PlanEntitlements;
+  lastLoginAt: string;
+}
+
+export interface UserCredentialsFile {
+  version: 1;
+  activeAccount?: string;
+  accounts: Record<string, UserAccount>;
+}
+
+export interface DeviceRegistration {
+  deviceId: string;
+  name: string;
+  platform: string;
+  lastSeenAt: string;
+  revokedAt?: string;
+}

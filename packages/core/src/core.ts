@@ -53,6 +53,7 @@ import { migrateLegacy } from './migration.js';
 import { Cartographer, CausalGraphData, BlastRadiusResult } from './cartographer.js';
 import { HybridSyncEngine, SyncResult, SyncPayload } from './sync.js';
 import { NoReScanRestServer, ServerOptions } from './server.js';
+import { AuthManager } from './auth.js';
 
 const execAsync = promisify(exec);
 
@@ -112,6 +113,7 @@ export class NoReScanCore {
   public commandRunner: SafeCommandRunner;
   public cartographer: Cartographer;
   public syncEngine?: HybridSyncEngine;
+  public auth: AuthManager;
   private restServer?: NoReScanRestServer;
 
   constructor(projectRoot: string) {
@@ -123,6 +125,7 @@ export class NoReScanCore {
     this.environmentDetector = new EnvironmentDetector();
     this.commandRunner = new SafeCommandRunner();
     this.cartographer = new Cartographer(this.graph);
+    this.auth = new AuthManager();
   }
 
   /**

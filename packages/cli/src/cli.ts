@@ -1369,5 +1369,131 @@ export function createProgram(): Command {
       }
     });
 
+  // -----------------------------------------------------------
+  // Cloud Identity & Device Pairing (Phase 2)
+  // -----------------------------------------------------------
+
+  program
+    .command('login')
+    .description('Authenticate with NoReScan Cloud and link this device')
+    .option('--token <token>', 'API access token or JWT')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        if (!options.token) {
+          output.raw(pc.bold('\nNoReScan Cloud Authentication'));
+          output.raw('----------------------------------------');
+          output.raw('To link this machine to your NoReScan Cloud account:');
+          output.raw(pc.cyan('1. Generate an API token at https://app.norescan.dev/settings/tokens'));
+          output.raw(pc.cyan('2. Run: norescan login --token <your-token>\n'));
+          output.raw(pc.gray('Tip: In test mode, you can test with --token test-pro-<name> or test-team-<name>'));
+          return;
+        }
+
+        const user = await core.auth.loginWithToken(options.token);
+        if (cmd.optsWithGlobals().json) {
+          output.success('login', `Logged in as ${user.email}`, user);
+        } else {
+          output.raw('');
+          output.success('login', `Successfully authenticated with NoReScan Cloud!`);
+          output.raw(`  ${pc.bold('Email:')}     ${user.email}`);
+          output.raw(`  ${pc.bold('User ID:')}   ${user.userId}`);
+          output.raw(`  ${pc.bold('Plan:')}      ${pc.green(user.plan.toUpperCase())}`);
+          output.raw(`  ${pc.bold('Device:')}    ${user.deviceName}`);
+          output.raw(`  ${pc.bold('Device ID:')} ${user.deviceId}`);
+          if (user.entitlements) {
+            output.raw(`  ${pc.bold('Limits:')}    ${user.entitlements.limits.devices} device(s), ${user.entitlements.limits.cloudStorageGb} GB storage\n`);
+          }
+        }
+      } catch (err: any) {
+        output.error('login', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('logout')
+    .description('Log out of NoReScan Cloud and remove local credentials')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const loggedOut = core.auth.logout();
+        if (loggedOut) {
+          output.success('logout', 'Successfully logged out. Operating in local-first Community mode (Free).', { loggedOut: true });
+        } else {
+          output.raw(pc.yellow('Not currently logged in. Operating in local-first Community mode (Free).'));
+        }
+      } catch (err: any) {
+        output.error('logout', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('whoami')
+    .description('Display current authentication status, active plan, and cloud entitlements')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const info = core.auth.whoami();
+        if (cmd.optsWithGlobals().json) {
+          output.success('whoami', 'Authentication status', info);
+        } else {
+          output.raw(pc.bold('\nNoReScan Identity & Cloud Status'));
+          output.raw('----------------------------------------');
+          if (info.loggedIn && info.account) {
+            output.raw(`  ${pc.bold('Status:')}      ${pc.green('Logged In')}`);
+            output.raw(`  ${pc.bold('Email:')}       ${info.account.email}`);
+            output.raw(`  ${pc.bold('User ID:')}     ${info.account.userId}`);
+            output.raw(`  ${pc.bold('Plan:')}        ${pc.cyan(info.entitlements.plan.toUpperCase())}`);
+            output.raw(`  ${pc.bold('Device:')}      ${info.deviceName}`);
+            output.raw(`  ${pc.bold('Device ID:')}   ${info.deviceId}`);
+            output.raw(`  ${pc.bold('Cloud Sync:')}  ${info.entitlements.features.cloudSync ? pc.green('Enabled') : pc.gray('Disabled')}`);
+            output.raw(`  ${pc.bold('Team Memory:')} ${info.entitlements.features.teamMemory ? pc.green('Enabled') : pc.gray('Disabled')}`);
+            output.raw(`  ${pc.bold('Storage:')}     ${info.entitlements.limits.cloudStorageGb} GB pooled\n`);
+          } else {
+            output.raw(`  ${pc.bold('Status:')}      ${pc.yellow('Not Logged In')}`);
+            output.raw(`  ${pc.bold('Mode:')}        Local-first Community Engine (${pc.green('Free Forever')})`);
+            output.raw(`  ${pc.bold('Device ID:')}   ${info.deviceId}`);
+            output.raw(`  ${pc.bold('Cloud Sync:')}  Disabled (run ${pc.cyan('norescan login')} to enable multi-device sync)\n`);
+          }
+        }
+      } catch (err: any) {
+        output.error('whoami', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
+  program
+    .command('devices')
+    .description('List registered devices linked to this account')
+    .action(async (options, cmd) => {
+      const { core, output } = getCore(cmd);
+      try {
+        const devices = await core.auth.listDevices();
+        if (cmd.optsWithGlobals().json) {
+          output.success('devices', 'Registered devices', devices);
+        } else {
+          output.raw(pc.bold('\nRegistered Devices'));
+          output.raw('----------------------------------------');
+          for (const d of devices) {
+            output.raw(`  • ${pc.bold(d.name)} [${pc.gray(d.platform)}] - ID: ${pc.cyan(d.deviceId)}`);
+          }
+          output.raw('');
+        }
+      } catch (err: any) {
+        output.error('devices', err.message, err);
+        process.exitCode = 1;
+      } finally {
+        core.close();
+      }
+    });
+
   return program;
 }

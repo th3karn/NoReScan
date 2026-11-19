@@ -190,4 +190,55 @@ describe('norescan CLI Commands', () => {
     expect(syncOut.success).toBe(true);
     expect(syncOut.data.deviceId).toBeDefined();
   });
+
+  it('runs whoami, login, devices, and logout commands', async () => {
+    const runJson = async (args: string[]) => {
+      const prog = createProgram();
+      const chunks: string[] = [];
+      const origWrite = process.stdout.write;
+      process.stdout.write = (chunk: any) => {
+        chunks.push(chunk.toString());
+        return true;
+      };
+      try {
+        await prog.parseAsync(['node', 'norescan', '--project', tempDir, '--json', ...args]);
+      } finally {
+        process.stdout.write = origWrite;
+      }
+      return JSON.parse(chunks.join(''));
+    };
+
+    // 1. Initial whoami (logged out)
+    const whoamiInit = await runJson(['whoami']);
+    expect(whoamiInit.success).toBe(true);
+    expect(whoamiInit.data.loggedIn).toBe(false);
+    expect(whoamiInit.data.entitlements.plan).toBe('community');
+
+    // 2. Login with Pro token
+    const loginOut = await runJson(['login', '--token', 'test-pro-tester']);
+    expect(loginOut.success).toBe(true);
+    expect(loginOut.data.email).toBe('tester@example.com');
+    expect(loginOut.data.plan).toBe('pro');
+
+    // 3. Whoami when logged in
+    const whoamiLoggedIn = await runJson(['whoami']);
+    expect(whoamiLoggedIn.success).toBe(true);
+    expect(whoamiLoggedIn.data.loggedIn).toBe(true);
+    expect(whoamiLoggedIn.data.account.email).toBe('tester@example.com');
+    expect(whoamiLoggedIn.data.entitlements.plan).toBe('pro');
+
+    // 4. Devices listing
+    const devicesOut = await runJson(['devices']);
+    expect(devicesOut.success).toBe(true);
+    expect(devicesOut.data.length).toBeGreaterThan(0);
+
+    // 5. Logout
+    const logoutOut = await runJson(['logout']);
+    expect(logoutOut.success).toBe(true);
+
+    // 6. Whoami after logout
+    const whoamiAfter = await runJson(['whoami']);
+    expect(whoamiAfter.data.loggedIn).toBe(false);
+    expect(whoamiAfter.data.entitlements.plan).toBe('community');
+  });
 });

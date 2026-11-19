@@ -265,6 +265,11 @@ export function createMcpServer(core: NoReScanCore): Server {
             },
           },
         },
+        {
+          name: 'get_cloud_status',
+          description: 'Retrieve NoReScan Cloud authentication state, active plan (Community, Pro, Team, Enterprise), and entitlements',
+          inputSchema: { type: 'object', properties: {} },
+        },
       ],
     };
   });
@@ -574,6 +579,13 @@ export function createMcpServer(core: NoReScanCore): Server {
           const result = await runner.runAndFix(testCmd, autoFix);
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
+
+        case 'get_cloud_status': {
+          const whoami = core.auth.whoami();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(whoami, null, 2) }],
           };
         }
 
